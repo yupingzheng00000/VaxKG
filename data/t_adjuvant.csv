@@ -1,0 +1,572 @@
+"c_adjuvant_id","c_adjuvant_vo_id","c_adjuvant_label","c_adjuvant_description","c_vaccine_id","c_pathogen_id","c_curation_flag"
+3,VO_0000142,Incomplete Freund's Adjuvant,Incomplete Freund's Adjuvant,446,8,10
+2,VO_0000192,test,test2,211,8,11
+4,VO_0000128,"","",774,109,10
+5,VO_0000128,"","",772,109,10
+6,VO_0000128,Aluminum phosphate,"DAPTACEL is a vaccine indicated for active immunization against diphtheria, tetanus and pertussis as a five-dose series in infants and children 6 weeks through 6 years of age.",775,109,10
+7,VO_0000127,Aluminum Hydroxide,"",776,109,10
+8,VO_0001241,Alhydrogel,"4.0 ml Alhydrogel [Ref1017:Novotny et al., 1991].",805,109,10
+9,VO_0000127,Aluminum Hydroxide,"",764,109,10
+10,VO_0000127,Aluminum hydroxide,"",767,109,10
+11,VO_0000127,Aluminum hydroxide,"",762,109,10
+12,VO_0000128,Aluminum phosphate,"",766,109,10
+13,VO_0000128,Aluminum phosphate,"",778,109,10
+14,VO_0000128,Aluminum phosphate,"",763,109,10
+15,VO_0000127,Aluminum hydroxide,"",763,109,10
+16,VO_0000128,Aluminum phosphate,"",1115,47,10
+17,VO_0000139,complete Freund's adjuvant,"",298,8,10
+18,VO_0000128,Aluminium phosphate vaccine adjuvant,"",761,109,10
+19,VO_0000127,Aluminum hydroxide,"",801,109,10
+20,VO_0000128,Aluminum phosphate vaccine adjuvant,"",765,109,10
+21,VO_0000128,Aluminum phosphate vaccine adjuvant,"",770,109,10
+22,VO_0000128,Aluminum phosphate vaccine adjuvant,"",554,62,10
+23,VO_0000127,"","aluminium hydroxide [Ref522:Sirima et al., 2007]. In another phase I clinical trial study using MSP3-LSP, two adjuvants were used, including Montanide ISA 720 and aluminum hydroxide [Ref524:Audran et al., 2005]. However, it showed that it was unacceptably reactogenic when it was combined with Montanide [Ref524:Audran et al., 2005].",207,30,10
+24,VO_0000127,Aluminum hydroxide,"Alum (aluminum hydroxide gel) adjuvant was used initially. Eurocine L3 suspension adjuvant was prepared using 1:1 ratio solid monooleate and oleic acid, Tris buffer with pH adjustment including NaOH, and subsequent sonification. Eurocine L3 emulsion was prepared using 1:1 ratio solid monooleate and oleic acid which were liquified prior to addition of soy bean oil (Hamasur et al., 2003).",223,29,10
+25,VO_0000193,Aluminum hydroxide,"aluminium hydroxide (Sirima et al., 2007). In another phase I clinical trial study using MSP3-LSP, two adjuvants were used, including Montanide ISA 720 and aluminum hydroxide (Audran et al., 2005). However, it showed that it was unacceptably reactogenic when it was combined with Montanide (Audran et al., 2005).",207,30,0
+26,VO_0000127,Aluminum Hydroxide,"PedvaxHIB is a highly purified capsular polysaccharide (polyribosylribitol phosphate or PRP) of Haemophilus influenzae type b (Haemophilus b, Ross strain) that is covalently bound to an outer membrane protein complex (OMPC) of the B11 strain of Neisseria meningitidis serogroup B. The covalent bonding of the PRP to the OMPC which is necessary for enhanced immunogenicity of the PRP is confirmed by quantitative analysis of the conjugateâ€™s components following chemical treatment which yields a unique amino acid",161,31,10
+27,VO_0000127,Aluminum Hydroxide,"",1054,114,10
+28,VO_0000127,Aluminum Hydroxide,"",323,49,10
+29,VO_0000127,Aluminum Hydroxide,"INFANRIX is indicated for active immunization against diphtheria, tetanus, and pertussis (whooping cough) as a 5-dose series in infants and children 6 weeks to 7 years of age. INFANRIX should not be administered to any infant before the age of 6 weeks, or to individuals 7 years of age or older [Ref780:FDA: INFANRIX].",355,62,10
+30,VO_0000193,Aluminum Hydroxide,"A recombinant protein comprised of the C terminus of Phl p 12 at its N terminus and the Phl p 12 N terminus at its C terminus, Phl p 12-rs, was expressed in Escherichia coli and purified (Westritschnig et al., 2007",1054,114,0
+31,VO_0000127,Aluminum Hydroxide,"It contains diphtheria and tetanus toxoids, 3 pertussis antigens (inactivated pertussis toxin [PT] and formaldehyde-treated filamentous hemagglutinin [FHA] and pertactin [69 kiloDalton outer membrane protein]), hepatitis B surface antigen, plus poliovirus Type 1 (Mahoney), Type 2 (MEF-1), and Type 3 (Saukett) (FDA: Pediarix).",357,62,10
+32,VO_0000127,Aluminum Hydroxide,"The vaccine contains diphtheria and tetanus toxoids, 3 pertussis antigens (inactivated pertussis toxin [PT] and formaldehyde-treated filamentous hemagglutinin [FHA] and pertactin [69 kiloDalton outer membrane protein]), hepatitis B surface antigen, plus poliovirus Type 1 (Mahoney), Type 2 (MEF-1), and Type 3 (Saukett) (FDA: Pediarix).",364,41,10
+33,VO_0000127,Aluminum Hydroxide,"The vaccine is an noninfectious, sterile combination of diphtheria and tetanus toxoids and 3 pertussis antigens [inactivated pertussis toxin (PT), filamentous hemagglutinin (FHA), and pertactin (69 kiloDalton outer membrane protein)] adsorbed onto aluminum hydroxide (FDA Infanrix).",361,41,10
+34,VO_0000127,Aluminum Hydroxide,"Products: Polysaccharide + killed virus. Other components: Formaldehyde, Polysorbate 80.",644,48,10
+35,VO_0000127,Aluminum Hydroxide,Description: It is a vaccination against invasive disease caused by Haemophilus influenzae type b and against infection caused by all known subtypes of hepatitis B virus in infants 6 weeks to 15 months of age born of HBsAg negative mothers.,368,31,10
+36,VO_0000127,Aluminum Hydroxide,"Currently, a pentavalent botulinum toxoid (PBT) against serotypes A-E is used to immunize specific populations of at-risk individuals. The manufacture of PBT, by the Michigan Department of Public Health (MDPH), took place in stages and over many years. The fermentation, isolation, purification and detoxification steps for each serotype took place in the late 1960s and early 1970s. The monovalent bulks were completed in 1971, and first packaged in 1978. Investigational New Drug (IND) status was granted for the PBT under the CDC's IND 161 (at risk workers) and under the United States Army's Office of Surgeon General IND 3723 (for military deployment). The MDPH product was studied and used as an investigational vaccine from 1979 until the present time. 
+An effort is ongoing on the part of the US Army to obtain Food and Drug Administration (FDA) licensure for the PBT lots PBP003 and PBP004. For licensure of the PBT, FDA required that a pivotal clinical trial be performed to re-evaluate safety and assess immunogenicity of the toxoid,and that a new lot of toxoid be manufactured to demonstrate reproducibility and robustness of the manufacturing process and consistency of the manufactured product. The final report on the pivotal clinical study was expected in June 2000. This study will have evaluated, in a significant number of participants, the protective immunogenicity of all 5 serotype vaccines with respect to their homologous neurotoxins. Results from this pivotal study and the status of a new-generation, recombinant vaccine will be factors in deciding whether to proceed with a new lot of toxoid (Byrne et al., 2000).",75,14,10
+37,VO_0000127,Aluminum Hydroxide,"separate monovalent toxoid vaccine against BoNTF was manufactured for the U.S. Army by Porton Products Limited in cooperation with the United Kingdom Governments Center for Applied Microbiology and Research (CAMR) in 1990 (Byrne et al., 2000).",76,14,10
+38,VO_0000127,Aluminum Hydroxide,"Type C and D toxins provoke botulism in many animal species, including birds. C. botulinum type C organisms have been isolated from the contents of the gastric tract of the carcass and environmental materials such as soil, maggots, food, and/or straw mats. At present, the most widely available vaccine for humans and animals is formalin-inactivated toxoids. Although these are very effective, they are expensive and time-consuming to prepare and are ssomewhat hazardous during detoxification. To solve these problems, a recombinant vaccine has been considered (Arimitsu et al., 2004).",88,14,10
+39,VO_0001241,Aluminum Hydroxide,"",15,7,10
+140,VO_0000142,"","",986,54,10
+141,VO_0000127,"","",741,51,10
+142,VO_0000127,"","",973,53,10
+40,VO_0000128,Aluminum Phosphate,"Products: Proteins. Other components: Formaldehyde, Glutaraldehyde.",632,62,10
+41,VO_0000128,Aluminum Phosphate,"It is a sterile liquid suspension of tetanus and diphtheria toxoids and acellular pertussis components adsorbed onto aluminum phosphate, for intramuscular administration.",774,109,11
+42,VO_0000128,Aluminum Phosphate,"It consists of a Diphtheria and Tetanus Toxoids and Acellular Pertussis Adsorbed and Inactivated Poliovirus (DTaP-IPV) component and an ActHIBÂ® vaccine component. Pentacel vaccine is indicated for active immunization against diphtheria, tetanus, pertussis, poliomyelitis and invasive disease due to Haemophilus influenzae type b (FDA: Pentacel).",765,109,11
+43,VO_0000128,Aluminium Phosphate,"BioPort's Rabies Vaccine is effective for pre- and post-exposure indications, and is administered intramuscularly (not intradermally). However, this vaccine is no longer available for rabies postexposure or pre-exposure prophylaxis, and intradermal pre-exposure prophylaxis is no longer recommended because it is not available in the United States (Manning et al., 2008).",340,56,10
+44,VO_0000127,Aluminium Phosphate,"DAPTACEL is a vaccine indicated for active immunization against diphtheria, tetanus and pertussis as a five dose series in infants and children 6 weeks through 6 years of age.",356,62,10
+45,VO_0000128,Aluminium Phosphate,"It consists of a Diphtheria and Tetanus Toxoids and Acellular Pertussis Adsorbed and Inactivated Poliovirus (DTaP-IPV) component and an ActHIBÂ® vaccine component. Pentacel vaccine is indicated for active immunization against diphtheria, tetanus, pertussis, poliomyelitis and invasive disease due to Haemophilus influenzae type b (FDA: Pentacel).",359,62,10
+46,VO_0000128,Aluminium Phosphate,Is a vaccine indicated for active immunization for the prevention of tetanus and diphtheria in persons 7 years of age and older (Tenivac).,370,62,10
+47,VO_0000128,Aluminium Phosphate,"It is a sterile liquid suspension of tetanus and diphtheria toxoids and acellular pertussis components adsorbed onto aluminum phosphate, for intramuscular administration.",371,62,10
+48,VO_0000128,Aluminium Phosphate,"BOOSTRIX (Tetanus Toxoid, Reduced Diphtheria Toxoid and Acellular Pertussis Vaccine, Adsorbed) is a noninfectious, sterile, vaccine for intramuscular administration. It contains tetanus toxoid, diphtheria toxoid, and pertussis antigens (inactivated pertussis toxin [PT] and formaldehyde-treated filamentous hemagglutinin [FHA] and pertactin). The antigens are the same as those in INFANRIX, but BOOSTRIX is formulated with reduced quantities of these antigens (Boostrix).",372,62,10
+49,VO_0000128,Aluminium Phosphate,"It consists of a Diphtheria and Tetanus Toxoids and Acellular Pertussis Adsorbed and Inactivated Poliovirus (DTaP-IPV) component and an ActHIBÂ® vaccine component. Pentacel vaccine is indicated for active immunization against diphtheria, tetanus, pertussis, poliomyelitis and invasive disease due to Haemophilus influenzae type b. Pentacel vaccine is approved for use in children 6 weeks through 4 years of age (prior to fifth birthday) (FDA: Pentacel).",367,41,10
+50,VO_0000128,Aluminium Phosphate,"It is a sterile liquid suspension of tetanus and diphtheria toxoids and acellular pertussis components adsorbed onto aluminum phosphate, for intramuscular administration.(FDA: Adacel)",383,41,10
+51,VO_0000128,Aluminium Phosphate,TENIVAC is a vaccine indicated for active immunization for the prevention of tetanus and diphtheria in persons 7 years of age and older (FDA: Tenivac).,384,41,10
+52,VO_0000128,Aluminium Phosphate,"BOOSTRIX (Tetanus Toxoid, Reduced Diphtheria Toxoid and Acellular Pertussis Vaccine, Adsorbed) is a noninfectious, sterile, vaccine for intramuscular administration. It contains tetanus toxoid, diphtheria toxoid, and pertussis antigens (inactivated pertussis toxin [PT] and formaldehyde-treated filamentous hemagglutinin [FHA] and pertactin). The antigens are the same as those in INFANRIX, but BOOSTRIX is formulated with reduced quantities of these antigens (FDA Boostrix).",385,41,10
+53,VO_0000128,Aluminium Phosphate,"Products: Proteins. Other components: Formaldehyde, Glutaraldehyde.",633,41,10
+54,VO_0000128,Aluminium Phosphate,"Td ADSORBED is a sterile, cloudy, uniform suspension of tetanus and diphtheria toxoids adsorbed on aluminum phosphate asuspended in isotonic sodium chloride solution for intramuscular injection only.",627,41,10
+55,VO_0000128,Aluminium Phosphate,"Products: Proteins + killed virus. Other components: Bovine albumin Formaldehyde, Glutaraldehyde, Polysorbate 80.",626,55,10
+56,VO_0000193,Aluminium Phosphate,Products: Conjugate.,598,46,10
+57,VO_0000193,Aluminium Phosphate,Tripedia vaccine combines diptheria and tetanus toxoids with purified pertussis antigens. It consists of 3 doses administered at intervals of 4-8 weeks (FDA: Tripedia).,777,109,10
+58,VO_0001240,Aluminium Potassium Sulfate,Tripedia vaccine combines diptheria and tetanus toxoids with purified pertussis antigens. It consists of 3 doses administered at intervals of 4-8 weeks (FDA: Tripedia).,354,62,10
+59,VO_0001240,Aluminum Potassium Sulfate,"It is for intramuscular injection, and is a sterile suspension of alum (aluminum potassium sulfate)-precipitated toxoids in an isotonic sodium chloride solution (Decavac).",369,62,10
+60,VO_0001240,Aluminum Potassium Sulfate,This vaccine is for intramuscular use. It is a sterile suspension of alum-precipitated (aluminum potassium sulfate) toxoid in an isotonic sodium chloride solution (FDA: dttadLB).,362,41,10
+61,VO_0001240,Aluminum Potassium Sulfate,Tripedia vaccine combines diptheria and tetanus toxoids with purified pertussis antigens. It consists of 3 doses administered at intervals of 4-8 weeks(FDA: Tripedia),366,41,10
+62,VO_0000193,Aluminum Potassium Sulfate,"It is for intramuscular injection, and is a sterile suspension of alum (aluminum potassium sulfate)-precipitated toxoids in an isotonic sodium chloride solution (FDA Decavac).",386,41,10
+63,VO_0000193,Aluminum Phosphate Sulfate,"Tetanus Toxoid Adsorbed manufactured by Aventis Pasteur Inc., for intramuscular injection, is a sterile suspension of alum-precipitated (aluminum potassium sulfate) toxoid in an isotonic sodium chloride solution (FDA: Tetanus Toxoid Adsorbed).",313,41,11
+64,VO_0000884,Aluminum Potassium Sulfate,"",91,14,10
+99,VO_0000128,"","",624,41,10
+100,VO_0000128,"","",628,41,10
+101,VO_0001240,"","",631,41,10
+102,VO_0000128,"","",313,41,10
+65,VO_0000143,"","",1091,140,10
+66,VO_0001237,"","",1118,12,10
+67,VO_0001237,"",test2,211,8,11
+68,VO_0001241,"","Domain 4 contains the dominant protective epitopes of PA and comprises amino acids 596-735 of the carboxy terminus of the PA polypeptide. Cell intoxication is thought to occur when full-length PA (PA83) binds to the cell surface receptor via domain 4, which contains the host cell receptor binding site. After binding to the host cell receptor, the N-terminal amino acids (1-167, i.e. domain 1a) of domain 1, which contains a furin protease cleavage site, are cleaved off, exposing the LF or EF binding site located in domain 1b and the adjacent domain 3. Domains 2 and 3 then form part of a heptameric pore on the cell surface, the LF or EF binds to its receptor, and the whole toxin complex undergoes receptor-mediated endocytosis into the cell. After acidification of the endosome, the toxin is translocates into the cell cytosol, where it exerts its cytotoxic effect. Therefore, inhibition of the binding and entry of the toxin complex, particularly lethal toxin, into the host cell is clearly important for the prevention of infection. The crystal structure of PA shows domain 4 to be more exposed than the other three domains, which are closely associated with each other. This structural arrangement may make the epitopes in domain 4 the most prominent for recognition by immune effector cells (Flick-Smith et al., 2002).",20,7,10
+69,VO_0001241,"","Botulinum neurotoxins (BoNT) are a group of seven (Aâ€“G) antigenically distinct proteins produced by Clostridium botulinum, a gram-positive, spore-forming, obligate anaerobic bacillus found in soil and marine sediments from all parts of the world. BoNTs inhibit the release of acetylcholine (ACH) at the synapse of motor neurons, which initially causes muscle weakness, progressing to flaccid paralysis, subsequent ventilatory failure, and death. This can happen at very low concentrations of BoNT (10âˆ’9 g/kg), making the toxin one of the most potent poisons known.The most common exposures to BoNT are food-borne, infant, and wound botulism. The likely mode of delivery of BoNT in bio-warfare or terrorist scenarios is through aerosol delivery. Toxicity from BoNT can be lethal without early detection and intensive supportive therapy. Trivalent equine-based antitoxins (A, B, and E) are available and are used clinically to neutralize and clear BoNT from the circulatory system. A number of different products have been proposed as candidate vaccines against BoNT. For BoNT to express its deleterious effects, sequential mechanistic events are carried out by three discrete structural domains of the protein. The BoNT exert toxicity only after they bind specifically to a neuron receptor at the neuromuscular junction. This receptor-toxin complex is then internalized within a vesicle followed by translocation of a portion of the toxin into the neuronal cytosol. This part of the molecule is responsible for the inherent toxicity that arises from its endoprotease activity on neurovesicle transport proteins. Once enzymatically inactivated by the toxin, these ""SNARE"" proteins cannot facilitate ACH-containing neurovesicles docking to the plasma membrane at the neuromuscular junction. This inhibits the vesicle from expelling its contents (ACH) into the synaptic space. The different toxin events are brought about by distinct protein domains of the holotoxin that are nearly equal in mass, which have been structurally and functionally defined. The holotoxin, approximately 150 kDa, consists of a heavy chain (approximately 100 kDa) that extends from the carboxy terminus to a disulfide bridge where the light chain (approximately 50 kDa) is attached. The receptor-binding domain is found in the carboxy portion of the heavy chain known as the C fragment or HC region. The remaining fragment of the heavy chain is known as the HN and, with the carboxy terminus of the light chain, spans the disulfide bridge to comprise the translocation domain, which facilitates light-chain entry into the neuronal cytoplasm. The light chain contains the zinc-dependent endoprotease domain responsible for inactivating docking proteins, inhibiting exocytosis, and the inherent toxicity of BoNT. Because BoNT toxicity is neuro-specific and enzymatic, while substrate is limited, relatively few molecules of BoNT are necessary to inhibit neurovesicle docking and expulsion. A number of regions of the BoNT have been investigated and cloned for potential use as immunogens for recombinant vaccine candidates A and B serotypes. The C fragment of BoNT was a logical choice for a vaccine candidate based on its native function, immunogenicity, and lack of observed signs of toxicity (Boles et al., 2006).",78,14,10
+70,VO_0001241,"","Previous research achieved protection in a murine model using purified FHc which had been obtained from cultures of recombinant Escherichia coli and recombinant Pichia pastoris. FHc has also been expressed in a Salmonella vector and achieved protection against intoxication in a murine model. Therefore, BoNT F could constitute a good candidate for DNA vaccination, and the given study constructed a DNA vaccine based on the Hc domain of BoNT subtype F in order to investigate the utility of DNA vaccination for protection against intoxication with this subtype (Bennett et al., 2003).",108,14,10
+71,VO_0001241,"","Current killed whole cell vaccines have been shown to cause a number of transient side effects, require frequent boosting to maintain immunity, and their efficacy against pneumonic infection is questionable. Thus, a new vaccine for plague based on the protective protein sub-units capsular Fraction 1 (Caf1) and LcrV is under development. The Caf1 molecule is a temperature-regulated capsular protein of Y. pestis which is maximally expressed at 37 Â°C and which has a role in resistance of phagocytosis. The LcrV antigen of Y. pestis is a 37 kDa secreted protein that is known to have a role in modulation of host defence mechanisms by down-regulating production of IFN-Î³ and TNF-Î± and and up-regulation of the anti-inflammatory cytokine IL-10. It is also believed to act as a virulence factor with a key role in the Type III secretion system of Y. pestis. Immunisation with recombinant LcrV antigen adsorbed to the adjuvant alhydrogel has been shown to confer protection against virulent challenge by both the sub-cutaneous and airborne routes. The use of the rCaf1 and rLcrV subunits in combination has been shown to have an additive effect on protection in murine models of infection and the two sub-units when formulated with alhydrogel are being taken forward into clinical trials as a vaccine for human use (Elvin et al., 2006)",56,11,10
+72,VO_0001241,"","Immunization with purified recombinant LcrV (rLcrV) is sufficient to generate protective immunity to both bubonic plague and pneumonic plague in mice, guinea pigs, and non-human primates. LcrV injection of animals triggered release of interleukin-10, a cytokine that suppresses innate immune functions. LcrV also prevents the release of proinflammatory cytokines (gamma interferon and tumor necrosis factor ) in murine and human macrophages. Considering the immune modulatory properties of rLcrV, there are concerns regarding the safety of LcrV vaccines in humans. Thus, there is an emphasis upon searching for variants with reduced immune modulatory properties. rV10, a variant lacking amino acids 271 to 300 of LcrV, displayed a significant decrease in its ability to induce interleukin-10 and to suppress tumor necrosis factor or gamma interferon release (DeBord et al., 2006).",54,11,10
+73,VO_0001241,"","This vaccine utilizes a combination of the Fraction 1 antigen (F1) and the V antigen of Y. pestis in an optimum molar ratio. The F1 and V antigens, in recombinant form in this vaccine, are natural virulence factors of Y. pestis. Fraction 1 antigen, the major protein component of the capsule surrounding Y. pestis cells, is expressed only at 37 Â°C and it is believed to have anti-phagocytic activity. High anti-F1 titres have been correlated with survival following plague infection. Recombinant F1 antigen (rF1) has been produced by cloning the caf operon from Y. pestis into Escherichia coli and the protection provided by highly purified native F1 and recombinant F1 against Y. pestis has been demonstrated not to differ. The V antigen of Y. pestis is a secreted protein that is thought to act both as a regulatory protein and as a virulence factor. The V antigen has a key role in the Type III secretion process utilised by Y. pestis to translocate cytotoxic and anti-phagocytic Yersinia outer proteins (Yops) into the host cell. Supporting evidence for this role has been gained and the V antigen has been visualised on the bacterial cell surface (Jones et al., 2003). 
+Both the rF1 and rV proteins, administered in alhydrogel, have been demonstrated to be highly immunogenic and protective against virulent plague in a number of animal models: mice, guinea pigs, and cynomolgus macaques (unpublished data). Further, the combination of rF1 plus rV is additive in the protection conferred on the vaccinee. In the mouse, the combined immunoglobulin G1 (IgG1) titer to rF1 plus rV has been shown to correlate with protection against challenge. Further, protection against plague in the mouse has been demonstrated by the passive transfer of antiserum specific for rF1 plus rV from immunized BALB/c mice into naÃ¯ve SCID/beige mice (Williamson et al., 2005).",50,11,10
+74,VO_0001241,"","Yersinia pestis fraction 1 capsular antigen (F1) is a plasmid (pFra)-encoded, proteinaceous capsule, synthesized in large quantities by the pathogen, and reported to confer antiphagocytic properties on Y. pestis by interfering with complementmediated opsonization. The protein is highly immunogenic and has been indirectly associated with eliciting a protective immune response in humans, as evidenced by the detection of high levels of anti-F1 antibody in F1-immunized volunteers (Andrews et al., 1996).",36,11,10
+75,VO_0000128,"",Products: Proteins + killed virus. Other components: Formaldehyde.,563,62,10
+76,VO_0000127,"","Products: Proteins + conjugate. Other components: Formaldehyde, Lactose.",584,62,10
+77,VO_0000127,"","A single dose of KINRIX is indicated for active immunization against diphtheria, tetanus, pertussis, and poliomyelitis as the fifth dose in the diphtheria, tetanus, and acellular pertussis (DTaP) vaccine series and the fourth dose in the inactivated poliovirus vaccine (IPV) series in children 4 through 6 years of age whose previous DTaP vaccine doses have been with INFANRIX and/or PEDIARIX for the first three doses and INFANRIX for the fourth dose (FDA: KINRIX).",358,62,10
+78,VO_0000128,"","Products: Proteins, killed virus + conjugate. Other components: Bovine serum Formaldehyde, Polysorbate 80.",604,62,10
+79,VO_0000128,"","Description: Products: Proteins + killed virus. Other components: Bovine albumin Formaldehyde, Glutaraldehyde, Polysorbate 80.",623,62,10
+80,VO_0000128,"","Td ADSORBED is a sterile, cloudy, uniform suspension of tetanus and diphtheria toxoids adsorbed on aluminum phosphate asuspended in isotonic sodium chloride solution for intramuscular injection only.",771,62,10
+81,VO_0000128,"","Td POLIO ADSORBED [Tetanus and Diphtheria Toxoids Adsorbed and Inactivated Poliomyelitis Vaccine]
+produced by Sanofi Pasteur Limited, is a sterile, cloudy, white, uniform suspension of tetanus and diphtheria
+toxoids adsorbed on aluminum phosphate and suspended in phosphate buffered saline solution and
+combined with Inactivated Poliomyelitis Vaccine for intramuscular injection only. 
+Products: Proteins + killed virus. Other components: Bovine albumin Formaldehyde, Polysorbate 80.",629,62,10
+82,VO_0001241,"","The botulinum neurotoxins (BoNT) are the causative agents of botulism and represent a family of seven structurally similar but antigenically distinct serotypes (A to G). These toxins exert their action by blocking release of the neurotransmitter acetylcholine at the neuromuscular junction. BoNT are usually expressed in as a single polypeptide chain and then post-translationally nicked, forming a dichain consisting of a 100-kDa heavy chain and a 50-kDa light chain held together by a single disulfide bond. Topologically, these neurotoxins are composed of three domains: binding, translocation, and catalytic, each of which is believed to play a role in intoxication. The carboxy-terminal portion of the heavy chain is responsible for binding nerve cell receptor(s). After toxin binding, it is thought to be internalized into an endosome through receptor-mediated endocytosis. It is believed that the 50-kDa amino-terminal domain of the heavy chain possesses channel-forming capabilities when in the acidic environment of the endosome, allowing internalization of the toxin. The final step in the mechanism involves zinc-dependent proteolysis by the catalytic domain of key cytosolic substrates necessary for neurotransmitter release (Byrne et al., 1998).",74,14,10
+83,VO_0000884,"","Type C and D toxins provoke botulism in many animal species, including birds. C. botulinum type C organisms have been isolated from the contents of the gastric tract of the carcass and environmental materials such as soil, maggots, food, and/or straw mats. At present, the most widely available vaccine for humans and animals is formalin-inactivated toxoids. Although these are very effective, they are expensive and time-consuming to prepare and are ssomewhat hazardous during detoxification. To solve these problems, a recombinant vaccine has been considered (Arimitsu et al., 2004).",88,14,11
+84,VO_0000193,"","Previous research achieved protection in a murine model using purified FHc which had been obtained from cultures of recombinant Escherichia coli and recombinant Pichia pastoris. FHc has also been expressed in a Salmonella vector and achieved protection against intoxication in a murine model. Therefore, BoNT F could constitute a good candidate for DNA vaccination, and the given study constructed a DNA vaccine based on the Hc domain of BoNT subtype F in order to investigate the utility of DNA vaccination for protection against intoxication with this subtype (Bennett et al., 2003).",108,14,0
+85,VO_0000884,"","",82,14,11
+90,VO_0000128,"","",363,41,10
+91,VO_0000128,"","",564,41,10
+92,VO_0000127,"","",593,41,10
+93,VO_0000128,"","",579,41,10
+94,VO_0000127,"","",579,41,10
+95,VO_0000127,"","",589,41,10
+96,VO_0000127,"","",585,41,10
+97,VO_0000127,"","",365,41,10
+98,VO_0000128,"","",605,41,10
+86,VO_0000128,"",Products: Proteins + Conjugate.,555,41,10
+87,VO_0001241,"","Anthrax involves a dual process of bacterial replication and toxin production. The dually active anthrax vaccine (DAAV) confers simultaneous protection against both bacilli and toxins was highly sought after through research. The weakly immunogenic and antiphagocytic PGA capsule disguises the bacilli from immune surveillance in a similar manner to the role of capsular polysaccharides in protecting pathogens, such as pneumococci and meningococci. Encapsulated B. anthracis strains grow unimpeded in the infected host, whereas isolates lacking the capsule are phagocytized and are virtually avirulent. Anthrax toxins are formed by PA, lethal factor (LF), and edema factor (EF), which are secreted separately as nontoxic monomers. The binding of LF or EF to PA results in the formation of active lethal toxin (LT) or edema toxin (ET), respectively. Because of its ability to elicit a protective immune response against both anthrax toxins, PA is the target antigen of existing anthrax vaccine. However, a vaccine based on both PGA and PA might allow direct targeting of bacillar growth, as well as inhibiting toxin activity, making it more effective than a vaccine based on PA alone. PGA is an attractive antigen because it consists of d-glutamic acid residues linked by Î³ peptide bonds, and thus bears no resemblance to mammalian host molecules (Rhie et al., 2003).",24,7,10
+88,VO_0000193,"","There have been many attempts to improve the safety and immunogenicity of the current licensed anthrax vaccine, including the formulation of PA in different adjuvants, the use of recombinant, mutant PA, expression of PA by attenuated salmonellae, and the generation of attenuated B. anthracis strains lacking one or more toxin components. Current studies have examined the possibility of inducing protection against anthrax toxin by immunizing with a DNA vaccine encoding PA. Studies in other model systems indicate that antigen-encoding DNA plasmids can stimulate strong cellular and humoral immune responses against proteins from pathogens (Gu et al., 1999).",23,7,0
+89,VO_0000127,"",Imject Alum no. 77161,789,47,10
+139,VO_0001323,"","",337,54,10
+103,VO_0000127,"","",760,109,10
+104,VO_0001240,"","",353,62,10
+105,VO_0000127,"","",592,62,10
+106,VO_0000127,"","",578,62,10
+107,VO_0000128,"","",578,62,10
+108,VO_0000127,"","",588,62,10
+109,VO_0000128,"","",557,31,10
+110,VO_0000127,"","",596,31,10
+111,VO_0000127,"","",583,31,10
+112,VO_0000128,"","",583,31,10
+113,VO_0000127,"","",587,31,10
+114,VO_0000128,"","",608,31,10
+115,VO_0000128,"","",614,31,10
+116,VO_0000128,"","",565,55,10
+117,VO_0000127,"","",595,55,10
+118,VO_0000127,"","",582,55,10
+119,VO_0000128,"","",582,55,10
+120,VO_0000127,"","",591,55,10
+121,VO_0000128,"","",607,55,10
+122,VO_0000127,"","",611,55,10
+123,VO_0000128,"","",613,55,10
+124,VO_0000128,"","",630,55,10
+125,VO_0000127,"","Adjuvant: aluminum hydroxide combined with CpG oligonucleotides (Giuliani et al., 2006)",438,46,10
+126,VO_0001237,"","aluminum hydroxide combined with CpG oligonucleotides [Ref860:Giuliani et al., 2006].",438,46,10
+127,VO_0000127,"","",600,46,10
+128,VO_0000127,"","",953,46,10
+129,VO_0000142,"","",947,46,10
+130,VO_0000142,"","",948,46,10
+131,VO_0000127,"","",957,46,10
+132,VO_0000127,"","",603,46,10
+133,VO_0000127,"","",559,48,10
+134,VO_0000127,"","",560,48,10
+135,VO_0000127,"","",581,49,10
+136,VO_0000128,"","",581,49,10
+137,VO_0000127,"","",610,49,10
+138,VO_0000127,"","",322,49,10
+143,VO_0000142,"","",917,57,10
+144,VO_0000127,"","",643,42,10
+145,VO_0000128,"","",1115,47,11
+146,VO_0000128,"","",1114,47,10
+147,VO_0000127,"","",742,106,10
+148,VO_0001237,"","",1119,113,10
+149,VO_0000142,"","",1119,113,10
+150,VO_0000139,"","",1073,135,10
+151,VO_0000142,"","",1073,135,10
+152,VO_0000139,"","",1072,135,10
+153,VO_0000142,"","",1072,135,10
+154,VO_0000139,"","",1074,135,10
+155,VO_0000142,"","",1074,135,10
+156,VO_0000139,"","",1075,135,10
+157,VO_0000142,"","",1075,135,10
+158,VO_0000139,"","",1076,135,10
+159,VO_0000142,"","",1076,135,10
+160,VO_0000193,"","The adjuvant used in this vaccine is the outer membrane protein GBOMP (Bhattacharjee et al., 2002).",307,8,11
+161,VO_0001237,"","The adjuvant is a synthetic phosphorothioate oligodeoxynucleotide containing an unmethylated, consensus immunostimulatory CpG motif (5â€²-purine-purine-CpG-pyrimidine-pyrimidine-3â€² oligodeoxynucleotide [CpG ODN]). Specifically, the immunostimulatory CpG 1826 (5â€²-TCCATGACGTTCCTGACGTT-3â€²) was used (Al-Mariri et al., 2001).",198,8,10
+162,VO_0000139,"","Two different adjuvants were used in these vaccines: Complete Freund's Adjuvant (CFA) and Incomplete Freund's Adjuvant (IFA). CFA was administered on day 0 and IFA was administered on day 15 (Delpino et al., 2007).",445,8,10
+163,VO_0000142,"","Two different adjuvants were used in these vaccines: Complete Freund's Adjuvant (CFA) and Incomplete Freund's Adjuvant (IFA). CFA was administered on day 0 and IFA was administered on day 15 (Delpino et al., 2007).",445,8,10
+164,VO_0001250,"","The porin-S-LPS was given without adjuvant or in several adjuvants: trehalose dimycolate and muramyl dipeptide; the pluronic polymer L-121 and muramyl dipeptide; or complexed with Quil A in immunostimulating complexes (Winter et al., 1988).",291,8,10
+165,VO_0000139,"","Two different adjuvants were used in these vaccines: Complete Freund's Adjuvant (CFA) and Incomplete Freund's Adjuvant (IFA). CFA was administered on day 0 and IFA was administered on day 15 (Delpino et al., 2007).",292,8,10
+166,VO_0000142,"","Two different adjuvants were used in these vaccines: Complete Freund's Adjuvant (CFA) and Incomplete Freund's Adjuvant (IFA). CFA was administered on day 0 and IFA was administered on day 15 (Delpino et al., 2007).",292,8,10
+167,VO_0000143,"","Cholera toxin (CT) was used as the adjuvant for this vaccine (Yang et al., 2007).",300,8,10
+168,VO_0001322,"","The heat-labile enterotoxin of Escherichia coli as an oral adjuvant ( OA ) has been used [Ref204:Baqar et al., 1995a]",220,24,10
+169,VO_0000884,"","",1064,99,10
+170,VO_0001147,"","Gerbu Adjuvant and recombinant IL-2 (Wagner et al., 2007).",1051,99,10
+171,VO_0000757,"","ISCOMATRIX adjuvant [Ref1321:Maraskovsky et al., 2004].",1047,99,10
+172,VO_0000127,"","Aluminum hydroxide, VSSP, and CAF01",1066,99,10
+173,VO_0000142,"",Incomplete Freunds Adjuvant (Sigma),865,113,11
+174,VO_0000142,"",Incomplete Freunds Adjuvant (Sigma),861,113,10
+175,VO_0000142,"",Incomplete Freunds Adjuvant (Sigma),859,113,10
+176,VO_0000142,"",Incomplete Freunds Adjuvant (Sigma),857,113,10
+177,VO_0000143,"","",854,113,10
+178,VO_0001237,"","",854,113,10
+179,VO_0000884,"",Either Freund's or Alum adjuvants,885,112,10
+180,VO_0001237,"","",851,132,10
+181,VO_0001237,"","CpG ODN (Integrated DNA Technologies, Inc., Coralville, Iowa) (Delgado et al., 2003).",846,132,10
+182,VO_0000139,"","",242,37,10
+183,VO_0000142,"","",242,37,10
+184,VO_0000139,"",Freund's complete adjuvant (FCA),903,98,10
+185,VO_0000139,"","",907,88,10
+186,VO_0000139,"","",918,131,10
+187,VO_0000142,"","",918,131,10
+188,VO_0000142,"","",915,131,10
+189,VO_0000139,"","",916,131,10
+190,VO_0000142,"","",916,131,10
+191,VO_0000143,"","",924,25,10
+192,VO_0000143,"","",925,25,10
+193,VO_0000143,"","",926,25,10
+194,VO_0000127,"","Formulated in an aluminium hydroxide oil-based adjuvant (Alu-Oil; Intervet International BV, Boxmeer, The Netherlands) (van et al., 2007).",121,25,11
+195,VO_0000139,"","Recombinant protein was emulsified in complete Freund's adjuvant (Sigma) during innoculation, but emulsified in incomplete Freund's adjuvant during boosting (Durant et al., 2007).",128,25,10
+196,VO_0000142,"","Recombinant protein was emulsified in complete Freund's adjuvant (Sigma) during innoculation, but emulsified in incomplete Freund's adjuvant during boosting (Durant et al., 2007).",128,25,10
+197,VO_0000139,"","Recombinant protein was emulsified in complete Freund's adjuvant (Sigma) during innoculation, but emulsified in incomplete Freund's adjuvant during boosting (Durant et al., 2007).",126,25,10
+198,VO_0000142,"","Recombinant protein was emulsified in complete Freund's adjuvant (Sigma) during innoculation, but emulsified in incomplete Freund's adjuvant during boosting (Durant et al., 2007).",126,25,10
+199,VO_0000127,"","Aluminium hydroxide oil-based adjuvant (Alu-Oil; Intervet International BV, Boxmeer, The Netherlands) (van et al., 2007).",122,25,10
+200,VO_0000142,"","Freundâ€™s incomplete adjuvant was used in the making of these vaccines (Bielaszewska et al., 1997).",281,25,10
+201,VO_0000139,"","Recombinant protein was emulsified in complete Freund's adjuvant (Sigma) during innoculation, but emulsified in incomplete Freund's adjuvant during boosting (Durant et al., 2007).",127,25,10
+202,VO_0000142,"","Recombinant protein was emulsified in complete Freund's adjuvant (Sigma) during innoculation, but emulsified in incomplete Freund's adjuvant during boosting (Durant et al., 2007).",127,25,10
+203,VO_0001242,"","cholera toxin B subunit (CTB). However, it was found that CTB did not function as a mucosal adjuvant, since CFA-specific ASC responses were not enhanced by the simultaneous administration of CTB (WennerÃ¥s et al., 1992).",286,25,10
+204,VO_0000139,"","In the event of s.c. immunization, LTB was administered in complete Freund's adjuvant (Moravec et al., 2007).",125,25,10
+205,VO_0001237,"","10 Î¼g of CpG oligodeoxynucleotide (5â€²-TCCATGACGTTCCTGACGTT-3â€²; Operon, Huntsville, AL)",1111,12,10
+206,VO_0001147,"","",928,12,10
+207,VO_0000128,"","",557,31,11
+208,VO_0000127,"","",368,31,11
+209,VO_0000143,"",Mutant cholera toxin CT-E29H,936,31,10
+210,VO_0000127,"","",596,31,0
+211,VO_0000143,"","",194,31,10
+212,VO_0000143,"",CT-E29H (a mutant cholera toxin),170,31,10
+213,VO_0000139,"","",186,31,0
+214,VO_0000142,"","",186,31,0
+215,VO_0000143,"","",187,31,10
+216,VO_0000142,"","",193,31,10
+217,VO_0000143,"","",188,31,10
+218,VO_0000142,"","",195,31,10
+219,VO_0000128,"","",608,31,0
+220,VO_0000559,"","",189,31,10
+221,VO_0000133,"","",954,27,10
+222,VO_0000139,"","",949,27,10
+223,VO_0000142,"","",949,27,10
+224,VO_0000133,"","Dobrava hantavirus nucleocapsid protein in Freund's adjuvant (Klingstrom et al., 2004).",140,27,10
+225,VO_0001241,"","Dob-N rNp was emulsified in 2% Alhydrogel (Accurate Chemical & Scientific Corp., Westbury, N.Y., USA). The rNp P40-Dob-N, P40-Dob118 and P40p-Dob118 were administered in sterile PBS (Maes et al., 2006).",141,27,10
+226,VO_0000139,"","",952,27,10
+227,VO_0000142,"","",952,27,10
+228,VO_0000143,"","",955,134,10
+229,VO_0000142,"","",1099,134,10
+230,VO_0000143,"","5 Î¼g of cholera toxin (Ferrero et al., 1995).",1097,134,10
+231,VO_0000143,"","5 Î¼g of cholera toxin (Ferrero et al., 1995).",1098,134,10
+232,VO_0000127,"","",962,134,10
+233,VO_0001237,"","",963,125,10
+234,VO_0000127,"","",559,48,0
+235,VO_0001242,"","",1007,50,10
+236,VO_0001242,"","",1004,50,10
+237,VO_0001242,"","",1003,50,10
+238,VO_0001241,"","",1026,50,10
+239,VO_0000133,"","",275,8,10
+240,VO_0000133,"","",921,25,10
+241,VO_0000133,"","",933,31,10
+242,VO_0001237,"","",113,8,10
+243,VO_0000133,"","",885,112,10
+244,VO_0000133,"","",923,25,10
+245,VO_0000142,"","",938,31,10
+246,VO_0000139,"","",1110,117,10
+247,VO_0001147,"","rmIL-12 (1 Î¼g/injection) was used as an adjuvant and injected through s.c. route [Ref1167:Bhaumik et al., 2009].",1025,97,10
+248,VO_0000366,"","Cationic distearoyl phosphatidylcholine (DSPC) liposomes [Ref1168:Bhowmick et al., 2008].",1022,97,10
+249,VO_0001262,"","Cationic liposomes [Ref1166:Bhowmick and Ali, 2009].",1031,97,10
+250,VO_0001147,"","recombinant IL-12 [Ref1164:Nagill and Kaur, 2010].",1029,97,10
+251,VO_0001262,"","Cationic liposomes [Ref1166:Bhowmick and Ali, 2009].",1030,97,10
+252,VO_0001147,"","An expression plasmid encoding both p35 and p40 subunits of IL-12 was used as an adjuvant [Ref1169:Tewary et al., 2006].",1017,97,10
+253,VO_0001268,"","Montanideâ„¢ ISA 720 (70% formulation, according to manufacturer's instructions, SEPPIC)",1042,116,10
+254,VO_0001268,"","Montanideâ„¢ ISA 720 (70% formulation, according to manufacturer's instructions, SEPPIC)",1043,116,10
+255,VO_0001250,"","20 Î¼g of MPLÂ®-SE (GlaxoSmithKline Biologicals, Rixensant, Belgium) [Ref1339:Goto et al., 2007].",1108,116,10
+256,VO_0000142,"","",1011,115,10
+257,VO_0001237,"","",1009,115,10
+258,VO_0001238,"","",246,28,10
+259,VO_0000127,"","",973,53,11
+260,VO_0001250,"","1 25 Î¼g amount of monoposphoryl lipid A (MPL) adjuvant was added to 250Î¼g dimethyl dioctadecylammonium bromide (DDA) emulsifier per 0.01-50Î¼g of vaccine.",171,29,10
+261,VO_0000127,"","Alum (aluminum hydroxide gel) adjuvant was used initially. Eurocine L3 suspension adjuvant was prepared using 1:1 ratio solid monooleate and oleic acid, Tris buffer with pH adjustment including NaOH, and subsequent sonification. Eurocine L3 emulsion was prepared using 1:1 ratio solid monooleate and oleic acid which were liquified prior to addition of soy bean oil (Hamasur et al., 2003).",223,29,11
+262,VO_0001250,"",DDA-MPL,1095,29,10
+263,VO_0001250,"","Monophosphoryl lipid A (MPL) and dimethyl dioctadecylammonium bromide (DDA) (Mollenkopf et al., 2001).",176,29,11
+264,VO_0000127,"","",959,84,10
+265,VO_0000139,"","Vaccines were prepared with an equal volume of either Freund's complete adjuvant (first immunization) or Freund's incomplete adjuvant (subsequent immunizations) (West et al., 2001).",1101,46,10
+266,VO_0000142,"","Vaccines were prepared with an equal volume of either Freund's complete adjuvant (first immunization) or Freund's incomplete adjuvant (subsequent immunizations) (West et al., 2001).",1101,46,10
+267,VO_0001238,"","",939,93,10
+268,VO_0000143,"","Cholera toxin adjuvant (Debache et al., 2010).",937,93,10
+269,VO_0000884,"","",1105,30,10
+270,VO_0001268,"",Montanide ISA720,1102,30,10
+271,VO_0000139,"","",987,30,10
+272,VO_0001270,"",Montanide ISA51,1096,30,10
+273,VO_0000139,"","The initial vaccinations were emulsified with complete Freund's adjuvant (Sigma), and the next two with incomplete Freund's adjuvant (Sigma) (Stowers et al., 2002).",234,30,10
+274,VO_0000142,"","The initial vaccinations were emulsified with complete Freund's adjuvant (Sigma), and the next two with incomplete Freund's adjuvant (Sigma) (Stowers et al., 2002).",234,30,10
+275,VO_0000139,"","",985,30,10
+276,VO_0000133,"","",922,30,10
+277,VO_0000142,"","",922,30,11
+278,VO_0000127,"","",919,30,10
+279,VO_0000192,"",Montanide ISA51,1096,30,0
+280,VO_0001268,"","Montanide ISA 720. It is an oil composition containing a natural metabolizable oil and a highly refined emulsifier from the mannide mono-oleate family (Genton et al., 2003).",206,30,10
+281,VO_0001268,"","Montanide ISA-720 an adjuvant suitable for human vaccination trials (Arevalo-Herrera et al., 2005).",208,30,10
+282,VO_0000192,"","Freund and Montanide ISA 720 adjuvants (Castellanos et al., 2007).",201,30,11
+283,VO_0000139,"","Complete Freund's adjuvant (CFA) was used as the first adjuvant. Boosters of the same amount of protein were given in incomplete Freund's adjuvant (IFA) [Ref429:Kushwaha et al., 2001].",204,30,10
+284,VO_0000127,"","100 Î¼l of 1.5% Al(OH)3 (Finke et al., 1990).",1080,137,10
+285,VO_0000142,"","0.1 ml of incomplete Freund's adjuvant (Holder et al., 2001).",1081,137,10
+286,VO_0000143,"","A detoxified version of cholera toxin, CT-E29H (Siadat-Pajouh and Cai, 2001).",914,57,10
+287,VO_0001321,"","Two adjuvants were used in this study and were either mixed with MBP::VP6 prior to immunization or were administered separately. One was the attenuated E. coli heat-labile toxin LT(R192G). LT(R192G) carries a mutation in the trypsin cleavage site of the A subunit at arginine 192 (replaced by glycine) which abrogates cleavage and attenuates the toxicity of the protein. The other adjuvant was CTA1-DD which is composed of the enzymatically active A1 subunit of cholera toxin combined with a dimer of an immunoglobulin binding element from S. aureus protein A. Pre-clinical evaluations of CTA1-DD have reported it to be nontoxic (McNeal et al., 2007).",877,57,10
+288,VO_0001290,"","Two adjuvants were used in this study and were either mixed with MBP::VP6 prior to immunization or were administered separately. One was the attenuated E. coli heat-labile toxin LT(R192G). LT(R192G) carries a mutation in the trypsin cleavage site of the A subunit at arginine 192 (replaced by glycine) which abrogates cleavage and attenuates the toxicity of the protein. The other adjuvant was CTA1-DD which is composed of the enzymatically active A1 subunit of cholera toxin combined with a dimer of an immunoglobulin binding element from S. aureus protein A. Pre-clinical evaluations of CTA1-DD have reported it to be nontoxic (McNeal et al., 2007).",877,57,10
+289,VO_0000133,"","",1056,42,10
+290,VO_0000139,"","",1057,42,10
+291,VO_0000142,"","",1060,42,10
+292,VO_0000139,"","",1082,138,10
+293,VO_0000139,"","",1083,138,10
+294,VO_0000139,"","",1084,138,10
+295,VO_0000139,"","Complete Freund's adjuvant on day 1, incomplete Freund's adjuvant on day 35 (Santi et al., 2009).",1112,139,10
+296,VO_0000142,"","Complete Freund's adjuvant on day 1, incomplete Freund's adjuvant on day 35 (Santi et al., 2009).",1112,139,10
+297,VO_0000128,"","Aluminum phosphate (Adju-Phos; Axell Accurate Chemical & Scientific Corp.) (Erdogan et al., 2002).",1086,139,10
+298,VO_0000139,"","0.1 ml of complete Freundâ€™s adjuvant.",1087,139,10
+299,VO_0000884,"","Inject Alum adjuvant (Daniely et al., 2006).",792,47,10
+300,VO_0001250,"","Monophospholipid A (MPL) and aluminium phosphate (AlPO4) (Ogunniyi et al., 2001).",787,47,10
+301,VO_0000128,"","Monophospholipid A (MPL) and aluminium phosphate (AlPO4) (Ogunniyi et al., 2001).",787,47,10
+302,VO_0000884,"","Imject Alum adjuvant [Ref1210:Mizrachi et al., 2007].",790,47,10
+303,VO_0001250,"","100 Î¼g of monophosphoryl lipid A (MPL; Corixa, Hamilton, Mont.) per dose [Ref1492:Zhang et al., 2001].",1100,47,10
+304,VO_0000884,"",Imject Alum No. 77161,793,47,10
+305,VO_0000133,"","",798,47,10
+306,VO_0000884,"","",795,47,10
+307,VO_0000133,"","",1090,140,10
+308,VO_0001242,"","10 Î¼g of CTB or 0.5 Î¼g of the TLR2/6 agonist MALP-2 as mucosal adjuvants [Ref1510:Schulze et al., 2006].",1089,140,10
+309,VO_0001242,"","",1092,140,10
+310,VO_0000139,"","",1093,140,10
+311,VO_0000757,"","Immunostimulating complexes (ISCOMs) (d'Oliveira et al., 1997).",1055,90,10
+312,VO_0001238,"","",1069,141,10
+313,VO_0001238,"","",1070,141,10
+314,VO_0001238,"","",1071,141,10
+315,VO_0000139,"","",837,133,10
+316,VO_0000142,"","",837,133,10
+317,VO_0000884,"","",806,118,10
+318,VO_0000884,"","",810,118,10
+319,VO_0001147,"","",804,118,10
+320,VO_0000133,"","",785,60,10
+321,VO_0000142,"","",785,60,11
+322,VO_0001238,"","200 Î¼l of RIBI adjuvant was used [Ref494:Warfield et al., 2004].",216,28,10
+323,VO_0000139,"","Complete Freund's adjuvant is used during innoculation, followed by a boost in incomplete Freund's adjuvant [Ref146:Ober et al., 2002]",101,18,10
+324,VO_0000142,"","Complete Freund's adjuvant is used during innoculation, followed by a boost in incomplete Freund's adjuvant [Ref146:Ober et al., 2002]",101,18,10
+325,VO_0001238,"","Either a Ribi adjuvant system consisting of MPL+TDM or the saponin adjuvant QS-21 was used [Ref149:Fogg et al., 2004]",102,18,10
+326,VO_0001250,"","The adjuvant used in this vaccine was Monophosphoryl Lipid A and Trehalose Dicorynomycolate (MPL-TDM) (Berhanu et al., 2008).",305,18,10
+327,VO_0000884,"","",781,59,10
+328,VO_0000139,"","",896,130,10
+329,VO_0000142,"","",896,130,11
+330,VO_0000142,"","",44,11,10
+331,VO_0001238,"","R-730 emulsion (Ribi ImmunoChem Research, Inc., Hamilton, Mont.)[Ref111:Andrews et al., 1999]",37,11,10
+332,VO_0001238,"","Ribi adjuvant system (RAS) R-730 monophosphoryl lipid-A (Corixa, Hamilton, MT) [Ref998:Swietnicki et al., 2005]",886,11,10
+333,VO_0000139,"","",81,11,10
+334,VO_0001250,"","Monophosphoryl lipid A-stable emulsion (MPL-SE) adjuvant [Ref1391:Orsborn et al., 2006]",848,132,10
+335,VO_0001251,"","The adjuvant, when used, was either LT, LTK63, or LTR72 [Ref670:Ghaem-Maghami et al., 2001]",277,25,10
+336,VO_0001238,"","",196,31,10
+337,VO_0001239,"","",169,31,10
+338,VO_0001250,"",MPL (3-O-deacylated monophosphoryl lipid A.,192,31,10
+339,VO_0001251,"","LTK63 mutant of Escherichia coli heat-labile enterotoxin [Ref1397:Satin et al., 2000]",958,134,10
+340,VO_0000884,"","GPI-0100 adjuvant or alum [Ref1119:Jagu et al., 2009]",988,54,10
+341,VO_0001267,"","RWL, a proprietary saponin-based adjuvant supplied by SmithKline Beecham [Ref1199:Boulter et al., 1998]",873,90,10
+342,VO_0001260,"","",899,122,10
+343,VO_0001259,"","",1039,117,10
+344,VO_0001261,"","Dioctadecylammonium (DDA), trehalose dibehenate (TDB), and stable liposomes (SSI) [Ref329:Vipond et al., 2006]",166,29,10
+345,VO_0001264,"","",967,29,0
+346,VO_0001264,"","AS02A (Skeiky et al., 2004).",967,29,10
+347,VO_0001264,"","Adjuvants included AS02A or AS01B (Skeiky et al., 2004).",175,29,10
+348,VO_0001263,"","QuilA (CedarLane Laboratories, Hornby, Ontario, Canada) (Martin et al., 1997).",956,46,10
+349,VO_0001266,"","",946,93,10
+350,VO_0001264,"","",200,30,10
+351,VO_0001264,"","The Plasmodium falciparum vaccine candidate FMP2.1/AS02A , a recombinant E coli-expressed protein based upon the apical membrane antigen-1 (AMA-1 ) of the 3D7 clone formulated with the AS02A adjuvant[Ref426:Polhemus et al., 2007]",232,30,10
+352,VO_0000181,"","The S-LPS was produced from smooth strain 2308 by extraction in hot phenol followed by treatment with guanidinium thiocyanate. Inocula were prepared from a freshly thawed vial which was diluted in sterile phosphate buffered saline to yield an infecting dose of 5 x 104 bacteria per 0.1 ml. Each dose was mixed with its appropriate adjuvant (Winter et al., 1988).",291,8,11
+353,VO_0001321,"","",840,24,10
+354,VO_0001321,"","",841,24,10
+355,VO_0001321,"","",843,24,10
+356,VO_0001321,"","Mutant E. coli heat-labile enterotoxin (LT(R192G)) [Ref197:Lee et al., 1999]",838,24,10
+357,VO_0001322,"","25 mg of a mucosal adjuvant, the heat-labile enterotoxin of Escherichia coli (LT) has been used (Baqar et al., 1995b).",114,24,10
+358,VO_0001321,"","immunization occurs with the mutant E. coli heat-labile enterotoxin (LT( R192G)) as a mucosal adjuvant [Ref197:Lee et al., 1999]",124,24,10
+359,VO_0001322,"","",882,112,10
+360,VO_0001266,"","The adjuvant used was VSA3[Ref665:Potter et al., 2004]",274,25,10
+361,VO_0001260,"","The adjuvant used in the vaccines was TiterMax Gold [Ref671:Dean-Nystrom et al., 2002]",278,25,10
+362,VO_0001263,"","Quilâ€A Saponin [Ref676:Marcato et al., 2001]",282,25,10
+363,VO_0001267,"","Quilâ€A Saponin (Marcato et al., 2001).",282,25,10
+364,VO_0001319,"","An oil-in-water nanoemulsion (NE) was used as the mucosal adjuvant for this vaccine (Bielinska et al., 2008).",310,26,10
+365,VO_0001265,"","",740,54,10
+366,VO_0000133,,Freund's adjuvant,3040,161,10
+367,VO_0001314,,"",3046,164,10
+368,VO_0001311,,"",3047,7,10
+369,VO_0000351,,Adjumer,3048,57,10
+370,VO_0001286,,"",3049,30,11
+371,VO_0001288,,Avridine,3050,67,10
+372,VO_0001287,,"",3051,169,10
+373,VO_0001273,,"",835,95,10
+374,VO_0001261,,"",171,29,10
+375,VO_0001261,,"",1095,29,10
+376,VO_0001261,,"",176,29,11
+377,VO_0001294,,"Granulocyteâ€“macrophage colony-stimulating factor [Ref1294:Bernhardt et al., 2006].",891,99,10
+378,VO_0001294,,"Granulocyte macrophage colony-stimulating factor [Ref1291:Becker et al., 2010].",883,99,10
+379,VO_0001268,,Montanide ISA 720,1121,30,10
+380,VO_0001310,,"",102,18,10
+381,VO_0001267,,"",941,93,10
+382,VO_0001319,,"",309,7,10
+383,VO_0001237,,"",309,7,11
+384,VO_0001267,,"",839,89,10
+385,VO_0001261,,"",176,29,11
+386,VO_0001250,,"Monophosphoryl lipid A (MPL) and dimethyl dioctadecylammonium bromide (DDA) [Ref351:Mollenkopf et al., 2001].",176,29,11
+387,VO_0000133,,"",784,86,10
+388,VO_0000139,,"",784,86,10
+389,VO_0000139,,"",782,86,10
+390,VO_0000139,,"",791,92,10
+391,VO_0000127,,"",799,109,10
+392,VO_0000139,,"",863,121,10
+393,VO_0001272,,"",1120,24,10
+394,VO_0000139,,"",897,14,10
+395,VO_0000139,,"",858,126,10
+396,VO_0000142,,"",858,126,10
+397,VO_0001238,,"",182,31,10
+398,VO_0001147,,"",1028,97,10
+399,VO_0001263,,"",435,97,10
+400,VO_0001147,,"",1107,116,10
+401,VO_0001259,,"",1006,115,10
+402,VO_0000366,,"",1078,136,10
+403,VO_0000142,,"",387,64,10
+404,VO_0000142,,"",1044,108,10
+405,VO_0001237,,"",842,129,10
+406,VO_0001263,,"20 Î¼g of QuilA adjuvant [Ref1517:Brodeur et al., 2000].",1088,139,10
+407,VO_0001272,,"The adjuvant used was EtxB, a recombinant form of the B subunit of Escherichia coli heat-labile enterotoxin [Ref1220:Flock et al., 2004].",832,81,10
+408,VO_0001147,,"",806,118,10
+409,VO_0001260,,"TiterMax (Hunterâ€™s TiterMax R-1; CytRx Corp., Norcross, Ga.) [Ref87:Nakajima et al., 1995].",62,11,10
+410,VO_0001286,,"",3053,99,10
+411,VO_0001263,,"",3054,99,10
+412,VO_0001290,,CTA1-DD,1016,50,10
+413,VO_0001293,,"",1051,99,10
+414,VO_0001313,,"",3055,206,10
+415,VO_0000191,,"",3056,98,10
+416,VO_0001318,,"",145,26,10
+417,VO_0001319,,"",311,18,10
+418,VO_0001320,,"",1116,50,10
+419,VO_0001323,,"amorphous aluminum hydroxyphosphate sulfate adjuvant (AAHSA) [Ref1654:Kuklin et al., 2006].",3039,138,10
+420,VO_0001324,,"",834,81,10
+421,VO_0000131,,"",3057,41,10
+422,VO_0001316,,"",3058,41,10
+423,VO_0001292,,"",3059,26,10
+424,VO_0001286,,"",3060,26,11
+425,VO_0001295,,"",3061,26,10
+426,VO_0000187,,"",3062,26,10
+427,VO_0001297,,"",3063,50,10
+428,VO_0001298,,"",3064,50,10
+429,VO_0001299,,"",3065,50,10
+430,VO_0000181,,"",296,8,10
+431,VO_0000181,,"",253,42,11
+432,VO_0001300,,"",3066,99,10
+433,VO_0001301,,"",3067,26,10
+434,VO_0001269,,"",934,70,10
+435,VO_0001302,,"",3068,49,10
+436,VO_0001306,,"",3069,208,10
+437,VO_0001307,,"",3070,97,10
+438,VO_0001308,,"",3071,26,10
+439,VO_0001309,,"",3072,30,10
+440,VO_0001315,,"",3073,50,10
+441,VO_0001317,,"",3074,99,10
+442,VO_0001289,,"",3075,49,10
+443,VO_0000190,,"",3076,7,10
+444,VO_0001312,,"",3077,140,10
+445,VO_0001328,,"",3078,99,10
+446,VO_0001329,,"",3079,26,10
+447,VO_0000146,,"",3080,50,10
+448,VO_0001296,,"",3082,49,10
+449,VO_0001331,,"",3083,11,10
+450,VO_0001330,,"",3084,50,10
+451,VO_0001333,,"",3085,99,10
+452,VO_0001332,,"",3086,7,10
+453,VO_0001338,,"50 Î¼l of 0.5% bupicavaine (Sigma) was i.m. injected at the same site 3 days before pDf11 or rDf11 inoculation [Ref2016:Peng et al., 2004].",3088,114,10
+454,VO_0001334,,Abisco-100,3089,113,10
+455,VO_0001335,,"Albumin-heparin microparticles (Mps) containing GM-CSF protein or tumor TNF-Î± protein [Ref2020:Song et al., 2006].",3090,26,10
+456,VO_0001294,,"Albumin-heparin microparticles (Mps) containing GM-CSF protein or tumor TNF-Î± protein [Ref2020:Song et al., 2006].",3090,26,10
+457,VO_0001336,,"",3091,99,10
+458,VO_0001337,,"",3092,26,10
+459,VO_0001294,,"",3092,26,10
+460,VO_0001339,,"",3093,49,10
+461,VO_0001340,,"DHEA (Sigma Chemical Co., St. Louis, MO, U.S.A.) was dissolved in 50% ethanol. Mice were injected with DHEA (10 mg/Kg), in 0.3 mL, subcutaneously (s.c.), 4 hours before vaccination [Ref2029:Negrette et al., 2001].",3094,32,10
+462,VO_0001341,,PLGA microspheres,3095,25,10
+463,VO_0001342,,"",3096,29,10
+464,VO_0001343,,"",3097,26,10
+465,VO_0001344,,"",3098,47,10
+466,VO_0001345,,"25Î¼g MPL(Â®)-SE adjuvant [Ref2038:Chakravarty et al., 2011]",3099,97,10
+467,VO_0001302,,"",3100,100,10
+468,VO_0001301,,"",3100,100,10
+469,VO_0001347,,"",3101,26,10
+470,VO_0001349,,"",3103,30,10
+471,VO_0001351,,"",3104,7,10
+472,VO_0001352,,"",3105,30,10
+473,VO_0000143,,"1 Î¼g cholera toxin (CT; List Biological Laboratory, Campbell, CA) [Ref2054:Lin et al., 2011].",3107,11,10
+474,VO_0001291,,"0.2% Al(OH)3 and 0.25% deoxycholate [Ref2062:Barrett et al., 1989].",3108,26,10
+475,VO_0000884,,Alum,3110,215,10
+476,VO_0000127,,"Alum (aluminum hydroxide, Pierce) [Ref2067:Fredrikson et al., 2005].",3111,215,10
+477,VO_0000884,,Aluminum hydroxide,320,48,10
+478,VO_0001301,,"",3285,50,10
+479,VO_0001301,,"",3286,50,10
+480,VO_0001301,,"",3287,50,10
+481,VO_0000133,,CFA and IFA were used.,3293,8,10
+482,VO_0001320,,"AS03 adjuvant composed of squalene (10.69 milligrams), DL-Î±-tocopherol (11.86 milligrams) and polysorbate 80 (4.86 milligrams) [Ref2790:EMA Pandemrix Suppl, 2013]",3957,50,10
+483,VO_0000143,,"",5655,25,10
+484,VO_0001237,,"In six groups, mice (n = 10) were immunized three times at two-week intervals with PBS, Epivac or Epivac plus one of the following four Th1 adjuvants: CpG ODN 1826 (CpG, 20 Î¼g/mouse, synthesized by Invitrogen), N-glycolyl-MDP VacciGrade (MDP, 30 Î¼g/mouse, InvivoGen), MPLA VacciGrade (MPLA, 10 Î¼g/mouse, InvivoGen) and Addavax (1:1, InvivoGen) [Ref4797:Li et al., 2012].",5626,134,10
+485,VO_0001237,,"In six groups, mice (n = 10) were immunized three times at two-week intervals with PBS, Epivac or Epivac plus one of the following four Th1 adjuvants: CpG ODN 1826 (CpG, 20 Î¼g/mouse, synthesized by Invitrogen), N-glycolyl-MDP VacciGrade (MDP, 30 Î¼g/mouse, InvivoGen), MPLA VacciGrade (MPLA, 10 Î¼g/mouse, InvivoGen) and Addavax (1:1, InvivoGen) [Ref4797:Li et al., 2012].",5626,134,11
+486,VO_0000139,,"[Ref4828:Tsao et al., 2013]",5697,140,0
+487,VO_0000142,,"25 Âµg of rSPE B345â€“398 emulsified with Freundâ€™s incomplete adjuvant (Sigma-Aldrich) was administered intraperitoneally every two weeks for a total of three boosts [Ref4828:Tsao et al., 2013].",5697,140,0
+488,VO_0001294,,GM-CSF vaccine adjuvant,5436,99,10
+489,VO_0001294,,"",5422,99,10
+490,VO_0001294,,"",5257,99,10
+491,VO_0001294,,"",5327,99,10
+492,VO_0001294,,"",5059,99,10
+493,VO_0001294,,"",5420,99,10
+494,VO_0001294,,"",5150,99,10
+495,VO_0001294,,"",5084,99,10
+496,VO_0001294,,"[Ref2360:Rakhmilevich et al., 2001]",5386,99,10
+497,VO_0001271,,"[Ref5168:Rahma et al., 2010]",5127,99,10
+498,VO_0001318,,"[Ref5420:Schleiss, 2009]",5390,99,10
+499,VO_0000142,,"[Ref5341:Tomita et al., 2014]",5290,99,10
+500,VO_0001294,,"",5075,99,10
+501,VO_0001294,,"",5515,99,10
+502,VO_0001294,,"",5358,99,10
+503,VO_0001294,,"",5250,99,10
+504,VO_0001294,,"",5188,99,10
+505,VO_0001294,,"",5240,99,10
+506,VO_0001294,,"",5519,99,10
+507,VO_0001294,,"",5146,99,10
+508,VO_0001294,,"",5065,99,10
+509,VO_0000133,,[Ref3763:NCT00071981],5418,99,10
+510,VO_0001294,,[Ref3763:NCT00071981],5418,99,10
+511,VO_0001294,,"[Ref3925:Weber et al., 2003]",5290,99,10
+512,VO_0001294,,"[Ref5124:Onaitis et al., 2002]",5109,99,10
+513,VO_0001294,,"",5062,99,10
+514,VO_0005301,,"",5795,321,10
+515,VO_0005324,,"",5905,320,0
+516,VO_0005324,,"",5905,320,0
+517,VO_0005270,,"",5906,50,0
+518,VO_0005303,,"",5908,50,10
+519,VO_0005271,,"",5907,50,0
+520,VO_0005302,,"",5909,50,0
+521,VO_0005207,,"",5910,50,10
+522,VO_0005295,,"",5911,50,0
+523,VO_0005294,,"",5912,50,10
+524,VO_0005324,,"",5913,327,0
+525,VO_0005298,,"",5914,328,0
+526,VO_0005330,,"",5915,99,0
+527,VO_0005295,,"",5918,50,0
+528,VO_0005270,,"",5917,50,10
+529,VO_0005358,,"combination of liposome, MPL, and QS-21[Ref5539:Laurens, 2020]",5945,30,10
+530,VO_0000127,,"[Ref5543:Falsey et al., 2022]",5949,212,10
+531,VO_0005206,,"A potent saponinbased adjuvant, comprising partially purifed extracts of the bark of the Quillaja saponaria Molina tree, phosphatidylcholine and cholesterol. Enhance immune responses [Ref5546:Mulamba et al., 2022]",5951,30,10
+532,VO_0001270,,"",5961,30,10
+533,VO_0001345,,"",5966,115,10
+534,VO_0005206,,"",5973,30,10
+535,VO_0001147,,"",1000,115,0
+536,VO_0001147,,"",5976,115,10
+537,VO_0001348,,"In past studies, mice infected with a high does of Giardia cysts showed a marked decrease in fluid accumulation in response to the cholera toxin. This decrease might be related to the finding that G. lamblia trophozoites can bind significant amounts of cholera toxin.[Ref5609:LjungstrÃ¶m et al., 1985]",5989,266,10
+538,VO_0001348,,"",5991,266,0
+539,VO_0000142,,"IFA - Incomplete Freund's Adjuvant (IFA) is water-in-oil emulsion adjuvant that has been widely tested in humans where it was shown to augment antibody responses greater than other adjuvants. IFA mixed with or used in conjunction with other adjuvant-active compounds has proved successful in animal testing.[Ref5622:Jensen et al., 1998]",5993,266,10
+540,VO_0000139,,Complete freund's adjuvant - CFA is a water-in-oil emulsion consisting of heat-killed Mycobacterium tuberculosis which helps induce immune responses greater than other adjuvants.,5993,266,10
+541,VO_0000139,,CFA is a water-in-oil emulsion consisting of heat-killed Mycobacterium tuberculosis which helps induce immune responses greater than other adjuvants.,6004,266,10
+542,VO_0000142,,"IFA - Incomplete Freund's Adjuvant (IFA) is water-in-oil emulsion adjuvant that has been widely tested in humans where it was shown to augment antibody responses greater than other adjuvants. IFA mixed with or used in conjunction with other adjuvant-active compounds has proved successful in animal testing.[Ref5622:Jensen et al., 1998]",6004,266,10
+543,VO_0000884,,"",6022,233,0
+544,VO_0000884,,"[Ref5654:Wu et al., 2016] Aluminum containing adjuvant to increase thermo stability measured by DSC.",6023,232,0
+545,VO_0001263,,"",6028,118,10
+546,VO_0001147,,"",6029,118,10
+547,VO_0001294,,"",6029,118,10
+548,VO_0001294,,"",6031,118,10
+549,VO_0001147,,"",6031,118,10
+550,VO_0001147,,"",6032,118,10
+551,VO_0001294,,"",6032,118,10
+552,VO_0001294,,"",6048,118,11
+553,VO_0001147,,"",6048,118,11
+554,VO_0001294,,"",6051,118,10
+555,VO_0000133,,"",6054,118,0
+556,VO_0000142,,"",6054,118,10
+557,VO_0000139,,"",6054,118,10
+558,VO_0001147,,"",6056,118,10
+559,VO_0001294,,"",6056,118,10
+560,VO_0001237,,"",6064,118,10
+561,VO_0001237,,"",6070,118,10
+562,VO_0001147,,"",6079,118,0
+563,VO_0000139,,"",6085,118,0
+564,VO_0001147,,"",6089,118,0
+565,VO_0000142,,"",6089,118,0
+566,VO_0000139,,"",6089,118,0

@@ -1,0 +1,47 @@
+"c_host_id","c_host_name","c_scientific_name","c_taxonomy_id"
+2,Human,Homo sapiens,9606
+3,Mouse,Mus musculus,10090
+4,Rat,Rattus,10114
+5,Monkey,Platyrrhini,9479
+6,Rabbit,Oryctolagus cuniculus,9986
+7,Guinea pig,Cavia porcellus,10141
+8,Chicken,Gallus gallus,9031
+9,Ducks,Anas,8835
+12,Cattle,Bos taurus,9913
+13,Goat,Capra hircus,9925
+15,Pig,Sus scrofa,9823
+16,Hamster,Mesocricetus auratus,10036
+17,Sheep,Ovis aries,9940
+18,Horse,Equus caballus,9796
+19,Ferret,Mustela putorius furo,9669
+24,Copper Pheasant,Syrmaticus soemmerringii,9067
+26,chinchillas,Chinchillidae,10150
+27,Water buffalo,Bubalus bubalis,391902
+28,Squirrel,Spermophilus richardsonii,37591
+29,Deer,Cervus elaphus,9860
+30,Buffalo,Bison bison,9901
+31,Bear,Ursus americanus,9643
+32,Deer mouse,Peromyscus maniculatus,10042
+33,Vole,Microtus ochrogaster,79684
+34,Raven,Corvus corax,56781
+35,Brown Trout,Salmo trutta,8032
+36,Dog,Canis familiaris,9615
+37,Cat,Felis catus,9685
+38,Turkey,Meleagris gallopavo,9103
+39,Macaque,Macaca fascicularis,9541
+40,Mongolian Gerbil,Meriones unguiculatus,10047
+41,Gerbil,Gerbillina,10045
+42,Chimpanzee,Pan troglodytes,9598
+43,Bank vole,Clethrionomys glareolus,447135
+44,Tree shrew,Tupaiidae,9393
+45,Rainbow trout,Oncorhynchus mykiss,8022
+59,None,None,
+47,Gray wolf,Canis lupus,9612
+48,Fish,Hyperotreti,117565
+49,"Trouts, salmons & chars",Salmoninae,504568
+50,Parrot,Psittacidae,9224
+51,Birds,Passeroidea,175121
+52,Catfishes,Siluriformes,7995
+53,Carnivores,Vulpes,9625
+54,sei whale,Balaenoptera borealis,9768
+55,Baboon,Papio cynocephalus,9556
