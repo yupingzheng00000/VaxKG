@@ -6,9 +6,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Get credentials from environment variables
-URI = os.getenv("NEO4J_URI")
-USERNAME = os.getenv("NEO4J_USERNAME")
-PASSWORD = os.getenv("NEO4J_PASSWORD")
+URI = os.getenv("URI")
+USERNAME = os.getenv("USERNAME")
+PASSWORD = os.getenv("PASSWORD")
 # environment: neo4j-env\Scripts\activate  
 
 # CSV file path prefix
@@ -209,7 +209,7 @@ def map_ontology(driver):
             print("\nNode mapping completed successfully, starting relationship mapping...")
 
             # Execute relationship mapping queries - VO-aligned relationships
-            map_relationships_vo_aligned(session, RELATIONSHIP_QUERIES_VO_MAPPED)
+            # map_relationships_vo_aligned(session, RELATIONSHIP_QUERIES_VO_MAPPED)
 
             print("\nMapping completed successfully")
 

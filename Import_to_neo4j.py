@@ -2,16 +2,15 @@ from neo4j import GraphDatabase
 import os
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
+# Load environment variables to securely manage database credentials
 load_dotenv()
 
-# Get credentials from environment variables
-URI = os.getenv("NEO4J_URI")
-USERNAME = os.getenv("NEO4J_USERNAME")
-PASSWORD = os.getenv("NEO4J_PASSWORD")
-# environment: neo4j-env\Scripts\activate  
+# Database connection parameters retrieved from environment variables
+URI = os.getenv("URI")
+USERNAME = os.getenv("USERNAME")
+PASSWORD = os.getenv("PASSWORD")
 
-# CSV file path prefix
+# Prefix for CSV file paths to enable local file loading in Neo4j
 CSV_PATH = "file:///"
 
 # Queries to create constraints for each node type
@@ -446,14 +445,45 @@ RELATIONSHIP_QUERIES = {
 }
 
 def execute_queries(driver, queries):
-    """Helper function to execute a dictionary of Cypher queries."""
+    """
+    Execute a collection of Cypher queries in a single Neo4j session.
+
+    This helper function runs multiple Cypher queries sequentially, providing 
+    progress tracking and error-tolerant execution. It's useful for batch 
+    operations like creating constraints, importing data, or establishing 
+    relationships.
+
+    Args:
+        driver (GraphDatabase.driver): Active Neo4j database driver
+        queries (dict): Dictionary of query names and their corresponding Cypher queries
+
+    Raises:
+        Exception: If a query fails during execution
+    """    """Helper function to execute a dictionary of Cypher queries."""
     with driver.session() as session:
         for key, query in queries.items():
             print(f"Executing: {key}")
             session.run(query)
 
 def import_ontology_complete(driver):
-    """Import ontology with proper setup, error handling, and mapping"""
+    """
+    Import a comprehensive ontology into the Neo4j graph database using n10s.
+
+    This function handles the complete ontology import process, including:
+    - Creating necessary constraints
+    - Configuring n10s graph configuration
+    - Importing RDF/XML ontology from a remote URL
+    - Handling potential import errors
+    - Providing detailed import statistics
+
+    Args:
+        driver (GraphDatabase.driver): Active Neo4j database driver
+
+    Notes:
+        - Uses the Vaccine Ontology (VO) from GitHub
+        - Configures n10s with specific handling strategies for RDF import
+        - Prints detailed import progress and results
+    """
     with driver.session() as session:
         try:
             # Create the required constraint if it doesn't exist
@@ -497,126 +527,26 @@ def import_ontology_complete(driver):
             for record in count_result:
                 print(f"Imported {record['resourceCount']} Resource nodes")
             
-            # # Execute mapping queries
-            # print("\nMapping domain nodes to ontology...")
-            
-            # # Map Vaccine nodes to ontology
-            # print("Mapping Vaccine nodes...")
-            # try:
-            #     result = session.run("""
-            #         MATCH (v:Vaccine)
-            #         MATCH (o:Resource {uri: "http://purl.obolibrary.org/obo/VO_0000001"})
-            #         MERGE (v)-[:INSTANCE_OF]->(o)
-            #         RETURN count(*) as mappedCount
-            #     """)
-            #     for record in result:
-            #         print(f"Mapped {record['mappedCount']} Vaccine nodes")
-            # except Exception as e:
-            #     print(f"Error mapping Vaccine nodes: {str(e)}")
-            
-            # # Map Gene nodes to ontology
-            # print("Mapping Gene nodes...")
-            # try:
-            #     result = session.run("""
-            #         MATCH (g:Gene)
-            #         MATCH (o:Resource {uri: "http://purl.obolibrary.org/obo/OGG_0000000002"})
-            #         MERGE (g)-[:INSTANCE_OF]->(o)
-            #         RETURN count(*) as mappedCount
-            #     """)
-            #     for record in result:
-            #         print(f"Mapped {record['mappedCount']} Gene nodes")
-            # except Exception as e:
-            #     print(f"Error mapping Gene nodes: {str(e)}")
-            
-            # # Map Pathogen nodes to ontology
-            # print("Mapping Pathogen nodes...")
-            # try:
-            #     # try this instead: http://purl.obolibrary.org/obo/DOID_0050117
-            #     result = session.run("""
-            #         MATCH (p:Pathogen)
-            #         MATCH (o:Resource {uri: "http://purl.obolibrary.org/obo/IDO_0000528"})
-            #         MERGE (p)-[:INSTANCE_OF]->(o)
-            #         RETURN count(*) as mappedCount
-            #     """)
-            #     for record in result:
-            #         print(f"Mapped {record['mappedCount']} Pathogen nodes")
-            # except Exception as e:
-            #     print(f"Error mapping Pathogen nodes: {str(e)}")
-            
-            # print("\nMapping completed successfully")
-            
         except Exception as e:
             print(f"Error during ontology import: {str(e)}")
             import traceback
             print(traceback.format_exc())
 
-# def verify_mapping(driver):
-#     """Verify that the mapping was successful"""
-#     with driver.session() as session:
-#         try:
-#             print("\nVerifying ontology mapping...")
-            
-#             # Check Resource nodes
-#             result = session.run("MATCH (r:Resource) RETURN count(r) as count")
-#             for record in result:
-#                 print(f"Total Resource nodes: {record['count']}")
-            
-#             # Check mapped Vaccine nodes
-#             result = session.run("""
-#                 MATCH (v:Vaccine)-[:INSTANCE_OF]->(r:Resource)
-#                 RETURN count(v) as mappedVaccines
-#             """)
-#             for record in result:
-#                 print(f"Mapped Vaccine nodes: {record['mappedVaccines']}")
-            
-#             # Check mapped Gene nodes
-#             result = session.run("""
-#                 MATCH (g:Gene)-[:INSTANCE_OF]->(r:Resource)
-#                 RETURN count(g) as mappedGenes
-#             """)
-#             for record in result:
-#                 print(f"Mapped Gene nodes: {record['mappedGenes']}")
-            
-#             # Check mapped Pathogen nodes
-#             result = session.run("""
-#                 MATCH (p:Pathogen)-[:INSTANCE_OF]->(r:Resource)
-#                 RETURN count(p) as mappedPathogens
-#             """)
-#             for record in result:
-#                 print(f"Mapped Pathogen nodes: {record['mappedPathogens']}")
-            
-#             # Get some ontology classes for verification
-#             result = session.run("""
-#                 MATCH (r:Resource)
-#                 RETURN r.uri as uri, r.prefLabel as label
-#                 LIMIT 5
-#             """)
-#             print("\nSample ontology classes:")
-#             for record in result:
-#                 print(f"  - {record['label'] or 'No label'} ({record['uri']})")
-            
-#         except Exception as e:
-#             print(f"Error verifying mapping: {str(e)}")
-
 # Function to execute queries
 def import_data():
-    driver = GraphDatabase.driver(URI, auth=(USERNAME, PASSWORD))
-    
-    # with driver.session() as session:
-    #     # First, create constraints
-    #     for label, query in CONSTRAINT_QUERIES.items():
-    #         session.run(query)
-    #         print(f"Constraint created for {label}.")
+    """
+    Orchestrate the complete data import process for the Neo4j graph database.
 
-    #     # Then, import CSV data
-    #     for label, query in CREATE_QUERIES.items():
-    #         session.run(query)
-    #         print(f"Imported {label} nodes successfully.")
-        
-    #     # creat relationships
-    #     for relationship_name, query in RELATIONSHIP_QUERIES.items():
-    #         print(f"Creating relationships: {relationship_name}")
-    #         session.run(query)
+    This function manages the entire import workflow:
+    1. Establish database connection
+    2. Create node constraints
+    3. Import CSV data into nodes
+    4. Establish relationships between nodes
+
+    Raises:
+        Exception: If any stage of the import process fails
+    """
+    driver = GraphDatabase.driver(URI, auth=(USERNAME, PASSWORD))
 
     # Step 1: Create Constraints
     execute_queries(driver, CONSTRAINT_QUERIES)
@@ -626,17 +556,9 @@ def import_data():
     execute_queries(driver, CREATE_QUERIES)
     print("CSV data imported into nodes.")
 
+    # Step 3: Establish Relationships
     execute_queries(driver, RELATIONSHIP_QUERIES)
     print("Relationships created.")
-    
-    # try:        
-    #     # Step 2: Import ontology and map to domain nodes
-    #     print("\n=== IMPORTING ONTOLOGY ===")
-    #     import_ontology_complete(driver)
-        
-        
-    # except Exception as e:
-    #     print(f"Error in main execution: {str(e)}")
 
     driver.close()
 
