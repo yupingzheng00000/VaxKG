@@ -1,4 +1,4 @@
-# Vaccine Ontology (VO) Importer for Neo4j
+# VaxKG
 
 This project provides Python scripts to import and map the Vaccine Ontology (VO) into a Neo4j graph database. It leverages the Neosemantics (n10s) library for RDF import and performs subsequent mapping to align the ontology with domain-specific nodes and relationships.
 
