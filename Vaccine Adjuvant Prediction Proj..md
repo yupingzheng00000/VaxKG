@@ -139,7 +139,7 @@ Why this, why now?
 ## Next Step.
 
 1. If this looks good, I’ll start with the data mapping, and I can prepare a slide deck so I can present to you next week about our progress.  
-2. Graph Neural Network (HGT  
+2. Prototype the HGT-based graph neural network ranker, selecting relation types, feature inputs, and initial hyperparameters to evaluate.
 3. Training data / what we really need. (work based on VaxKG database)  
 4. DDL October 15th
 
