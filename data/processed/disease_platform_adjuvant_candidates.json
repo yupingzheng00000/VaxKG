@@ -6,7 +6,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001241",
-        "display_name": "Alhydrogel"
+        "display_name": "Alhydrogel vaccine adjuvant"
       }
     ]
   },
@@ -17,7 +17,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0000193",
-        "display_name": "Bordetella pertussis component Vaccine Adjuvant"
+        "display_name": "Bordetella pertussis component vaccine adjuvant"
       }
     ]
   },
@@ -32,15 +32,15 @@
       },
       {
         "adjuvant_vo_id": "VO_0001311",
-        "display_name": "Rehydragel HPA"
+        "display_name": "Rehydragel HPA vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001332",
-        "display_name": "Poly(I:C)"
+        "display_name": "poly(I:C) vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001351",
-        "display_name": "Threonyl muramyl dipeptide (TMDP)"
+        "display_name": "threonyl muramyl dipeptide (TMDP) vaccine adjuvant"
       }
     ]
   },
@@ -51,7 +51,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001237",
-        "display_name": "CpG DNA Vaccine Adjuvant"
+        "display_name": "CpG DNA vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001319",
@@ -59,7 +59,7 @@
       },
       {
         "adjuvant_vo_id": "VO_0000190",
-        "display_name": "Squalene-based Adjuvants"
+        "display_name": "squalene vacccine adjuvant"
       }
     ]
   },
@@ -74,7 +74,7 @@
       },
       {
         "adjuvant_vo_id": "VO_0001237",
-        "display_name": "CpG DNA Vaccine Adjuvant"
+        "display_name": "CpG DNA vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000142",
@@ -89,7 +89,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0000133",
-        "display_name": null
+        "display_name": "Freund's emulsified oil adjuvant"
       }
     ]
   },
@@ -100,11 +100,11 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001237",
-        "display_name": "CpG DNA Vaccine Adjuvant"
+        "display_name": "CpG DNA vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000143",
-        "display_name": "Cholera toxin"
+        "display_name": "cholera toxin vaccine adjuvant"
       }
     ]
   },
@@ -115,31 +115,31 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001237",
-        "display_name": "CpG DNA Vaccine Adjuvant"
+        "display_name": "CpG DNA vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000181",
-        "display_name": "Lipopolysaccharide Vaccine Adjuvant"
+        "display_name": "lipopolysaccharide vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001250",
-        "display_name": "MPLâ„¢ Adjuvant"
+        "display_name": "monophosphoryl lipid A vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000139",
-        "display_name": "Freund's Complete Adjuvant"
+        "display_name": "complete Freund's adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000142",
-        "display_name": "Freund's Incomplete Adjuvant"
+        "display_name": "incomplete Freund's adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000193",
-        "display_name": "Bordetella pertussis component Vaccine Adjuvant"
+        "display_name": "Bordetella pertussis component vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000133",
-        "display_name": null
+        "display_name": "Freund's emulsified oil adjuvant"
       }
     ]
   },
@@ -150,31 +150,31 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001241",
-        "display_name": "Alhydrogel"
+        "display_name": "Alhydrogel vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001238",
-        "display_name": "Ribi Vaccine Adjuvant"
+        "display_name": "Ribi vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000142",
-        "display_name": "Freund's Incomplete Adjuvant"
+        "display_name": "incomplete Freund's adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001260",
-        "display_name": "TiterMax Gold Adjuvant"
+        "display_name": "Titermax Gold vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000139",
-        "display_name": "Freund's Complete Adjuvant"
+        "display_name": "complete Freund's adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001331",
-        "display_name": "Flagellin"
+        "display_name": "Flagellin vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000143",
-        "display_name": "Cholera toxin"
+        "display_name": "cholera toxin vaccine adjuvant"
       }
     ]
   },
@@ -185,11 +185,11 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001147",
-        "display_name": "IL-12 Vaccine Adjuvant"
+        "display_name": "IL-12 vacince adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001237",
-        "display_name": "CpG DNA Vaccine Adjuvant"
+        "display_name": "CpG DNA vaccine adjuvant"
       }
     ]
   },
@@ -200,11 +200,11 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0000193",
-        "display_name": "Bordetella pertussis component Vaccine Adjuvant"
+        "display_name": "Bordetella pertussis component vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001241",
-        "display_name": "Alhydrogel"
+        "display_name": "Alhydrogel vaccine adjuvant"
       }
     ]
   },
@@ -215,7 +215,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0000884",
-        "display_name": "Aluminum vaccine adjuvant"
+        "display_name": "aluminum vaccine adjuvant"
       }
     ]
   },
@@ -226,7 +226,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001241",
-        "display_name": "Alhydrogel"
+        "display_name": "Alhydrogel vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000127",
@@ -234,11 +234,11 @@
       },
       {
         "adjuvant_vo_id": "VO_0000884",
-        "display_name": "Aluminum vaccine adjuvant"
+        "display_name": "aluminum vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000139",
-        "display_name": "Freund's Complete Adjuvant"
+        "display_name": "complete Freund's adjuvant"
       }
     ]
   },
@@ -275,11 +275,11 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0000139",
-        "display_name": "Freund's Complete Adjuvant"
+        "display_name": "complete Freund's adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000142",
-        "display_name": "Freund's Incomplete Adjuvant"
+        "display_name": "incomplete Freund's adjuvant"
       }
     ]
   },
@@ -290,15 +290,15 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001238",
-        "display_name": "Ribi Vaccine Adjuvant"
+        "display_name": "Ribi vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001310",
-        "display_name": "QS-21"
+        "display_name": "QS-21 vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001250",
-        "display_name": "MPLâ„¢ Adjuvant"
+        "display_name": "monophosphoryl lipid A vaccine adjuvant"
       }
     ]
   },
@@ -309,7 +309,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001321",
-        "display_name": "LTR192G Vaccine Adjuvant"
+        "display_name": "LTR192G vaccine adjuvant"
       }
     ]
   },
@@ -320,7 +320,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001322",
-        "display_name": "E. coli heat-labile toxin, LT"
+        "display_name": "E. coli heat-labile toxin vaccine adjuvant"
       }
     ]
   },
@@ -331,7 +331,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001322",
-        "display_name": "E. coli heat-labile toxin, LT"
+        "display_name": "E. coli heat-labile toxin vaccine adjuvant"
       }
     ]
   },
@@ -342,11 +342,11 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001321",
-        "display_name": "LTR192G Vaccine Adjuvant"
+        "display_name": "LTR192G vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001272",
-        "display_name": "Etx B subunit Adjuvant"
+        "display_name": "EtxB vaccine adjuvant"
       }
     ]
   },
@@ -357,7 +357,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001242",
-        "display_name": "Cholera toxin B subunit"
+        "display_name": "cholera toxin B subunit vaccine adjuvant"
       }
     ]
   },
@@ -372,39 +372,39 @@
       },
       {
         "adjuvant_vo_id": "VO_0000139",
-        "display_name": "Freund's Complete Adjuvant"
+        "display_name": "complete Freund's adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000142",
-        "display_name": "Freund's Incomplete Adjuvant"
+        "display_name": "incomplete Freund's adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001266",
-        "display_name": "VSA-3 Adjuvant"
+        "display_name": "VSA-3 vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001251",
-        "display_name": "LTK63 Vaccine Mutant Adjuvant"
+        "display_name": "LTK63 vaccine mutant"
       },
       {
         "adjuvant_vo_id": "VO_0001260",
-        "display_name": "TiterMax Gold Adjuvant"
+        "display_name": "Titermax Gold vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001263",
-        "display_name": "Quil-A vaccine adjuvant"
+        "display_name": "QuilA vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001267",
-        "display_name": "Saponin Vaccine Adjuvant"
+        "display_name": "saponin vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000133",
-        "display_name": null
+        "display_name": "Freund's emulsified oil adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000143",
-        "display_name": "Cholera toxin"
+        "display_name": "cholera toxin vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001341",
@@ -419,11 +419,11 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001318",
-        "display_name": "CRL1005"
+        "display_name": "CRL1005 vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001294",
-        "display_name": "GM-CSF"
+        "display_name": "GM-CSF vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001337",
@@ -438,7 +438,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001308",
-        "display_name": "PMMA"
+        "display_name": "PMMA vaccine adjuvant"
       }
     ]
   },
@@ -453,31 +453,31 @@
       },
       {
         "adjuvant_vo_id": "VO_0001292",
-        "display_name": "Gamma Inulin"
+        "display_name": "gamma Inulin vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001295",
-        "display_name": "GMDP"
+        "display_name": "GMDP vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000187",
-        "display_name": "Muramyl Dipeptide Adjuvant"
+        "display_name": "muramyl dipeptide vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001301",
-        "display_name": "MF59"
+        "display_name": "MF59 vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001343",
-        "display_name": "Immunoliposomes Containing Antibodies to Costimulatory Molecules"
+        "display_name": "immunoliposomes containing antibodies to costimulatory molecules"
       },
       {
         "adjuvant_vo_id": "VO_0001347",
-        "display_name": "non-toxic mutant E112K of Cholera Toxin mCT-E112K"
+        "display_name": "non-toxic mutant E112K of Cholera Toxin mCT-E112K vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001291",
-        "display_name": "DOC/Alum Complex"
+        "display_name": "DOC/Alum Complex vaccine adjuvant"
       }
     ]
   },
@@ -488,19 +488,19 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0000133",
-        "display_name": null
+        "display_name": "Freund's emulsified oil adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001241",
-        "display_name": "Alhydrogel"
+        "display_name": "Alhydrogel vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000139",
-        "display_name": "Freund's Complete Adjuvant"
+        "display_name": "complete Freund's adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000142",
-        "display_name": "Freund's Incomplete Adjuvant"
+        "display_name": "incomplete Freund's adjuvant"
       }
     ]
   },
@@ -511,7 +511,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001238",
-        "display_name": "Ribi Vaccine Adjuvant"
+        "display_name": "Ribi vaccine adjuvant"
       }
     ]
   },
@@ -522,11 +522,11 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001250",
-        "display_name": "MPLâ„¢ Adjuvant"
+        "display_name": "monophosphoryl lipid A vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001261",
-        "display_name": "DDA Adjuvant"
+        "display_name": "DDA vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000127",
@@ -541,7 +541,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001261",
-        "display_name": "DDA Adjuvant"
+        "display_name": "DDA vaccine adjuvant"
       }
     ]
   },
@@ -552,7 +552,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001264",
-        "display_name": "AS02"
+        "display_name": "AS02 vaccine adjuvant"
       }
     ]
   },
@@ -563,11 +563,11 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001250",
-        "display_name": "MPLâ„¢ Adjuvant"
+        "display_name": "monophosphoryl lipid A vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001261",
-        "display_name": "DDA Adjuvant"
+        "display_name": "DDA vaccine adjuvant"
       }
     ]
   },
@@ -589,15 +589,15 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001264",
-        "display_name": "AS02"
+        "display_name": "AS02 vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001250",
-        "display_name": "MPLâ„¢ Adjuvant"
+        "display_name": "monophosphoryl lipid A vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001261",
-        "display_name": "DDA Adjuvant"
+        "display_name": "DDA vaccine adjuvant"
       }
     ]
   },
@@ -608,15 +608,15 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001264",
-        "display_name": "AS02"
+        "display_name": "AS02 vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000139",
-        "display_name": "Freund's Complete Adjuvant"
+        "display_name": "complete Freund's adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001268",
-        "display_name": "Montanide ISA 720 Adjuvant"
+        "display_name": "Montanide ISA 720 vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000127",
@@ -628,43 +628,43 @@
       },
       {
         "adjuvant_vo_id": "VO_0000142",
-        "display_name": "Freund's Incomplete Adjuvant"
+        "display_name": "incomplete Freund's adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000133",
-        "display_name": null
+        "display_name": "Freund's emulsified oil adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000192",
-        "display_name": null
+        "display_name": "Montanide 103 vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001270",
-        "display_name": "Montanide ISA 51"
+        "display_name": "Montanide ISA51 vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000884",
-        "display_name": "Aluminum vaccine adjuvant"
+        "display_name": "aluminum vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001309",
-        "display_name": "Protein Cochleates"
+        "display_name": "protein cochleates vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001349",
-        "display_name": "SAF-1"
+        "display_name": "SAF-1 vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001352",
-        "display_name": "Ty Particles vaccine adjuvant"
+        "display_name": "ty particles vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0005358",
-        "display_name": null
+        "display_name": "AS01B vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0005206",
-        "display_name": null
+        "display_name": "Matrix-M vaccine adjuvant"
       }
     ]
   },
@@ -675,7 +675,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0005206",
-        "display_name": null
+        "display_name": "Matrix-M vaccine adjuvant"
       }
     ]
   },
@@ -690,7 +690,7 @@
       },
       {
         "adjuvant_vo_id": "VO_0001238",
-        "display_name": "Ribi Vaccine Adjuvant"
+        "display_name": "Ribi vaccine adjuvant"
       }
     ]
   },
@@ -705,23 +705,23 @@
       },
       {
         "adjuvant_vo_id": "VO_0000143",
-        "display_name": "Cholera toxin"
+        "display_name": "cholera toxin vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001238",
-        "display_name": "Ribi Vaccine Adjuvant"
+        "display_name": "Ribi vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000559",
-        "display_name": "Adamantylamide Dipeptide Vaccine Adjuvant"
+        "display_name": "adamantylamide dipeptide vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001250",
-        "display_name": "MPLâ„¢ Adjuvant"
+        "display_name": "monophosphoryl lipid A vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000142",
-        "display_name": "Freund's Incomplete Adjuvant"
+        "display_name": "incomplete Freund's adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000128",
@@ -733,7 +733,7 @@
       },
       {
         "adjuvant_vo_id": "VO_0000133",
-        "display_name": null
+        "display_name": "Freund's emulsified oil adjuvant"
       }
     ]
   },
@@ -770,11 +770,11 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0000139",
-        "display_name": "Freund's Complete Adjuvant"
+        "display_name": "complete Freund's adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000142",
-        "display_name": "Freund's Incomplete Adjuvant"
+        "display_name": "incomplete Freund's adjuvant"
       }
     ]
   },
@@ -831,11 +831,11 @@
       },
       {
         "adjuvant_vo_id": "VO_0000131",
-        "display_name": "Calcium phosphate vaccine adjuvant"
+        "display_name": "calcium phosphate vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001316",
-        "display_name": "Stearyl Tyrosine"
+        "display_name": "stearyl tyrosine vaccine adjuvant"
       }
     ]
   },
@@ -846,7 +846,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0000181",
-        "display_name": "Lipopolysaccharide Vaccine Adjuvant"
+        "display_name": "lipopolysaccharide vaccine adjuvant"
       }
     ]
   },
@@ -857,15 +857,15 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0000133",
-        "display_name": null
+        "display_name": "Freund's emulsified oil adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000139",
-        "display_name": "Freund's Complete Adjuvant"
+        "display_name": "complete Freund's adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000142",
-        "display_name": "Freund's Incomplete Adjuvant"
+        "display_name": "incomplete Freund's adjuvant"
       }
     ]
   },
@@ -902,7 +902,7 @@
       },
       {
         "adjuvant_vo_id": "VO_0001237",
-        "display_name": "CpG DNA Vaccine Adjuvant"
+        "display_name": "CpG DNA vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000193",
@@ -910,15 +910,15 @@
       },
       {
         "adjuvant_vo_id": "VO_0000142",
-        "display_name": "Freund's Incomplete Adjuvant"
+        "display_name": "incomplete Freund's adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001263",
-        "display_name": "Quil-A vaccine adjuvant"
+        "display_name": "QuilA vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000139",
-        "display_name": "Freund's Complete Adjuvant"
+        "display_name": "complete Freund's adjuvant"
       }
     ]
   },
@@ -948,7 +948,7 @@
       },
       {
         "adjuvant_vo_id": "VO_0001250",
-        "display_name": "MPLâ„¢ Adjuvant"
+        "display_name": "monophosphoryl lipid A vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000127",
@@ -956,11 +956,11 @@
       },
       {
         "adjuvant_vo_id": "VO_0000884",
-        "display_name": "Aluminum vaccine adjuvant"
+        "display_name": "aluminum vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000133",
-        "display_name": null
+        "display_name": "Freund's emulsified oil adjuvant"
       }
     ]
   },
@@ -971,7 +971,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0000884",
-        "display_name": "Aluminum vaccine adjuvant"
+        "display_name": "aluminum vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000127",
@@ -1001,15 +1001,15 @@
       },
       {
         "adjuvant_vo_id": "VO_0001302",
-        "display_name": "MTP-PE Liposomes"
+        "display_name": "MTP-PE Liposomes vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001296",
-        "display_name": "Recombinant hIFN-gamma/Interferon-g"
+        "display_name": "recombinant hIFN-gamma/Interferon-g vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001339",
-        "display_name": "Cationic liposome-DNA complex JVRS-100"
+        "display_name": "cationic liposome-DNA complex JVRS-100 vaccin adjuvant"
       }
     ]
   },
@@ -1035,7 +1035,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001320",
-        "display_name": "AS03"
+        "display_name": "AS03 vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001315",
@@ -1043,27 +1043,27 @@
       },
       {
         "adjuvant_vo_id": "VO_0000146",
-        "display_name": "Corynebacterium-derived P40 Vaccine Adjuvant"
+        "display_name": "Corynebacterium-derived P40 vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001330",
-        "display_name": "AF03"
+        "display_name": "AF03 vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001301",
-        "display_name": "MF59"
+        "display_name": "MF59 vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0005294",
-        "display_name": null
+        "display_name": "defective viral genome-derived oligonucleotide vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0005270",
-        "display_name": "1V270"
+        "display_name": "1V270 vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0005295",
-        "display_name": null
+        "display_name": "CaPNP (CaPtivant)(TM) vaccine adjuvant"
       }
     ]
   },
@@ -1074,7 +1074,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0005303",
-        "display_name": null
+        "display_name": "2F52 vaccine adjuvant"
       }
     ]
   },
@@ -1085,31 +1085,31 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001242",
-        "display_name": "Cholera toxin B subunit"
+        "display_name": "cholera toxin B subunit vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001290",
-        "display_name": "CTA1-DD gene fusion protein"
+        "display_name": "cholera toxin A1-subunit-ProteinA D-fragment fusion protein"
       },
       {
         "adjuvant_vo_id": "VO_0001241",
-        "display_name": "Alhydrogel"
+        "display_name": "Alhydrogel vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001297",
-        "display_name": "Interleukin-1Î²"
+        "display_name": "interleukin-1b vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001298",
-        "display_name": "Interleukin-2"
+        "display_name": "interleukin-2 vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001299",
-        "display_name": "Interleukin-7"
+        "display_name": "interleukin-7 vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0005302",
-        "display_name": null
+        "display_name": "Adjuplex+GLA vaccine adjuvant"
       }
     ]
   },
@@ -1120,7 +1120,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0005207",
-        "display_name": null
+        "display_name": "Advax vaccine adjuvant"
       }
     ]
   },
@@ -1153,7 +1153,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001265",
-        "display_name": "AS04"
+        "display_name": "AS04 vaccine adjuvant"
       }
     ]
   },
@@ -1168,11 +1168,11 @@
       },
       {
         "adjuvant_vo_id": "VO_0000142",
-        "display_name": "Freund's Incomplete Adjuvant"
+        "display_name": "incomplete Freund's adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000884",
-        "display_name": "Aluminum vaccine adjuvant"
+        "display_name": "aluminum vaccine adjuvant"
       }
     ]
   },
@@ -1209,23 +1209,23 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001290",
-        "display_name": "CTA1-DD gene fusion protein"
+        "display_name": "cholera toxin A1-subunit-ProteinA D-fragment fusion protein"
       },
       {
         "adjuvant_vo_id": "VO_0001321",
-        "display_name": "LTR192G Vaccine Adjuvant"
+        "display_name": "LTR192G vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000143",
-        "display_name": "Cholera toxin"
+        "display_name": "cholera toxin vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000142",
-        "display_name": "Freund's Incomplete Adjuvant"
+        "display_name": "incomplete Freund's adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000351",
-        "display_name": "Adjumerâ„¢"
+        "display_name": "Adjumer vaccine adjuvant"
       }
     ]
   },
@@ -1236,7 +1236,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0000884",
-        "display_name": "Aluminum vaccine adjuvant"
+        "display_name": "aluminum vaccine adjuvant"
       }
     ]
   },
@@ -1247,11 +1247,11 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0000133",
-        "display_name": null
+        "display_name": "Freund's emulsified oil adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000142",
-        "display_name": "Freund's Incomplete Adjuvant"
+        "display_name": "incomplete Freund's adjuvant"
       }
     ]
   },
@@ -1322,7 +1322,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0000142",
-        "display_name": "Freund's Incomplete Adjuvant"
+        "display_name": "incomplete Freund's adjuvant"
       }
     ]
   },
@@ -1333,7 +1333,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001288",
-        "display_name": "AvridineÂ®"
+        "display_name": "Avridine vaccine adjuvant"
       }
     ]
   },
@@ -1344,7 +1344,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001269",
-        "display_name": "Montanide Incomplete Seppic Adjuvant"
+        "display_name": "Montanide incomplete Seppic adjuvant"
       }
     ]
   },
@@ -1355,11 +1355,11 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001272",
-        "display_name": "Etx B subunit Adjuvant"
+        "display_name": "EtxB vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001324",
-        "display_name": "Matrix-S"
+        "display_name": "Matrix-S vaccine adjuvant"
       }
     ]
   },
@@ -1381,11 +1381,11 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0000139",
-        "display_name": "Freund's Complete Adjuvant"
+        "display_name": "complete Freund's adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000133",
-        "display_name": null
+        "display_name": "Freund's emulsified oil adjuvant"
       }
     ]
   },
@@ -1396,7 +1396,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0000139",
-        "display_name": "Freund's Complete Adjuvant"
+        "display_name": "complete Freund's adjuvant"
       }
     ]
   },
@@ -1407,7 +1407,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001267",
-        "display_name": "Saponin Vaccine Adjuvant"
+        "display_name": "saponin vaccine adjuvant"
       }
     ]
   },
@@ -1418,11 +1418,11 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001267",
-        "display_name": "Saponin Vaccine Adjuvant"
+        "display_name": "saponin vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000757",
-        "display_name": "ISCOM(s)â„¢"
+        "display_name": "ISCOM vaccine adjuvant"
       }
     ]
   },
@@ -1433,7 +1433,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0000139",
-        "display_name": "Freund's Complete Adjuvant"
+        "display_name": "complete Freund's adjuvant"
       }
     ]
   },
@@ -1444,19 +1444,19 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0000143",
-        "display_name": "Cholera toxin"
+        "display_name": "cholera toxin vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001238",
-        "display_name": "Ribi Vaccine Adjuvant"
+        "display_name": "Ribi vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001267",
-        "display_name": "Saponin Vaccine Adjuvant"
+        "display_name": "saponin vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001266",
-        "display_name": "VSA-3 Adjuvant"
+        "display_name": "VSA-3 vaccine adjuvant"
       }
     ]
   },
@@ -1467,7 +1467,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001273",
-        "display_name": "Polygen Vaccine Adjuvant"
+        "display_name": "Polygen vaccine adjuvant"
       }
     ]
   },
@@ -1478,7 +1478,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001147",
-        "display_name": "IL-12 Vaccine Adjuvant"
+        "display_name": "IL-12 vacince adjuvant"
       }
     ]
   },
@@ -1489,7 +1489,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001263",
-        "display_name": "Quil-A vaccine adjuvant"
+        "display_name": "QuilA vaccine adjuvant"
       }
     ]
   },
@@ -1500,19 +1500,19 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001147",
-        "display_name": "IL-12 Vaccine Adjuvant"
+        "display_name": "IL-12 vacince adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000366",
-        "display_name": "Liposomes"
+        "display_name": "liposome-based vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001262",
-        "display_name": "Cationic Liposomal Vaccine Adjuvant"
+        "display_name": "cationic liposomal vaccine adjuvant DDA:TDB"
       },
       {
         "adjuvant_vo_id": "VO_0001307",
-        "display_name": "Non-Ionic Surfactant Vesicles"
+        "display_name": "non-ionic surfactant vesicles vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001345",
@@ -1527,7 +1527,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0000191",
-        "display_name": "Arlacel A"
+        "display_name": "arlacel A vaccine adjuvant"
       }
     ]
   },
@@ -1538,7 +1538,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0000139",
-        "display_name": "Freund's Complete Adjuvant"
+        "display_name": "complete Freund's adjuvant"
       }
     ]
   },
@@ -1549,7 +1549,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001294",
-        "display_name": "GM-CSF"
+        "display_name": "GM-CSF vaccine adjuvant"
       }
     ]
   },
@@ -1560,11 +1560,11 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001294",
-        "display_name": "GM-CSF"
+        "display_name": "GM-CSF vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001318",
-        "display_name": "CRL1005"
+        "display_name": "CRL1005 vaccine adjuvant"
       }
     ]
   },
@@ -1575,7 +1575,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001300",
-        "display_name": "Loxoribine"
+        "display_name": "Loxoribine vaccine adjuvant"
       }
     ]
   },
@@ -1586,7 +1586,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001294",
-        "display_name": "GM-CSF"
+        "display_name": "GM-CSF vaccine adjuvant"
       }
     ]
   },
@@ -1597,7 +1597,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001271",
-        "display_name": null
+        "display_name": "Montanide vaccine adjuvant"
       }
     ]
   },
@@ -1608,7 +1608,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001294",
-        "display_name": "GM-CSF"
+        "display_name": "GM-CSF vaccine adjuvant"
       }
     ]
   },
@@ -1619,23 +1619,23 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001294",
-        "display_name": "GM-CSF"
+        "display_name": "GM-CSF vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000757",
-        "display_name": "ISCOM(s)â„¢"
+        "display_name": "ISCOM vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001147",
-        "display_name": "IL-12 Vaccine Adjuvant"
+        "display_name": "IL-12 vacince adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001293",
-        "display_name": "Gerbu Adjuvant"
+        "display_name": "Gerbu vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000884",
-        "display_name": "Aluminum vaccine adjuvant"
+        "display_name": "aluminum vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000127",
@@ -1643,23 +1643,23 @@
       },
       {
         "adjuvant_vo_id": "VO_0001286",
-        "display_name": "Algammulin"
+        "display_name": "Algammulin vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001263",
-        "display_name": "Quil-A vaccine adjuvant"
+        "display_name": "QuilA vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001317",
-        "display_name": "TheramideÂ®"
+        "display_name": "Theramide vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001328",
-        "display_name": "Imiquimod"
+        "display_name": "imiquimod vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001333",
-        "display_name": "ISCOMATRIXÂ®"
+        "display_name": "ISCOMATRIX vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001336",
@@ -1667,7 +1667,7 @@
       },
       {
         "adjuvant_vo_id": "VO_0000142",
-        "display_name": "Freund's Incomplete Adjuvant"
+        "display_name": "incomplete Freund's adjuvant"
       }
     ]
   },
@@ -1678,11 +1678,11 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001301",
-        "display_name": "MF59"
+        "display_name": "MF59 vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001302",
-        "display_name": "MTP-PE Liposomes"
+        "display_name": "MTP-PE Liposomes vaccine adjuvant"
       }
     ]
   },
@@ -1704,7 +1704,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0000142",
-        "display_name": "Freund's Incomplete Adjuvant"
+        "display_name": "incomplete Freund's adjuvant"
       }
     ]
   },
@@ -1768,15 +1768,15 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001322",
-        "display_name": "E. coli heat-labile toxin, LT"
+        "display_name": "E. coli heat-labile toxin vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000133",
-        "display_name": null
+        "display_name": "Freund's emulsified oil adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000884",
-        "display_name": "Aluminum vaccine adjuvant"
+        "display_name": "aluminum vaccine adjuvant"
       }
     ]
   },
@@ -1787,7 +1787,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0000142",
-        "display_name": "Freund's Incomplete Adjuvant"
+        "display_name": "incomplete Freund's adjuvant"
       }
     ]
   },
@@ -1798,15 +1798,15 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0000143",
-        "display_name": "Cholera toxin"
+        "display_name": "cholera toxin vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001237",
-        "display_name": "CpG DNA Vaccine Adjuvant"
+        "display_name": "CpG DNA vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000142",
-        "display_name": "Freund's Incomplete Adjuvant"
+        "display_name": "incomplete Freund's adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001334",
@@ -1836,7 +1836,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001147",
-        "display_name": "IL-12 Vaccine Adjuvant"
+        "display_name": "IL-12 vacince adjuvant"
       }
     ]
   },
@@ -1847,15 +1847,15 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001259",
-        "display_name": "Killed Corynebacterium parvum Vaccine Adjuvant"
+        "display_name": "killed Corynebacterium parvum vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001237",
-        "display_name": "CpG DNA Vaccine Adjuvant"
+        "display_name": "CpG DNA vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000142",
-        "display_name": "Freund's Incomplete Adjuvant"
+        "display_name": "incomplete Freund's adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001345",
@@ -1870,7 +1870,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001147",
-        "display_name": "IL-12 Vaccine Adjuvant"
+        "display_name": "IL-12 vacince adjuvant"
       }
     ]
   },
@@ -1881,11 +1881,11 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001268",
-        "display_name": "Montanide ISA 720 Adjuvant"
+        "display_name": "Montanide ISA 720 vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001250",
-        "display_name": "MPLâ„¢ Adjuvant"
+        "display_name": "monophosphoryl lipid A vaccine adjuvant"
       }
     ]
   },
@@ -1896,11 +1896,11 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001259",
-        "display_name": "Killed Corynebacterium parvum Vaccine Adjuvant"
+        "display_name": "killed Corynebacterium parvum vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000139",
-        "display_name": "Freund's Complete Adjuvant"
+        "display_name": "complete Freund's adjuvant"
       }
     ]
   },
@@ -1911,27 +1911,27 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001263",
-        "display_name": "Quil-A vaccine adjuvant"
+        "display_name": "QuilA vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001147",
-        "display_name": "IL-12 Vaccine Adjuvant"
+        "display_name": "IL-12 vacince adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001294",
-        "display_name": "GM-CSF"
+        "display_name": "GM-CSF vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001237",
-        "display_name": "CpG DNA Vaccine Adjuvant"
+        "display_name": "CpG DNA vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000139",
-        "display_name": "Freund's Complete Adjuvant"
+        "display_name": "complete Freund's adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000142",
-        "display_name": "Freund's Incomplete Adjuvant"
+        "display_name": "incomplete Freund's adjuvant"
       }
     ]
   },
@@ -1942,11 +1942,11 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001147",
-        "display_name": "IL-12 Vaccine Adjuvant"
+        "display_name": "IL-12 vacince adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001294",
-        "display_name": "GM-CSF"
+        "display_name": "GM-CSF vaccine adjuvant"
       }
     ]
   },
@@ -1957,23 +1957,23 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001147",
-        "display_name": "IL-12 Vaccine Adjuvant"
+        "display_name": "IL-12 vacince adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000133",
-        "display_name": null
+        "display_name": "Freund's emulsified oil adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000139",
-        "display_name": "Freund's Complete Adjuvant"
+        "display_name": "complete Freund's adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000142",
-        "display_name": "Freund's Incomplete Adjuvant"
+        "display_name": "incomplete Freund's adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001237",
-        "display_name": "CpG DNA Vaccine Adjuvant"
+        "display_name": "CpG DNA vaccine adjuvant"
       }
     ]
   },
@@ -1984,11 +1984,11 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0000884",
-        "display_name": "Aluminum vaccine adjuvant"
+        "display_name": "aluminum vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001147",
-        "display_name": "IL-12 Vaccine Adjuvant"
+        "display_name": "IL-12 vacince adjuvant"
       }
     ]
   },
@@ -1999,7 +1999,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0000139",
-        "display_name": "Freund's Complete Adjuvant"
+        "display_name": "complete Freund's adjuvant"
       }
     ]
   },
@@ -2010,7 +2010,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001260",
-        "display_name": "TiterMax Gold Adjuvant"
+        "display_name": "Titermax Gold vaccine adjuvant"
       }
     ]
   },
@@ -2021,7 +2021,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001237",
-        "display_name": "CpG DNA Vaccine Adjuvant"
+        "display_name": "CpG DNA vaccine adjuvant"
       }
     ]
   },
@@ -2032,11 +2032,11 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0000139",
-        "display_name": "Freund's Complete Adjuvant"
+        "display_name": "complete Freund's adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000142",
-        "display_name": "Freund's Incomplete Adjuvant"
+        "display_name": "incomplete Freund's adjuvant"
       }
     ]
   },
@@ -2047,7 +2047,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001237",
-        "display_name": "CpG DNA Vaccine Adjuvant"
+        "display_name": "CpG DNA vaccine adjuvant"
       }
     ]
   },
@@ -2058,11 +2058,11 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0000139",
-        "display_name": "Freund's Complete Adjuvant"
+        "display_name": "complete Freund's adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000142",
-        "display_name": "Freund's Incomplete Adjuvant"
+        "display_name": "incomplete Freund's adjuvant"
       }
     ]
   },
@@ -2073,11 +2073,11 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0000142",
-        "display_name": "Freund's Incomplete Adjuvant"
+        "display_name": "incomplete Freund's adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000139",
-        "display_name": "Freund's Complete Adjuvant"
+        "display_name": "complete Freund's adjuvant"
       }
     ]
   },
@@ -2088,11 +2088,11 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001237",
-        "display_name": "CpG DNA Vaccine Adjuvant"
+        "display_name": "CpG DNA vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001250",
-        "display_name": "MPLâ„¢ Adjuvant"
+        "display_name": "monophosphoryl lipid A vaccine adjuvant"
       }
     ]
   },
@@ -2103,11 +2103,11 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0000139",
-        "display_name": "Freund's Complete Adjuvant"
+        "display_name": "complete Freund's adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000142",
-        "display_name": "Freund's Incomplete Adjuvant"
+        "display_name": "incomplete Freund's adjuvant"
       }
     ]
   },
@@ -2118,7 +2118,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001237",
-        "display_name": "CpG DNA Vaccine Adjuvant"
+        "display_name": "CpG DNA vaccine adjuvant"
       }
     ]
   },
@@ -2129,11 +2129,11 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0000143",
-        "display_name": "Cholera toxin"
+        "display_name": "cholera toxin vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001251",
-        "display_name": "LTK63 Vaccine Mutant Adjuvant"
+        "display_name": "LTK63 vaccine mutant"
       },
       {
         "adjuvant_vo_id": "VO_0000127",
@@ -2141,7 +2141,7 @@
       },
       {
         "adjuvant_vo_id": "VO_0000142",
-        "display_name": "Freund's Incomplete Adjuvant"
+        "display_name": "incomplete Freund's adjuvant"
       }
     ]
   },
@@ -2152,11 +2152,11 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0000139",
-        "display_name": "Freund's Complete Adjuvant"
+        "display_name": "complete Freund's adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000142",
-        "display_name": "Freund's Incomplete Adjuvant"
+        "display_name": "incomplete Freund's adjuvant"
       }
     ]
   },
@@ -2167,11 +2167,11 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0000139",
-        "display_name": "Freund's Complete Adjuvant"
+        "display_name": "complete Freund's adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000142",
-        "display_name": "Freund's Incomplete Adjuvant"
+        "display_name": "incomplete Freund's adjuvant"
       }
     ]
   },
@@ -2182,7 +2182,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0000366",
-        "display_name": "Liposomes"
+        "display_name": "liposome-based vaccine adjuvant"
       }
     ]
   },
@@ -2197,7 +2197,7 @@
       },
       {
         "adjuvant_vo_id": "VO_0000142",
-        "display_name": "Freund's Incomplete Adjuvant"
+        "display_name": "incomplete Freund's adjuvant"
       }
     ]
   },
@@ -2208,7 +2208,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0000139",
-        "display_name": "Freund's Complete Adjuvant"
+        "display_name": "complete Freund's adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001323",
@@ -2227,15 +2227,15 @@
       },
       {
         "adjuvant_vo_id": "VO_0000139",
-        "display_name": "Freund's Complete Adjuvant"
+        "display_name": "complete Freund's adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001263",
-        "display_name": "Quil-A vaccine adjuvant"
+        "display_name": "QuilA vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000142",
-        "display_name": "Freund's Incomplete Adjuvant"
+        "display_name": "incomplete Freund's adjuvant"
       }
     ]
   },
@@ -2246,23 +2246,23 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001242",
-        "display_name": "Cholera toxin B subunit"
+        "display_name": "cholera toxin B subunit vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000133",
-        "display_name": null
+        "display_name": "Freund's emulsified oil adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000143",
-        "display_name": "Cholera toxin"
+        "display_name": "cholera toxin vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000139",
-        "display_name": "Freund's Complete Adjuvant"
+        "display_name": "complete Freund's adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001312",
-        "display_name": "Rehydragel LV"
+        "display_name": "Rehydragel LV vaccine adjuvant"
       }
     ]
   },
@@ -2273,7 +2273,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001238",
-        "display_name": "Ribi Vaccine Adjuvant"
+        "display_name": "Ribi vaccine adjuvant"
       }
     ]
   },
@@ -2284,7 +2284,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0000133",
-        "display_name": null
+        "display_name": "Freund's emulsified oil adjuvant"
       }
     ]
   },
@@ -2295,7 +2295,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001314",
-        "display_name": "Specol"
+        "display_name": "Specol vaccine adjuvant"
       }
     ]
   },
@@ -2306,7 +2306,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001287",
-        "display_name": "Bay R1005"
+        "display_name": "BAY R1005 vaccine adjuvant"
       }
     ]
   },
@@ -2317,7 +2317,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001306",
-        "display_name": "NAGO"
+        "display_name": "NAGO vaccine adjuvant"
       }
     ]
   },
@@ -2339,7 +2339,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0000884",
-        "display_name": "Aluminum vaccine adjuvant"
+        "display_name": "aluminum vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000127",
@@ -2354,15 +2354,15 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0001348",
-        "display_name": null
+        "display_name": "cholera toxin derived vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000139",
-        "display_name": "Freund's Complete Adjuvant"
+        "display_name": "complete Freund's adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000142",
-        "display_name": "Freund's Incomplete Adjuvant"
+        "display_name": "incomplete Freund's adjuvant"
       }
     ]
   },
@@ -2373,7 +2373,7 @@
     "adjuvant_candidates": [
       {
         "adjuvant_vo_id": "VO_0005301",
-        "display_name": "Alhydroxiquim-II"
+        "display_name": "Alhydroxiquim-II vaccine adjuvant"
       }
     ]
   },
@@ -2388,15 +2388,15 @@
       },
       {
         "adjuvant_vo_id": "VO_0000139",
-        "display_name": "Freund's Complete Adjuvant"
+        "display_name": "complete Freund's adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000142",
-        "display_name": "Freund's Incomplete Adjuvant"
+        "display_name": "incomplete Freund's adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000192",
-        "display_name": null
+        "display_name": "Montanide 103 vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000128",
@@ -2404,23 +2404,23 @@
       },
       {
         "adjuvant_vo_id": "VO_0001294",
-        "display_name": "GM-CSF"
+        "display_name": "GM-CSF vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001286",
-        "display_name": "Algammulin"
+        "display_name": "Algammulin vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001313",
-        "display_name": "Sclavo peptide"
+        "display_name": "Sclavo peptide vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001289",
-        "display_name": "Calcium Phosphate Gel"
+        "display_name": "calcium phosphate gel vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001329",
-        "display_name": "Resiquimod"
+        "display_name": "resiquimod vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0001338",
@@ -2428,43 +2428,43 @@
       },
       {
         "adjuvant_vo_id": "VO_0001335",
-        "display_name": "Albumin-heparin microparticles vaccine adjuvant"
+        "display_name": "albumin-heparin microparticles vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000133",
-        "display_name": null
+        "display_name": "Freund's emulsified oil adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000143",
-        "display_name": "Cholera toxin"
+        "display_name": "cholera toxin vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0005324",
-        "display_name": null
+        "display_name": "Advax-CpG55.2 vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0005270",
-        "display_name": "1V270"
+        "display_name": "1V270 vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0005271",
-        "display_name": null
+        "display_name": "2B182C vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0005295",
-        "display_name": null
+        "display_name": "CaPNP (CaPtivant)(TM) vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0005298",
-        "display_name": null
+        "display_name": "BECC438b vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0005330",
-        "display_name": null
+        "display_name": "CPDI-01 vaccine adjuvant"
       },
       {
         "adjuvant_vo_id": "VO_0000884",
-        "display_name": "Aluminum vaccine adjuvant"
+        "display_name": "aluminum vaccine adjuvant"
       }
     ]
   }

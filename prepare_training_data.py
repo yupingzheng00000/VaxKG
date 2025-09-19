@@ -24,7 +24,7 @@ import json
 import numbers
 from collections import OrderedDict
 from pathlib import Path
-from typing import Dict, Iterable, List, Sequence, Tuple
+from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 
 import pandas as pd
 
@@ -56,6 +56,11 @@ MISSING_VALUE_SUMMARY_COLUMNS: Sequence[str] = (
     "platform_group",
     "adjuvant_vo_id",
     "adjuvant_label",
+    "adjuvant_description",
+)
+
+DEFAULT_VO_TERMS_PATH = Path(__file__).with_name(
+    "VO ID term editing - vaccine adjvant.csv"
 )
 
 
@@ -87,6 +92,144 @@ def load_source_tables(data_dir: Path) -> Dict[str, pd.DataFrame]:
             raise FileNotFoundError(f"Expected CSV '{filename}' in {data_dir!s}")
         tables[key] = read_csv_with_fallback(csv_path)
     return tables
+
+
+def _normalize_text_value(value: object) -> object:
+    """Normalize whitespace-only strings to ``pd.NA`` and coerce numbers."""
+
+    if isinstance(value, str):
+        normalized = " ".join(value.replace("\r", " ").split())
+        return normalized or pd.NA
+    if pd.isna(value):
+        return pd.NA
+    if isinstance(value, numbers.Integral):
+        return str(int(value))
+    if isinstance(value, numbers.Real):
+        real_value = float(value)
+        if real_value.is_integer():
+            return str(int(real_value))
+        return str(real_value)
+    text = str(value).strip()
+    return text or pd.NA
+
+
+def _normalize_text_series(series: pd.Series) -> pd.Series:
+    """Apply :func:`_normalize_text_value` element-wise."""
+
+    return series.map(_normalize_text_value)
+
+
+def _normalize_pipe_separated(value: object) -> object:
+    """Convert ``|``-delimited lists into semi-colon separated strings."""
+
+    normalized = _normalize_text_value(value)
+    if normalized is pd.NA or pd.isna(normalized):
+        return pd.NA
+    parts: List[str] = []
+    for chunk in str(normalized).split("|"):
+        cleaned = " ".join(chunk.replace("\r", " ").split())
+        if cleaned:
+            parts.append(cleaned)
+    if not parts:
+        return pd.NA
+    return "; ".join(parts)
+
+
+def load_vo_term_metadata(csv_path: Path) -> pd.DataFrame:
+    """Load curated VO adjuvant metadata exported from term editing sheets."""
+
+    if not csv_path.exists():
+        raise FileNotFoundError(f"Expected VO term metadata CSV at {csv_path!s}")
+
+    vo_terms = read_csv_with_fallback(csv_path, skiprows=[1])
+
+    rename_map = {
+        "ID": "vo_term_id",
+        "LABEL": "vo_preferred_label",
+        "inSubset": "vo_subset",
+        "Parent": "vo_parent",
+        "Proposed parent for those under root": "vo_proposed_parent",
+        "alternative label": "vo_alternative_labels",
+        "definition": "vo_definition",
+        "definition source": "vo_definition_source",
+        "term editor": "vo_term_editors",
+        "seeAlso": "vo_see_also",
+        "editor note": "vo_editor_notes",
+        "VAC adjuvant ID": "vac_adjuvant_id",
+        "VAC adjuvant site": "vac_adjuvant_site",
+        "term tracker item": "term_tracker_item",
+        "has molecular receptor": "vo_molecular_receptors",
+        "has role": "vo_roles",
+        "induces immune profile": "vo_immune_profile",
+        "Imm profile ref.": "vo_immune_profile_refs",
+        "Imm profile editor": "vo_immune_profile_editor",
+        "derives from": "vo_derives_from",
+        "equivalent axioms": "vo_equivalent_axioms",
+    }
+
+    vo_terms = vo_terms.rename(columns=rename_map)
+
+    for column in vo_terms.columns:
+        vo_terms[column] = _normalize_text_series(vo_terms[column])
+
+    pipe_columns = {
+        "vo_alternative_labels",
+        "vo_definition_source",
+        "vo_term_editors",
+        "vo_see_also",
+        "vo_editor_notes",
+        "vac_adjuvant_id",
+        "vac_adjuvant_site",
+        "term_tracker_item",
+        "vo_molecular_receptors",
+        "vo_roles",
+        "vo_immune_profile",
+        "vo_immune_profile_refs",
+        "vo_immune_profile_editor",
+        "vo_derives_from",
+        "vo_equivalent_axioms",
+    }
+
+    for column in pipe_columns.intersection(vo_terms.columns):
+        vo_terms[column] = vo_terms[column].map(_normalize_pipe_separated)
+
+    vo_terms["adjuvant_vo_id"] = vo_terms["vo_term_id"].map(
+        lambda value: value.replace(":", "_") if isinstance(value, str) else pd.NA
+    )
+
+    vo_terms = vo_terms.dropna(subset=["adjuvant_vo_id"])
+    vo_terms = vo_terms.drop_duplicates(subset=["adjuvant_vo_id"], keep="first")
+
+    ordered_columns = [
+        "adjuvant_vo_id",
+        "vo_term_id",
+        "vo_preferred_label",
+        "vo_alternative_labels",
+        "vo_definition",
+        "vo_definition_source",
+        "vo_term_editors",
+        "vo_see_also",
+        "vo_editor_notes",
+        "vo_subset",
+        "vo_parent",
+        "vo_proposed_parent",
+        "vac_adjuvant_id",
+        "vac_adjuvant_site",
+        "term_tracker_item",
+        "vo_molecular_receptors",
+        "vo_roles",
+        "vo_immune_profile",
+        "vo_immune_profile_refs",
+        "vo_immune_profile_editor",
+        "vo_derives_from",
+        "vo_equivalent_axioms",
+    ]
+
+    existing_columns = [column for column in ordered_columns if column in vo_terms.columns]
+    remaining_columns = [
+        column for column in vo_terms.columns if column not in existing_columns
+    ]
+    return vo_terms[existing_columns + remaining_columns]
 
 
 def _unique_preserving_order(series: pd.Series) -> List[str]:
@@ -179,6 +322,7 @@ def build_adjuvant_metadata(
     adjuvants: pd.DataFrame,
     vaxjo: pd.DataFrame,
     vaxvec: pd.DataFrame,
+    vo_terms: Optional[pd.DataFrame] = None,
 ) -> pd.DataFrame:
     """Merge adjuvant usage rows with Vaxjo/Vaxvec descriptors."""
 
@@ -228,6 +372,7 @@ def build_adjuvant_metadata(
                 "c_adjuvant_id",
                 "c_adjuvant_vo_id",
                 "c_adjuvant_label",
+                "c_adjuvant_description",
                 "c_vaccine_id",
                 "c_curation_flag",
             ]
@@ -237,6 +382,7 @@ def build_adjuvant_metadata(
                 "c_adjuvant_id": "adjuvant_record_id",
                 "c_adjuvant_vo_id": "adjuvant_vo_id",
                 "c_adjuvant_label": "adjuvant_label",
+                "c_adjuvant_description": "adjuvant_description",
                 "c_vaccine_id": "vaccine_id",
                 "c_curation_flag": "adjuvant_curation_flag",
             }
@@ -256,23 +402,88 @@ def build_adjuvant_metadata(
         )
     )
 
-    adjuvant_meta["adjuvant_display_name"] = (
-        adjuvant_meta["adjuvant_label"]
-        .combine_first(adjuvant_meta["vaxjo_name"])
-        .combine_first(adjuvant_meta["vaxvec_name"])
-    )
+    text_columns = [
+        "adjuvant_label",
+        "adjuvant_description",
+        "vaxjo_name",
+        "vaxjo_description",
+        "vaxvec_name",
+        "vaxvec_description",
+    ]
+    for column in text_columns:
+        if column in adjuvant_meta.columns:
+            adjuvant_meta[column] = _normalize_text_series(adjuvant_meta[column])
+
+    if vo_terms is not None:
+        adjuvant_meta = adjuvant_meta.merge(
+            vo_terms, on="adjuvant_vo_id", how="left"
+        )
+
+    if "vo_preferred_label" in adjuvant_meta.columns:
+        adjuvant_meta["adjuvant_label"] = adjuvant_meta["adjuvant_label"].combine_first(
+            adjuvant_meta["vo_preferred_label"]
+        )
+
+    if "vaxjo_name" in adjuvant_meta.columns:
+        adjuvant_meta["adjuvant_label"] = adjuvant_meta["adjuvant_label"].combine_first(
+            adjuvant_meta["vaxjo_name"]
+        )
+    if "vaxvec_name" in adjuvant_meta.columns:
+        adjuvant_meta["adjuvant_label"] = adjuvant_meta["adjuvant_label"].combine_first(
+            adjuvant_meta["vaxvec_name"]
+        )
+
+    if "vo_definition" in adjuvant_meta.columns:
+        adjuvant_meta["adjuvant_description"] = adjuvant_meta[
+            "adjuvant_description"
+        ].combine_first(adjuvant_meta["vo_definition"])
+    if "vaxjo_description" in adjuvant_meta.columns:
+        adjuvant_meta["adjuvant_description"] = adjuvant_meta[
+            "adjuvant_description"
+        ].combine_first(adjuvant_meta["vaxjo_description"])
+    if "vaxvec_description" in adjuvant_meta.columns:
+        adjuvant_meta["adjuvant_description"] = adjuvant_meta[
+            "adjuvant_description"
+        ].combine_first(adjuvant_meta["vaxvec_description"])
+
+    adjuvant_meta["adjuvant_display_name"] = adjuvant_meta["adjuvant_label"]
+    if "vo_preferred_label" in adjuvant_meta.columns:
+        adjuvant_meta["adjuvant_display_name"] = adjuvant_meta[
+            "adjuvant_display_name"
+        ].combine_first(adjuvant_meta["vo_preferred_label"])
+    if "vaxjo_name" in adjuvant_meta.columns:
+        adjuvant_meta["adjuvant_display_name"] = adjuvant_meta[
+            "adjuvant_display_name"
+        ].combine_first(adjuvant_meta["vaxjo_name"])
+    if "vaxvec_name" in adjuvant_meta.columns:
+        adjuvant_meta["adjuvant_display_name"] = adjuvant_meta[
+            "adjuvant_display_name"
+        ].combine_first(adjuvant_meta["vaxvec_name"])
+
+    if "vo_alternative_labels" in adjuvant_meta.columns and "adjuvant_synonyms" not in adjuvant_meta.columns:
+        adjuvant_meta["adjuvant_synonyms"] = adjuvant_meta["vo_alternative_labels"]
+    if "vo_immune_profile" in adjuvant_meta.columns and "adjuvant_immune_profile" not in adjuvant_meta.columns:
+        adjuvant_meta["adjuvant_immune_profile"] = adjuvant_meta["vo_immune_profile"]
+    if "vo_roles" in adjuvant_meta.columns and "adjuvant_roles" not in adjuvant_meta.columns:
+        adjuvant_meta["adjuvant_roles"] = adjuvant_meta["vo_roles"]
+    if "vo_molecular_receptors" in adjuvant_meta.columns and "adjuvant_molecular_receptors" not in adjuvant_meta.columns:
+        adjuvant_meta["adjuvant_molecular_receptors"] = adjuvant_meta[
+            "vo_molecular_receptors"
+        ]
 
     return adjuvant_meta
 
 
-def build_training_dataset(tables: Dict[str, pd.DataFrame]) -> pd.DataFrame:
+def build_training_dataset(
+    tables: Dict[str, pd.DataFrame], vo_terms: Optional[pd.DataFrame] = None
+) -> pd.DataFrame:
     """Return the fully-joined training dataset."""
 
     context = build_vaccine_context_table(
         tables["vaccines"], tables["pathogens"], tables["vaccine_detail"]
     )
     adjuvant_meta = build_adjuvant_metadata(
-        tables["adjuvants"], tables["vaxjo"], tables["vaxvec"]
+        tables["adjuvants"], tables["vaxjo"], tables["vaxvec"], vo_terms
     )
 
     dataset = (
@@ -514,13 +725,29 @@ def parse_args() -> argparse.Namespace:
         default=Path("data/processed"),
         help="Directory where derived datasets will be written",
     )
+    parser.add_argument(
+        "--vo-terms-path",
+        type=Path,
+        default=DEFAULT_VO_TERMS_PATH,
+        help=(
+            "CSV file containing curated VO adjuvant metadata used to enrich "
+            "labels and descriptions (default: %(default)s)"
+        ),
+    )
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
     tables = load_source_tables(args.data_dir)
-    dataset = build_training_dataset(tables)
+    vo_terms: Optional[pd.DataFrame] = None
+    if args.vo_terms_path is not None:
+        vo_terms = load_vo_term_metadata(args.vo_terms_path)
+        print(
+            f"Loaded {len(vo_terms):,} VO adjuvant term rows from {args.vo_terms_path}"
+        )
+
+    dataset = build_training_dataset(tables, vo_terms)
 
     missing_before = analyze_missing_diseases(dataset, tables["pathogens"])
     if missing_before:
