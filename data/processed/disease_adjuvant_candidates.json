@@ -4,35 +4,35 @@
     "disease_name": "Anthrax",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0001241",
+        "adjuvant_vo_id": "VO:0001241",
         "display_name": "Aluminum Hydroxide"
       },
       {
-        "adjuvant_vo_id": "VO_0000193",
+        "adjuvant_vo_id": "VO:0000193",
         "display_name": "Bordetella pertussis component vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001237",
+        "adjuvant_vo_id": "VO:0001237",
         "display_name": "CpG DNA vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001319",
+        "adjuvant_vo_id": "VO:0001319",
         "display_name": "nanoemulsion vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001311",
+        "adjuvant_vo_id": "VO:0001311",
         "display_name": "Rehydragel HPA vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000190",
+        "adjuvant_vo_id": "VO:0000190",
         "display_name": "squalene vacccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001332",
+        "adjuvant_vo_id": "VO:0001332",
         "display_name": "poly(I:C) vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001351",
+        "adjuvant_vo_id": "VO:0001351",
         "display_name": "threonyl muramyl dipeptide (TMDP) vaccine adjuvant"
       }
     ]
@@ -42,39 +42,39 @@
     "disease_name": "Brucellosis",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0001237",
+        "adjuvant_vo_id": "VO:0001237",
         "display_name": "CpG DNA vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000192",
+        "adjuvant_vo_id": "VO:0000192",
         "display_name": "test"
       },
       {
-        "adjuvant_vo_id": "VO_0000133",
+        "adjuvant_vo_id": "VO:0000133",
         "display_name": "Freund's emulsified oil adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000181",
+        "adjuvant_vo_id": "VO:0000181",
         "display_name": "lipopolysaccharide vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001250",
+        "adjuvant_vo_id": "VO:0001250",
         "display_name": "monophosphoryl lipid A vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000139",
+        "adjuvant_vo_id": "VO:0000139",
         "display_name": "complete Freund's adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000142",
+        "adjuvant_vo_id": "VO:0000142",
         "display_name": "incomplete Freund's adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000143",
+        "adjuvant_vo_id": "VO:0000143",
         "display_name": "cholera toxin vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000193",
+        "adjuvant_vo_id": "VO:0000193",
         "display_name": "Bordetella pertussis component vaccine adjuvant"
       }
     ]
@@ -84,31 +84,31 @@
     "disease_name": "Plague",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0001241",
+        "adjuvant_vo_id": "VO:0001241",
         "display_name": "Alhydrogel vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001238",
+        "adjuvant_vo_id": "VO:0001238",
         "display_name": "Ribi vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000142",
+        "adjuvant_vo_id": "VO:0000142",
         "display_name": "incomplete Freund's adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001260",
+        "adjuvant_vo_id": "VO:0001260",
         "display_name": "Titermax Gold vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000139",
+        "adjuvant_vo_id": "VO:0000139",
         "display_name": "complete Freund's adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001331",
+        "adjuvant_vo_id": "VO:0001331",
         "display_name": "Flagellin vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000143",
+        "adjuvant_vo_id": "VO:0000143",
         "display_name": "cholera toxin vaccine adjuvant"
       }
     ]
@@ -118,11 +118,11 @@
     "disease_name": "Tularemia",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0001147",
+        "adjuvant_vo_id": "VO:0001147",
         "display_name": "IL-12 vacince adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001237",
+        "adjuvant_vo_id": "VO:0001237",
         "display_name": "CpG DNA vaccine adjuvant"
       }
     ]
@@ -132,23 +132,23 @@
     "disease_name": "Botulism",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0001241",
+        "adjuvant_vo_id": "VO:0001241",
         "display_name": "Alhydrogel vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000127",
+        "adjuvant_vo_id": "VO:0000127",
         "display_name": "Aluminum Hydroxide"
       },
       {
-        "adjuvant_vo_id": "VO_0000884",
+        "adjuvant_vo_id": "VO:0000884",
         "display_name": "aluminum vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000193",
+        "adjuvant_vo_id": "VO:0000193",
         "display_name": "Bordetella pertussis component vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000139",
+        "adjuvant_vo_id": "VO:0000139",
         "display_name": "complete Freund's adjuvant"
       }
     ]
@@ -158,27 +158,27 @@
     "disease_name": "Smallpox",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000139",
+        "adjuvant_vo_id": "VO:0000139",
         "display_name": "complete Freund's adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000142",
+        "adjuvant_vo_id": "VO:0000142",
         "display_name": "incomplete Freund's adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001238",
+        "adjuvant_vo_id": "VO:0001238",
         "display_name": "Ribi vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001310",
+        "adjuvant_vo_id": "VO:0001310",
         "display_name": "QS-21 vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001250",
+        "adjuvant_vo_id": "VO:0001250",
         "display_name": "monophosphoryl lipid A vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001319",
+        "adjuvant_vo_id": "VO:0001319",
         "display_name": "nanoemulsion vaccine adjuvant"
       }
     ]
@@ -188,15 +188,15 @@
     "disease_name": "Campylobacterosis",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0001322",
+        "adjuvant_vo_id": "VO:0001322",
         "display_name": "E. coli heat-labile toxin vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001321",
+        "adjuvant_vo_id": "VO:0001321",
         "display_name": "LTR192G vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001272",
+        "adjuvant_vo_id": "VO:0001272",
         "display_name": "EtxB vaccine adjuvant"
       }
     ]
@@ -206,51 +206,51 @@
     "disease_name": "Hemorrhagic colitis",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000127",
+        "adjuvant_vo_id": "VO:0000127",
         "display_name": "aluminum hydroxide vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000139",
+        "adjuvant_vo_id": "VO:0000139",
         "display_name": "complete Freund's adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000142",
+        "adjuvant_vo_id": "VO:0000142",
         "display_name": "incomplete Freund's adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001266",
+        "adjuvant_vo_id": "VO:0001266",
         "display_name": "VSA-3 vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001251",
+        "adjuvant_vo_id": "VO:0001251",
         "display_name": "LTK63 vaccine mutant"
       },
       {
-        "adjuvant_vo_id": "VO_0001260",
+        "adjuvant_vo_id": "VO:0001260",
         "display_name": "Titermax Gold vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001263",
+        "adjuvant_vo_id": "VO:0001263",
         "display_name": "QuilA vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001267",
+        "adjuvant_vo_id": "VO:0001267",
         "display_name": "saponin vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001242",
+        "adjuvant_vo_id": "VO:0001242",
         "display_name": "cholera toxin B subunit vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000133",
+        "adjuvant_vo_id": "VO:0000133",
         "display_name": "Freund's emulsified oil adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000143",
+        "adjuvant_vo_id": "VO:0000143",
         "display_name": "cholera toxin vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001341",
+        "adjuvant_vo_id": "VO:0001341",
         "display_name": "DL-PGL (Polyester poly (DL-lactide-co-glycolide)) vaccine adjuvant"
       }
     ]
@@ -260,51 +260,51 @@
     "disease_name": "Acquired Immunodeficiency Syndrome (AIDS)",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0001318",
+        "adjuvant_vo_id": "VO:0001318",
         "display_name": "CRL1005 vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001319",
+        "adjuvant_vo_id": "VO:0001319",
         "display_name": "nanoemulsion vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001292",
+        "adjuvant_vo_id": "VO:0001292",
         "display_name": "gamma Inulin vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001295",
+        "adjuvant_vo_id": "VO:0001295",
         "display_name": "GMDP vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000187",
+        "adjuvant_vo_id": "VO:0000187",
         "display_name": "muramyl dipeptide vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001301",
+        "adjuvant_vo_id": "VO:0001301",
         "display_name": "MF59 vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001308",
+        "adjuvant_vo_id": "VO:0001308",
         "display_name": "PMMA vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001294",
+        "adjuvant_vo_id": "VO:0001294",
         "display_name": "GM-CSF vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001337",
+        "adjuvant_vo_id": "VO:0001337",
         "display_name": "B7-2 vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001343",
+        "adjuvant_vo_id": "VO:0001343",
         "display_name": "immunoliposomes containing antibodies to costimulatory molecules"
       },
       {
-        "adjuvant_vo_id": "VO_0001347",
+        "adjuvant_vo_id": "VO:0001347",
         "display_name": "non-toxic mutant E112K of Cholera Toxin mCT-E112K vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001291",
+        "adjuvant_vo_id": "VO:0001291",
         "display_name": "DOC/Alum Complex vaccine adjuvant"
       }
     ]
@@ -314,19 +314,19 @@
     "disease_name": "Hantavirus Pulmonary Syndrome",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000133",
+        "adjuvant_vo_id": "VO:0000133",
         "display_name": "Freund's emulsified oil adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001241",
+        "adjuvant_vo_id": "VO:0001241",
         "display_name": "Alhydrogel vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000139",
+        "adjuvant_vo_id": "VO:0000139",
         "display_name": "complete Freund's adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000142",
+        "adjuvant_vo_id": "VO:0000142",
         "display_name": "incomplete Freund's adjuvant"
       }
     ]
@@ -336,7 +336,7 @@
     "disease_name": "Hemorrhagic fever",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0001238",
+        "adjuvant_vo_id": "VO:0001238",
         "display_name": "Ribi vaccine adjuvant"
       }
     ]
@@ -346,23 +346,23 @@
     "disease_name": "Tuberculosis",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0001261",
+        "adjuvant_vo_id": "VO:0001261",
         "display_name": "DDA vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001250",
+        "adjuvant_vo_id": "VO:0001250",
         "display_name": "monophosphoryl lipid A vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001264",
+        "adjuvant_vo_id": "VO:0001264",
         "display_name": "AS02 vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000127",
+        "adjuvant_vo_id": "VO:0000127",
         "display_name": "Aluminum hydroxide"
       },
       {
-        "adjuvant_vo_id": "VO_0001342",
+        "adjuvant_vo_id": "VO:0001342",
         "display_name": "IL-15 vaccine adjuvant"
       }
     ]
@@ -372,63 +372,63 @@
     "disease_name": "Malaria",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0001264",
+        "adjuvant_vo_id": "VO:0001264",
         "display_name": "AS02 vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000139",
+        "adjuvant_vo_id": "VO:0000139",
         "display_name": "complete Freund's adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001268",
+        "adjuvant_vo_id": "VO:0001268",
         "display_name": "Montanide ISA 720 vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000127",
+        "adjuvant_vo_id": "VO:0000127",
         "display_name": "aluminum hydroxide vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000193",
+        "adjuvant_vo_id": "VO:0000193",
         "display_name": "Aluminum hydroxide"
       },
       {
-        "adjuvant_vo_id": "VO_0000142",
+        "adjuvant_vo_id": "VO:0000142",
         "display_name": "incomplete Freund's adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000133",
+        "adjuvant_vo_id": "VO:0000133",
         "display_name": "Freund's emulsified oil adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000192",
+        "adjuvant_vo_id": "VO:0000192",
         "display_name": "Montanide 103 vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001270",
+        "adjuvant_vo_id": "VO:0001270",
         "display_name": "Montanide ISA51 vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000884",
+        "adjuvant_vo_id": "VO:0000884",
         "display_name": "aluminum vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001309",
+        "adjuvant_vo_id": "VO:0001309",
         "display_name": "protein cochleates vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001349",
+        "adjuvant_vo_id": "VO:0001349",
         "display_name": "SAF-1 vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001352",
+        "adjuvant_vo_id": "VO:0001352",
         "display_name": "ty particles vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0005358",
+        "adjuvant_vo_id": "VO:0005358",
         "display_name": "AS01B vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0005206",
+        "adjuvant_vo_id": "VO:0005206",
         "display_name": "Matrix-M vaccine adjuvant"
       }
     ]
@@ -438,39 +438,39 @@
     "disease_name": "Meningitis",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000127",
+        "adjuvant_vo_id": "VO:0000127",
         "display_name": "Aluminum Hydroxide"
       },
       {
-        "adjuvant_vo_id": "VO_0001239",
+        "adjuvant_vo_id": "VO:0001239",
         "display_name": "RC529 vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000143",
+        "adjuvant_vo_id": "VO:0000143",
         "display_name": "cholera toxin vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001238",
+        "adjuvant_vo_id": "VO:0001238",
         "display_name": "Ribi vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000559",
+        "adjuvant_vo_id": "VO:0000559",
         "display_name": "adamantylamide dipeptide vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001250",
+        "adjuvant_vo_id": "VO:0001250",
         "display_name": "monophosphoryl lipid A vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000142",
+        "adjuvant_vo_id": "VO:0000142",
         "display_name": "incomplete Freund's adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000128",
+        "adjuvant_vo_id": "VO:0000128",
         "display_name": "aluminum phosphate vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000133",
+        "adjuvant_vo_id": "VO:0000133",
         "display_name": "Freund's emulsified oil adjuvant"
       }
     ]
@@ -480,7 +480,7 @@
     "disease_name": "Venezuelan equine encephalitis",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0001340",
+        "adjuvant_vo_id": "VO:0001340",
         "display_name": "DHEA vaccine adjuvant"
       }
     ]
@@ -490,11 +490,11 @@
     "disease_name": "Q fever",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000139",
+        "adjuvant_vo_id": "VO:0000139",
         "display_name": "complete Freund's adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000142",
+        "adjuvant_vo_id": "VO:0000142",
         "display_name": "incomplete Freund's adjuvant"
       }
     ]
@@ -504,27 +504,27 @@
     "disease_name": "Tetanus",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000128",
+        "adjuvant_vo_id": "VO:0000128",
         "display_name": "aluminum phosphate vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000193",
+        "adjuvant_vo_id": "VO:0000193",
         "display_name": "Aluminum Phosphate Sulfate"
       },
       {
-        "adjuvant_vo_id": "VO_0000127",
+        "adjuvant_vo_id": "VO:0000127",
         "display_name": "Aluminum Hydroxide"
       },
       {
-        "adjuvant_vo_id": "VO_0001240",
+        "adjuvant_vo_id": "VO:0001240",
         "display_name": "Aluminum Potassium Sulfate"
       },
       {
-        "adjuvant_vo_id": "VO_0000131",
+        "adjuvant_vo_id": "VO:0000131",
         "display_name": "calcium phosphate vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001316",
+        "adjuvant_vo_id": "VO:0001316",
         "display_name": "stearyl tyrosine vaccine adjuvant"
       }
     ]
@@ -534,23 +534,23 @@
     "disease_name": "Salmonellosis",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000181",
+        "adjuvant_vo_id": "VO:0000181",
         "display_name": "lipopolysaccharide vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000127",
+        "adjuvant_vo_id": "VO:0000127",
         "display_name": "aluminum hydroxide vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000133",
+        "adjuvant_vo_id": "VO:0000133",
         "display_name": "Freund's emulsified oil adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000139",
+        "adjuvant_vo_id": "VO:0000139",
         "display_name": "complete Freund's adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000142",
+        "adjuvant_vo_id": "VO:0000142",
         "display_name": "incomplete Freund's adjuvant"
       }
     ]
@@ -560,27 +560,27 @@
     "disease_name": "Meningitis",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000127",
+        "adjuvant_vo_id": "VO:0000127",
         "display_name": "aluminum hydroxide vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001237",
+        "adjuvant_vo_id": "VO:0001237",
         "display_name": "CpG DNA vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000193",
+        "adjuvant_vo_id": "VO:0000193",
         "display_name": "Aluminium Phosphate"
       },
       {
-        "adjuvant_vo_id": "VO_0000142",
+        "adjuvant_vo_id": "VO:0000142",
         "display_name": "incomplete Freund's adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001263",
+        "adjuvant_vo_id": "VO:0001263",
         "display_name": "QuilA vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000139",
+        "adjuvant_vo_id": "VO:0000139",
         "display_name": "complete Freund's adjuvant"
       }
     ]
@@ -590,27 +590,27 @@
     "disease_name": "Pneumonia",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000128",
+        "adjuvant_vo_id": "VO:0000128",
         "display_name": "aluminum phosphate vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001250",
+        "adjuvant_vo_id": "VO:0001250",
         "display_name": "monophosphoryl lipid A vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000127",
+        "adjuvant_vo_id": "VO:0000127",
         "display_name": "aluminum hydroxide vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000884",
+        "adjuvant_vo_id": "VO:0000884",
         "display_name": "aluminum vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000133",
+        "adjuvant_vo_id": "VO:0000133",
         "display_name": "Freund's emulsified oil adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001344",
+        "adjuvant_vo_id": "VO:0001344",
         "display_name": "LTK72 vaccine adjuvant"
       }
     ]
@@ -620,11 +620,11 @@
     "disease_name": "Hepatitis A",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000884",
+        "adjuvant_vo_id": "VO:0000884",
         "display_name": "aluminum vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000127",
+        "adjuvant_vo_id": "VO:0000127",
         "display_name": "aluminum hydroxide vaccine adjuvant"
       }
     ]
@@ -634,23 +634,23 @@
     "disease_name": "Hepatitis B",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000127",
+        "adjuvant_vo_id": "VO:0000127",
         "display_name": "aluminum hydroxide vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000128",
+        "adjuvant_vo_id": "VO:0000128",
         "display_name": "aluminum phosphate vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001302",
+        "adjuvant_vo_id": "VO:0001302",
         "display_name": "MTP-PE Liposomes vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001296",
+        "adjuvant_vo_id": "VO:0001296",
         "display_name": "recombinant hIFN-gamma/Interferon-g vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001339",
+        "adjuvant_vo_id": "VO:0001339",
         "display_name": "cationic liposome-DNA complex JVRS-100 vaccin adjuvant"
       }
     ]
@@ -660,71 +660,71 @@
     "disease_name": "Influenza (flu)",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0001242",
+        "adjuvant_vo_id": "VO:0001242",
         "display_name": "cholera toxin B subunit vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001290",
+        "adjuvant_vo_id": "VO:0001290",
         "display_name": "cholera toxin A1-subunit-ProteinA D-fragment fusion protein"
       },
       {
-        "adjuvant_vo_id": "VO_0001241",
+        "adjuvant_vo_id": "VO:0001241",
         "display_name": "Alhydrogel vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001320",
+        "adjuvant_vo_id": "VO:0001320",
         "display_name": "AS03 vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001297",
+        "adjuvant_vo_id": "VO:0001297",
         "display_name": "interleukin-1b vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001298",
+        "adjuvant_vo_id": "VO:0001298",
         "display_name": "interleukin-2 vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001299",
+        "adjuvant_vo_id": "VO:0001299",
         "display_name": "interleukin-7 vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001315",
+        "adjuvant_vo_id": "VO:0001315",
         "display_name": "SPT (Antigen Formulation)"
       },
       {
-        "adjuvant_vo_id": "VO_0000146",
+        "adjuvant_vo_id": "VO:0000146",
         "display_name": "Corynebacterium-derived P40 vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001330",
+        "adjuvant_vo_id": "VO:0001330",
         "display_name": "AF03 vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001301",
+        "adjuvant_vo_id": "VO:0001301",
         "display_name": "MF59 vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0005303",
+        "adjuvant_vo_id": "VO:0005303",
         "display_name": "2F52 vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0005302",
+        "adjuvant_vo_id": "VO:0005302",
         "display_name": "Adjuplex+GLA vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0005207",
+        "adjuvant_vo_id": "VO:0005207",
         "display_name": "Advax vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0005294",
+        "adjuvant_vo_id": "VO:0005294",
         "display_name": "defective viral genome-derived oligonucleotide vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0005270",
+        "adjuvant_vo_id": "VO:0005270",
         "display_name": "1V270 vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0005295",
+        "adjuvant_vo_id": "VO:0005295",
         "display_name": "CaPNP (CaPtivant)(TM) vaccine adjuvant"
       }
     ]
@@ -734,7 +734,7 @@
     "disease_name": "Japanese encephalitis",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000127",
+        "adjuvant_vo_id": "VO:0000127",
         "display_name": "aluminum hydroxide vaccine adjuvant"
       }
     ]
@@ -744,7 +744,7 @@
     "disease_name": "Mumps",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000127",
+        "adjuvant_vo_id": "VO:0000127",
         "display_name": "aluminum hydroxide vaccine adjuvant"
       }
     ]
@@ -754,19 +754,19 @@
     "disease_name": "HPV infection",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0001323",
+        "adjuvant_vo_id": "VO:0001323",
         "display_name": "amorphous aluminum hydroxyphosphate sulfate adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001265",
+        "adjuvant_vo_id": "VO:0001265",
         "display_name": "AS04 vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000142",
+        "adjuvant_vo_id": "VO:0000142",
         "display_name": "incomplete Freund's adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000884",
+        "adjuvant_vo_id": "VO:0000884",
         "display_name": "aluminum vaccine adjuvant"
       }
     ]
@@ -776,11 +776,11 @@
     "disease_name": "Polio",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000127",
+        "adjuvant_vo_id": "VO:0000127",
         "display_name": "aluminum hydroxide vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000128",
+        "adjuvant_vo_id": "VO:0000128",
         "display_name": "aluminum phosphate vaccine adjuvant"
       }
     ]
@@ -790,7 +790,7 @@
     "disease_name": "Rabies",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000128",
+        "adjuvant_vo_id": "VO:0000128",
         "display_name": "Aluminium Phosphate"
       }
     ]
@@ -800,23 +800,23 @@
     "disease_name": "Gastroenteritis",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0001290",
+        "adjuvant_vo_id": "VO:0001290",
         "display_name": "cholera toxin A1-subunit-ProteinA D-fragment fusion protein"
       },
       {
-        "adjuvant_vo_id": "VO_0001321",
+        "adjuvant_vo_id": "VO:0001321",
         "display_name": "LTR192G vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000143",
+        "adjuvant_vo_id": "VO:0000143",
         "display_name": "cholera toxin vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000142",
+        "adjuvant_vo_id": "VO:0000142",
         "display_name": "incomplete Freund's adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000351",
+        "adjuvant_vo_id": "VO:0000351",
         "display_name": "Adjumer vaccine adjuvant"
       }
     ]
@@ -826,7 +826,7 @@
     "disease_name": "Yellow fever",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000884",
+        "adjuvant_vo_id": "VO:0000884",
         "display_name": "aluminum vaccine adjuvant"
       }
     ]
@@ -836,11 +836,11 @@
     "disease_name": "chickenpox / shingles",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000133",
+        "adjuvant_vo_id": "VO:0000133",
         "display_name": "Freund's emulsified oil adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000142",
+        "adjuvant_vo_id": "VO:0000142",
         "display_name": "incomplete Freund's adjuvant"
       }
     ]
@@ -850,15 +850,15 @@
     "disease_name": "Diphtheria",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0001240",
+        "adjuvant_vo_id": "VO:0001240",
         "display_name": "aluminum potassium sulfate adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000127",
+        "adjuvant_vo_id": "VO:0000127",
         "display_name": "Aluminum Hydroxide"
       },
       {
-        "adjuvant_vo_id": "VO_0000128",
+        "adjuvant_vo_id": "VO:0000128",
         "display_name": "Aluminium Phosphate"
       }
     ]
@@ -868,7 +868,7 @@
     "disease_name": "Postweaning multisystemic wasting syndrome",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000142",
+        "adjuvant_vo_id": "VO:0000142",
         "display_name": "incomplete Freund's adjuvant"
       }
     ]
@@ -878,7 +878,7 @@
     "disease_name": "Infectious bovine rhinotracheitis",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0001288",
+        "adjuvant_vo_id": "VO:0001288",
         "display_name": "Avridine vaccine adjuvant"
       }
     ]
@@ -888,7 +888,7 @@
     "disease_name": "Newcastle disease",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0001269",
+        "adjuvant_vo_id": "VO:0001269",
         "display_name": "Montanide incomplete Seppic adjuvant"
       }
     ]
@@ -898,11 +898,11 @@
     "disease_name": "Strangles (also equine distemper)",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0001272",
+        "adjuvant_vo_id": "VO:0001272",
         "display_name": "EtxB vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001324",
+        "adjuvant_vo_id": "VO:0001324",
         "display_name": "Matrix-S vaccine adjuvant"
       }
     ]
@@ -912,7 +912,7 @@
     "disease_name": "Chronic respiratory disease",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000127",
+        "adjuvant_vo_id": "VO:0000127",
         "display_name": "aluminum hydroxide vaccine adjuvant"
       }
     ]
@@ -922,11 +922,11 @@
     "disease_name": "porcine pleuropneumonia",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000139",
+        "adjuvant_vo_id": "VO:0000139",
         "display_name": "complete Freund's adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000133",
+        "adjuvant_vo_id": "VO:0000133",
         "display_name": "Freund's emulsified oil adjuvant"
       }
     ]
@@ -936,7 +936,7 @@
     "disease_name": "Hemorrhagic cecal coccidiosis",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000139",
+        "adjuvant_vo_id": "VO:0000139",
         "display_name": "complete Freund's adjuvant"
       }
     ]
@@ -946,7 +946,7 @@
     "disease_name": "East Coast Fever",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0001267",
+        "adjuvant_vo_id": "VO:0001267",
         "display_name": "saponin vaccine adjuvant"
       }
     ]
@@ -956,11 +956,11 @@
     "disease_name": "Theileriosis",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0001267",
+        "adjuvant_vo_id": "VO:0001267",
         "display_name": "saponin vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000757",
+        "adjuvant_vo_id": "VO:0000757",
         "display_name": "ISCOM vaccine adjuvant"
       }
     ]
@@ -970,7 +970,7 @@
     "disease_name": "Babesiosis, Texas Cattle Fever",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000139",
+        "adjuvant_vo_id": "VO:0000139",
         "display_name": "complete Freund's adjuvant"
       }
     ]
@@ -980,19 +980,19 @@
     "disease_name": "Neosporosis",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000143",
+        "adjuvant_vo_id": "VO:0000143",
         "display_name": "cholera toxin vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001238",
+        "adjuvant_vo_id": "VO:0001238",
         "display_name": "Ribi vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001267",
+        "adjuvant_vo_id": "VO:0001267",
         "display_name": "saponin vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001266",
+        "adjuvant_vo_id": "VO:0001266",
         "display_name": "VSA-3 vaccine adjuvant"
       }
     ]
@@ -1002,7 +1002,7 @@
     "disease_name": "Equine protozoal myeloencephalitis",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0001273",
+        "adjuvant_vo_id": "VO:0001273",
         "display_name": "Polygen vaccine adjuvant"
       }
     ]
@@ -1012,27 +1012,27 @@
     "disease_name": "Visceral leishmaniasis",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0001263",
+        "adjuvant_vo_id": "VO:0001263",
         "display_name": "QuilA vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001147",
+        "adjuvant_vo_id": "VO:0001147",
         "display_name": "IL-12 vacince adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000366",
+        "adjuvant_vo_id": "VO:0000366",
         "display_name": "liposome-based vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001262",
+        "adjuvant_vo_id": "VO:0001262",
         "display_name": "cationic liposomal vaccine adjuvant DDA:TDB"
       },
       {
-        "adjuvant_vo_id": "VO_0001307",
+        "adjuvant_vo_id": "VO:0001307",
         "display_name": "non-ionic surfactant vesicles vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001345",
+        "adjuvant_vo_id": "VO:0001345",
         "display_name": "MPL-SE vaccine adjuvant"
       }
     ]
@@ -1042,11 +1042,11 @@
     "disease_name": "Coccidiosis",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000139",
+        "adjuvant_vo_id": "VO:0000139",
         "display_name": "complete Freund's adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000191",
+        "adjuvant_vo_id": "VO:0000191",
         "display_name": "arlacel A vaccine adjuvant"
       }
     ]
@@ -1056,67 +1056,67 @@
     "disease_name": "Cancer",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0001294",
+        "adjuvant_vo_id": "VO:0001294",
         "display_name": "GM-CSF vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000757",
+        "adjuvant_vo_id": "VO:0000757",
         "display_name": "ISCOM vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001147",
+        "adjuvant_vo_id": "VO:0001147",
         "display_name": "IL-12 vacince adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001293",
+        "adjuvant_vo_id": "VO:0001293",
         "display_name": "Gerbu vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000884",
+        "adjuvant_vo_id": "VO:0000884",
         "display_name": "aluminum vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000127",
+        "adjuvant_vo_id": "VO:0000127",
         "display_name": "aluminum hydroxide vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001286",
+        "adjuvant_vo_id": "VO:0001286",
         "display_name": "Algammulin vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001263",
+        "adjuvant_vo_id": "VO:0001263",
         "display_name": "QuilA vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001300",
+        "adjuvant_vo_id": "VO:0001300",
         "display_name": "Loxoribine vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001317",
+        "adjuvant_vo_id": "VO:0001317",
         "display_name": "Theramide vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001328",
+        "adjuvant_vo_id": "VO:0001328",
         "display_name": "imiquimod vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001333",
+        "adjuvant_vo_id": "VO:0001333",
         "display_name": "ISCOMATRIX vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001336",
+        "adjuvant_vo_id": "VO:0001336",
         "display_name": "AS-2 vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001271",
+        "adjuvant_vo_id": "VO:0001271",
         "display_name": "Montanide vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000142",
+        "adjuvant_vo_id": "VO:0000142",
         "display_name": "incomplete Freund's adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001318",
+        "adjuvant_vo_id": "VO:0001318",
         "display_name": "CRL1005 vaccine adjuvant"
       }
     ]
@@ -1126,11 +1126,11 @@
     "disease_name": "Herpes",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0001301",
+        "adjuvant_vo_id": "VO:0001301",
         "display_name": "MF59 vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001302",
+        "adjuvant_vo_id": "VO:0001302",
         "display_name": "MTP-PE Liposomes vaccine adjuvant"
       }
     ]
@@ -1140,7 +1140,7 @@
     "disease_name": "Tick-borne Encephalitis",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000127",
+        "adjuvant_vo_id": "VO:0000127",
         "display_name": "aluminum hydroxide vaccine adjuvant"
       }
     ]
@@ -1150,7 +1150,7 @@
     "disease_name": "Spotted Fever, Typhus",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000142",
+        "adjuvant_vo_id": "VO:0000142",
         "display_name": "incomplete Freund's adjuvant"
       }
     ]
@@ -1160,19 +1160,19 @@
     "disease_name": "Whooping Cough",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000127",
+        "adjuvant_vo_id": "VO:0000127",
         "display_name": "aluminum hydroxide vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000128",
+        "adjuvant_vo_id": "VO:0000128",
         "display_name": "Aluminium phosphate vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000193",
+        "adjuvant_vo_id": "VO:0000193",
         "display_name": "Aluminium Phosphate"
       },
       {
-        "adjuvant_vo_id": "VO_0001241",
+        "adjuvant_vo_id": "VO:0001241",
         "display_name": "Alhydrogel"
       }
     ]
@@ -1182,15 +1182,15 @@
     "disease_name": "Pneumonia",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0001322",
+        "adjuvant_vo_id": "VO:0001322",
         "display_name": "E. coli heat-labile toxin vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000133",
+        "adjuvant_vo_id": "VO:0000133",
         "display_name": "Freund's emulsified oil adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000884",
+        "adjuvant_vo_id": "VO:0000884",
         "display_name": "aluminum vaccine adjuvant"
       }
     ]
@@ -1200,19 +1200,19 @@
     "disease_name": "Chlamydia muridarum infection",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000143",
+        "adjuvant_vo_id": "VO:0000143",
         "display_name": "cholera toxin vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001237",
+        "adjuvant_vo_id": "VO:0001237",
         "display_name": "CpG DNA vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000142",
+        "adjuvant_vo_id": "VO:0000142",
         "display_name": "incomplete Freund's adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001334",
+        "adjuvant_vo_id": "VO:0001334",
         "display_name": "Abisco-100 vaccine adjuvant"
       }
     ]
@@ -1222,11 +1222,11 @@
     "disease_name": "Allergy",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000127",
+        "adjuvant_vo_id": "VO:0000127",
         "display_name": "Aluminum Hydroxide"
       },
       {
-        "adjuvant_vo_id": "VO_0000193",
+        "adjuvant_vo_id": "VO:0000193",
         "display_name": "Aluminum Hydroxide"
       }
     ]
@@ -1236,23 +1236,23 @@
     "disease_name": "Cutaneous leishmaniasis",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0001147",
+        "adjuvant_vo_id": "VO:0001147",
         "display_name": "IL-12 vacince adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001259",
+        "adjuvant_vo_id": "VO:0001259",
         "display_name": "killed Corynebacterium parvum vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001237",
+        "adjuvant_vo_id": "VO:0001237",
         "display_name": "CpG DNA vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000142",
+        "adjuvant_vo_id": "VO:0000142",
         "display_name": "incomplete Freund's adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001345",
+        "adjuvant_vo_id": "VO:0001345",
         "display_name": "MPL-SE vaccine adjuvant"
       }
     ]
@@ -1262,15 +1262,15 @@
     "disease_name": "Infantile visceral leishmaniasis",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0001268",
+        "adjuvant_vo_id": "VO:0001268",
         "display_name": "Montanide ISA 720 vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001147",
+        "adjuvant_vo_id": "VO:0001147",
         "display_name": "IL-12 vacince adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001250",
+        "adjuvant_vo_id": "VO:0001250",
         "display_name": "monophosphoryl lipid A vaccine adjuvant"
       }
     ]
@@ -1280,11 +1280,11 @@
     "disease_name": "Leishmaniasis",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0001259",
+        "adjuvant_vo_id": "VO:0001259",
         "display_name": "killed Corynebacterium parvum vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000139",
+        "adjuvant_vo_id": "VO:0000139",
         "display_name": "complete Freund's adjuvant"
       }
     ]
@@ -1294,35 +1294,35 @@
     "disease_name": "Chagas disease",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0001147",
+        "adjuvant_vo_id": "VO:0001147",
         "display_name": "IL-12 vacince adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000884",
+        "adjuvant_vo_id": "VO:0000884",
         "display_name": "aluminum vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001263",
+        "adjuvant_vo_id": "VO:0001263",
         "display_name": "QuilA vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001294",
+        "adjuvant_vo_id": "VO:0001294",
         "display_name": "GM-CSF vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000133",
+        "adjuvant_vo_id": "VO:0000133",
         "display_name": "Freund's emulsified oil adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000139",
+        "adjuvant_vo_id": "VO:0000139",
         "display_name": "complete Freund's adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000142",
+        "adjuvant_vo_id": "VO:0000142",
         "display_name": "incomplete Freund's adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001237",
+        "adjuvant_vo_id": "VO:0001237",
         "display_name": "CpG DNA vaccine adjuvant"
       }
     ]
@@ -1332,7 +1332,7 @@
     "disease_name": "Melioidosis",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000139",
+        "adjuvant_vo_id": "VO:0000139",
         "display_name": "complete Freund's adjuvant"
       }
     ]
@@ -1342,7 +1342,7 @@
     "disease_name": "Western equine encephalomyelitis (WEE)",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0001260",
+        "adjuvant_vo_id": "VO:0001260",
         "display_name": "Titermax Gold vaccine adjuvant"
       }
     ]
@@ -1352,7 +1352,7 @@
     "disease_name": "Hendra virus disease",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0001237",
+        "adjuvant_vo_id": "VO:0001237",
         "display_name": "CpG DNA vaccine adjuvant"
       }
     ]
@@ -1362,11 +1362,11 @@
     "disease_name": "Dengue Fever",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000139",
+        "adjuvant_vo_id": "VO:0000139",
         "display_name": "complete Freund's adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000142",
+        "adjuvant_vo_id": "VO:0000142",
         "display_name": "incomplete Freund's adjuvant"
       }
     ]
@@ -1376,7 +1376,7 @@
     "disease_name": "Severe Acute Respiratory Syndrome (SARS)",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0001237",
+        "adjuvant_vo_id": "VO:0001237",
         "display_name": "CpG DNA vaccine adjuvant"
       }
     ]
@@ -1386,11 +1386,11 @@
     "disease_name": "Yersiniosis",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000139",
+        "adjuvant_vo_id": "VO:0000139",
         "display_name": "complete Freund's adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000142",
+        "adjuvant_vo_id": "VO:0000142",
         "display_name": "incomplete Freund's adjuvant"
       }
     ]
@@ -1400,25 +1400,25 @@
     "disease_name": "Amoebiasis",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000142",
+        "adjuvant_vo_id": "VO:0000142",
         "display_name": "incomplete Freund's adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000139",
+        "adjuvant_vo_id": "VO:0000139",
         "display_name": "complete Freund's adjuvant"
       }
     ]
   },
   {
     "pathogen_id": 132,
-    "disease_name": "Coccidioidomycosis (California disease, Desert rheumatism, San Joaquin valley fever,  and Valley fev",
+    "disease_name": "Coccidioidomycosis (California disease, Desert rheumatism, San Joaquin valley fever, and Valley fev",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0001237",
+        "adjuvant_vo_id": "VO:0001237",
         "display_name": "CpG DNA vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001250",
+        "adjuvant_vo_id": "VO:0001250",
         "display_name": "monophosphoryl lipid A vaccine adjuvant"
       }
     ]
@@ -1428,11 +1428,11 @@
     "disease_name": "African trypanosomiasis (African Sleeping Sickness)",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000139",
+        "adjuvant_vo_id": "VO:0000139",
         "display_name": "complete Freund's adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000142",
+        "adjuvant_vo_id": "VO:0000142",
         "display_name": "incomplete Freund's adjuvant"
       }
     ]
@@ -1442,23 +1442,23 @@
     "disease_name": "Ulcers",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000143",
+        "adjuvant_vo_id": "VO:0000143",
         "display_name": "cholera toxin vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001251",
+        "adjuvant_vo_id": "VO:0001251",
         "display_name": "LTK63 vaccine mutant"
       },
       {
-        "adjuvant_vo_id": "VO_0000127",
+        "adjuvant_vo_id": "VO:0000127",
         "display_name": "aluminum hydroxide vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000142",
+        "adjuvant_vo_id": "VO:0000142",
         "display_name": "incomplete Freund's adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001237",
+        "adjuvant_vo_id": "VO:0001237",
         "display_name": "CpG DNA vaccine adjuvant"
       }
     ]
@@ -1468,11 +1468,11 @@
     "disease_name": "Lyme Disease",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000139",
+        "adjuvant_vo_id": "VO:0000139",
         "display_name": "complete Freund's adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000142",
+        "adjuvant_vo_id": "VO:0000142",
         "display_name": "incomplete Freund's adjuvant"
       }
     ]
@@ -1482,7 +1482,7 @@
     "disease_name": "Listeriosis",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000366",
+        "adjuvant_vo_id": "VO:0000366",
         "display_name": "liposome-based vaccine adjuvant"
       }
     ]
@@ -1492,11 +1492,11 @@
     "disease_name": "Pseudomonas aeruginosa infection",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000127",
+        "adjuvant_vo_id": "VO:0000127",
         "display_name": "aluminum hydroxide vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000142",
+        "adjuvant_vo_id": "VO:0000142",
         "display_name": "incomplete Freund's adjuvant"
       }
     ]
@@ -1506,11 +1506,11 @@
     "disease_name": "Staph infections",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000139",
+        "adjuvant_vo_id": "VO:0000139",
         "display_name": "complete Freund's adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001323",
+        "adjuvant_vo_id": "VO:0001323",
         "display_name": "amorphous aluminum hydroxyphosphate sulfate adjuvant"
       }
     ]
@@ -1520,19 +1520,19 @@
     "disease_name": "Group B streptococcus (GBS) infection",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000128",
+        "adjuvant_vo_id": "VO:0000128",
         "display_name": "aluminum phosphate vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000139",
+        "adjuvant_vo_id": "VO:0000139",
         "display_name": "complete Freund's adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001263",
+        "adjuvant_vo_id": "VO:0001263",
         "display_name": "QuilA vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000142",
+        "adjuvant_vo_id": "VO:0000142",
         "display_name": "incomplete Freund's adjuvant"
       }
     ]
@@ -1542,23 +1542,23 @@
     "disease_name": "Group A streptococcal infections, Strep throat, Scarlet fever",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0001242",
+        "adjuvant_vo_id": "VO:0001242",
         "display_name": "cholera toxin B subunit vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000133",
+        "adjuvant_vo_id": "VO:0000133",
         "display_name": "Freund's emulsified oil adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000143",
+        "adjuvant_vo_id": "VO:0000143",
         "display_name": "cholera toxin vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000139",
+        "adjuvant_vo_id": "VO:0000139",
         "display_name": "complete Freund's adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0001312",
+        "adjuvant_vo_id": "VO:0001312",
         "display_name": "Rehydragel LV vaccine adjuvant"
       }
     ]
@@ -1568,7 +1568,7 @@
     "disease_name": "Syphilis",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0001238",
+        "adjuvant_vo_id": "VO:0001238",
         "display_name": "Ribi vaccine adjuvant"
       }
     ]
@@ -1578,7 +1578,7 @@
     "disease_name": "Pasteurellosis, fowl cholera",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000133",
+        "adjuvant_vo_id": "VO:0000133",
         "display_name": "Freund's emulsified oil adjuvant"
       }
     ]
@@ -1588,7 +1588,7 @@
     "disease_name": "Avian paramyxovirus infection",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0001314",
+        "adjuvant_vo_id": "VO:0001314",
         "display_name": "Specol vaccine adjuvant"
       }
     ]
@@ -1598,7 +1598,7 @@
     "disease_name": "Bovine viral Diarrhea (BVD)",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0001287",
+        "adjuvant_vo_id": "VO:0001287",
         "display_name": "BAY R1005 vaccine adjuvant"
       }
     ]
@@ -1608,7 +1608,7 @@
     "disease_name": "Chlamydia",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0001306",
+        "adjuvant_vo_id": "VO:0001306",
         "display_name": "NAGO vaccine adjuvant"
       }
     ]
@@ -1618,7 +1618,7 @@
     "disease_name": "Respiratory tract disease",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000127",
+        "adjuvant_vo_id": "VO:0000127",
         "display_name": "aluminum hydroxide vaccine adjuvant"
       }
     ]
@@ -1628,11 +1628,11 @@
     "disease_name": "Atherosclerosis, arteriosclerotic vascular disease (ASVD)",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0000884",
+        "adjuvant_vo_id": "VO:0000884",
         "display_name": "aluminum vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000127",
+        "adjuvant_vo_id": "VO:0000127",
         "display_name": "aluminum hydroxide vaccine adjuvant"
       }
     ]
@@ -1642,15 +1642,15 @@
     "disease_name": "Giardiasis (Beaver fever)",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0001348",
+        "adjuvant_vo_id": "VO:0001348",
         "display_name": "cholera toxin derived vaccine adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000139",
+        "adjuvant_vo_id": "VO:0000139",
         "display_name": "complete Freund's adjuvant"
       },
       {
-        "adjuvant_vo_id": "VO_0000142",
+        "adjuvant_vo_id": "VO:0000142",
         "display_name": "incomplete Freund's adjuvant"
       }
     ]
@@ -1660,7 +1660,7 @@
     "disease_name": "COVID-19",
     "adjuvant_candidates": [
       {
-        "adjuvant_vo_id": "VO_0005301",
+        "adjuvant_vo_id": "VO:0005301",
         "display_name": "Alhydroxiquim-II vaccine adjuvant"
       }
     ]
