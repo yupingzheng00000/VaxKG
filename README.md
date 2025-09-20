@@ -29,6 +29,12 @@ Before you begin, ensure you have the following installed:
     pip install python-dotenv
     ```
 * **Neosemantics (n10s):** This Neo4j extension is used for importing the OWL ontology.
+* **PyTorch Geometric (optional but required for training the ranker):**
+  Install following the [official instructions](https://pytorch-geometric.readthedocs.io/)
+  to ensure the correct PyTorch/CUDA wheels are pulled in.
+* **Transformers (optional):** Install via `pip install transformers` if you intend to
+  build node features with SapBERT or other Hugging Face checkpoints while training
+  the recommender.
 
 ## Installation
 
@@ -101,6 +107,53 @@ The script will perform the following actions:
 * **Update Resource Properties:** Transforms complex IAO and UBPROP codes on `Resource` nodes into more human-readable properties.
 
 You can observe the progress and any potential errors in the console output.
+
+### Training data preparation and modelling
+
+The repository also contains utilities for building machine-learning ready
+datasets and training a vaccine→adjuvant ranker:
+
+1.  **Prepare the training snapshot.** This joins the curated VO/Vaxjo/Vaxvec
+    metadata into the relational exports and emits the processed CSV/JSON
+    artefacts used for modelling. The command also writes
+    `adjuvant_metadata_enriched.csv`, which fills the missing labels and
+    descriptions in `data/t_adjuvant.csv` using the VO term editing sheet.
+
+    ```bash
+    python prepare_training_data.py --data-dir data --output-dir data/processed
+    ```
+
+2.  **Train the graph-based recommender.** The `train_ranker.py` script builds
+    both leave-vaccine-out (transductive) and leave-disease-out (inductive)
+    splits, constructs a PyTorch Geometric `HeteroData` graph with hashed text
+    features, and optimises a PyG hetero encoder with a ListNet ranking loss
+    plus an auxiliary link prediction head.
+
+    ```bash
+    python train_ranker.py \
+        --data-path data/processed/training_samples.csv \
+        --output-dir artifacts \
+        --epochs 300 \
+        --list-size 50
+    ```
+
+    The script writes split manifests to `artifacts/splits/<scheme>/train.jsonl`
+    (and corresponding `val`/`test` files) and stores evaluation metrics under
+    `artifacts/results/<scheme>.json`. Use `--skip-training` if you only need the
+    manifests for downstream experiments.
+
+    To replace the default hashed bag-of-words features with SapBERT embeddings,
+    supply the Hugging Face checkpoint and pooling strategy. The mean-token
+    variant (`cambridgeltl/SapBERT-from-PubMedBERT-fulltext-mean-token`) is a
+    strong default for combining labels, definitions, and synonym strings:
+
+    ```bash
+    python train_ranker.py \
+        --data-path data/processed/training_samples.csv \
+        --output-dir artifacts \
+        --text-encoder-checkpoint cambridgeltl/SapBERT-from-PubMedBERT-fulltext-mean-token \
+        --text-encoder-pooling mean
+    ```
 
 ## Code Overview
 
