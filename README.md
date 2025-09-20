@@ -112,7 +112,9 @@ datasets and training a vaccine→adjuvant ranker:
 
 1.  **Prepare the training snapshot.** This joins the curated VO/Vaxjo/Vaxvec
     metadata into the relational exports and emits the processed CSV/JSON
-    artefacts used for modelling.
+    artefacts used for modelling. The command also writes
+    `adjuvant_metadata_enriched.csv`, which fills the missing labels and
+    descriptions in `data/t_adjuvant.csv` using the VO term editing sheet.
 
     ```bash
     python prepare_training_data.py --data-dir data --output-dir data/processed

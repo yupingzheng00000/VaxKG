@@ -6,6 +6,9 @@ prototype models straight from the relational snapshots.  It produces:
 * ``training_samples.csv`` – one row per curated vaccine/adjuvant pair with
   disease, platform, and metadata fields that are useful for feature
   engineering.
+* ``adjuvant_metadata_enriched.csv`` – the adjuvant usage table with missing
+  labels/descriptions filled from the VO term editing sheet plus ontology
+  annotations such as immune profiles and receptor targets.
 * ``disease_adjuvant_candidates.json`` – candidate adjuvant VO IDs grouped by
   disease, preserving the order in which they appear in the curated data.
 * ``disease_platform_adjuvant_candidates.json`` – similar to the above but
@@ -774,7 +777,7 @@ def build_adjuvant_metadata(
 
 def build_training_dataset(
     tables: Dict[str, pd.DataFrame], vo_terms: Optional[pd.DataFrame] = None
-) -> Tuple[pd.DataFrame, Dict[str, int]]:
+) -> Tuple[pd.DataFrame, Dict[str, int], pd.DataFrame]:
     """Return the fully-joined training dataset and summary statistics."""
 
     context = build_vaccine_context_table(
@@ -828,7 +831,7 @@ def build_training_dataset(
         "rows_after_platform_split": len(dataset),
     }
 
-    return dataset, summary
+    return dataset, summary, adjuvant_meta
 
 
 def analyze_missing_diseases(
@@ -1019,13 +1022,55 @@ def _candidate_records(
     return records
 
 
-def export_outputs(dataset: pd.DataFrame, output_dir: Path) -> None:
-    """Persist the assembled dataset and candidate lists."""
+def export_adjuvant_metadata(
+    adjuvant_meta: pd.DataFrame, output_dir: Path
+) -> Path:
+    """Write an enriched adjuvant metadata table to ``output_dir``."""
+
+    columns = [
+        "adjuvant_record_id",
+        "adjuvant_vo_id",
+        "adjuvant_vo_id_underscore",
+        "adjuvant_label",
+        "adjuvant_description",
+        "adjuvant_display_name",
+        "adjuvant_synonyms",
+        "adjuvant_immune_profile",
+        "adjuvant_roles",
+        "adjuvant_molecular_receptors",
+        "vo_term_id",
+        "vo_preferred_label",
+        "vo_definition",
+        "vo_alternative_labels",
+        "vo_immune_profile",
+        "vo_roles",
+        "vo_molecular_receptors",
+        "vac_adjuvant_id",
+        "vac_adjuvant_site",
+    ]
+
+    export_columns = [column for column in columns if column in adjuvant_meta.columns]
+    export_frame = adjuvant_meta[export_columns].copy()
+    export_frame = export_frame.sort_values(
+        ["adjuvant_vo_id", "adjuvant_record_id"], kind="mergesort"
+    ).reset_index(drop=True)
+
+    path = output_dir / "adjuvant_metadata_enriched.csv"
+    export_frame.to_csv(path, index=False)
+    return path
+
+
+def export_outputs(
+    dataset: pd.DataFrame, adjuvant_meta: pd.DataFrame, output_dir: Path
+) -> None:
+    """Persist the assembled dataset, candidate lists, and adjuvant metadata."""
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
     training_path = output_dir / "training_samples.csv"
     dataset.to_csv(training_path, index=False)
+
+    export_adjuvant_metadata(adjuvant_meta, output_dir)
 
     disease_candidates = _candidate_records(dataset, ["pathogen_id", "disease_name"])
     disease_platform_candidates = _candidate_records(
@@ -1083,7 +1128,7 @@ def main() -> None:
             f"Loaded {len(vo_terms):,} VO adjuvant term rows from {args.vo_terms_path}"
         )
 
-    dataset, dataset_summary = build_training_dataset(tables, vo_terms)
+    dataset, dataset_summary, adjuvant_meta = build_training_dataset(tables, vo_terms)
 
     if dataset_summary.get("deduplicated_pairs"):
         print(
@@ -1156,11 +1201,15 @@ def main() -> None:
     else:
         print("All disease_name values resolved after normalization.")
 
-    export_outputs(dataset, args.output_dir)
+    export_outputs(dataset, adjuvant_meta, args.output_dir)
 
     report_missing_values(dataset, MISSING_VALUE_SUMMARY_COLUMNS)
 
     print(f"Wrote {len(dataset):,} training rows to {args.output_dir/'training_samples.csv'}")
+    print(
+        "Wrote enriched adjuvant metadata snapshot to "
+        f"{args.output_dir/'adjuvant_metadata_enriched.csv'}"
+    )
     print(
         "Candidate JSON files prepared for disease-level and disease+platform-level recommendations."
     )
