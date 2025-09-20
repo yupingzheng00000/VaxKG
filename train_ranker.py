@@ -26,7 +26,7 @@ import math
 import random
 import re
 from pathlib import Path
-from typing import Dict, List, Mapping, Optional, Sequence, Set, Tuple
+from typing import TYPE_CHECKING, Dict, List, Mapping, Optional, Sequence, Set, Tuple
 
 import numpy as np
 import pandas as pd
@@ -43,6 +43,9 @@ except ImportError as exc:  # pragma: no cover - dependency guard
         "`pip install torch-geometric` (see https://pytorch-geometric.readthedocs.io)."
     ) from exc
 
+if TYPE_CHECKING:  # pragma: no cover - imported for type hints only
+    from transformers import PreTrainedModel, PreTrainedTokenizerBase
+
 TOKEN_PATTERN = re.compile(r"[\w-]+", re.UNICODE)
 ADJUVANT_CLASS_ORDER: Sequence[str] = (
     "alum",
@@ -53,6 +56,13 @@ ADJUVANT_CLASS_ORDER: Sequence[str] = (
     "vectorized_liposome",
     "other",
 )
+
+DEFAULT_TEXT_ENCODER_MAX_LENGTHS: Mapping[str, int] = {
+    "vaccine": 64,
+    "disease": 64,
+    "platform": 32,
+    "adjuvant": 96,
+}
 
 
 def set_global_seed(seed: int) -> None:
@@ -83,6 +93,51 @@ def hashed_text_features(texts: Sequence[str], dim: int) -> Tensor:
         if norm > 0:
             matrix[row] /= norm
     return torch.from_numpy(matrix)
+
+
+def encode_with_transformer(
+    texts: Sequence[str],
+    tokenizer: "PreTrainedTokenizerBase",
+    model: "PreTrainedModel",
+    *,
+    pooling: str,
+    batch_size: int,
+    max_length: int,
+    device: torch.device,
+    normalize: bool = True,
+) -> Tensor:
+    """Encode ``texts`` with a Hugging Face transformer model."""
+
+    if not texts:
+        hidden = getattr(model.config, "hidden_size")
+        return torch.empty((0, hidden), dtype=torch.float32)
+
+    outputs: List[Tensor] = []
+    for start in range(0, len(texts), batch_size):
+        batch = texts[start : start + batch_size]
+        encoded = tokenizer(
+            batch,
+            padding=True,
+            truncation=True,
+            max_length=max_length,
+            return_tensors="pt",
+        )
+        encoded = {key: value.to(device) for key, value in encoded.items()}
+        with torch.no_grad():
+            model_output = model(**encoded)
+            last_hidden = getattr(model_output, "last_hidden_state", None)
+            if last_hidden is None:
+                last_hidden = model_output[0]  # type: ignore[index]
+            if pooling == "cls":
+                pooled = last_hidden[:, 0, :]
+            else:
+                mask = encoded["attention_mask"].unsqueeze(-1)
+                pooled = (last_hidden * mask).sum(dim=1) / mask.sum(dim=1).clamp_min(1e-9)
+        if normalize:
+            pooled = F.normalize(pooled, p=2, dim=1)
+        outputs.append(pooled.detach().cpu().to(torch.float32))
+
+    return torch.cat(outputs, dim=0)
 
 
 def _safe_text(value: object) -> str:
@@ -624,6 +679,9 @@ def evaluate_link_prediction(
 def build_graph(
     df: pd.DataFrame,
     feature_dim: int,
+    *,
+    text_encoder: Optional[Tuple["PreTrainedTokenizerBase", "PreTrainedModel"]] = None,
+    text_encoder_config: Optional[Mapping[str, object]] = None,
 ) -> Tuple[
     HeteroData,
     Dict[str, Dict[object, int]],
@@ -732,10 +790,65 @@ def build_graph(
         positives_lookup[vaccine_idx] = positives_list
 
     graph = HeteroData()
-    graph["vaccine"].x = hashed_text_features(vaccine_texts, feature_dim)
-    graph["disease"].x = hashed_text_features(disease_texts, feature_dim)
-    graph["platform"].x = hashed_text_features(platform_texts, feature_dim)
-    graph["adjuvant"].x = hashed_text_features(adjuvant_texts, feature_dim)
+
+    if text_encoder is None:
+        graph["vaccine"].x = hashed_text_features(vaccine_texts, feature_dim)
+        graph["disease"].x = hashed_text_features(disease_texts, feature_dim)
+        graph["platform"].x = hashed_text_features(platform_texts, feature_dim)
+        graph["adjuvant"].x = hashed_text_features(adjuvant_texts, feature_dim)
+    else:
+        tokenizer, model = text_encoder
+        config = dict(text_encoder_config or {})
+        pooling = str(config.get("pooling", "mean"))
+        batch_size = int(config.get("batch_size", 128))
+        max_lengths = dict(config.get("max_lengths", DEFAULT_TEXT_ENCODER_MAX_LENGTHS))
+        default_length = int(config.get("default_max_length", 64))
+        device = torch.device(config.get("device", "cpu"))
+        normalize = bool(config.get("normalize", True))
+
+        def _length(node_type: str) -> int:
+            return int(max_lengths.get(node_type, default_length))
+
+        graph["vaccine"].x = encode_with_transformer(
+            vaccine_texts,
+            tokenizer,
+            model,
+            pooling=pooling,
+            batch_size=batch_size,
+            max_length=_length("vaccine"),
+            device=device,
+            normalize=normalize,
+        )
+        graph["disease"].x = encode_with_transformer(
+            disease_texts,
+            tokenizer,
+            model,
+            pooling=pooling,
+            batch_size=batch_size,
+            max_length=_length("disease"),
+            device=device,
+            normalize=normalize,
+        )
+        graph["platform"].x = encode_with_transformer(
+            platform_texts,
+            tokenizer,
+            model,
+            pooling=pooling,
+            batch_size=batch_size,
+            max_length=_length("platform"),
+            device=device,
+            normalize=normalize,
+        )
+        graph["adjuvant"].x = encode_with_transformer(
+            adjuvant_texts,
+            tokenizer,
+            model,
+            pooling=pooling,
+            batch_size=batch_size,
+            max_length=_length("adjuvant"),
+            device=device,
+            normalize=normalize,
+        )
 
     for edge_type, edge_list in edges.items():
         if edge_list:
@@ -1173,7 +1286,36 @@ def parse_args() -> argparse.Namespace:
         "--feature-dim",
         type=int,
         default=256,
-        help="Dimension of hashed text features per node",
+        help="Dimension of hashed text features per node (ignored when using a transformer encoder)",
+    )
+    parser.add_argument(
+        "--text-encoder-checkpoint",
+        type=str,
+        default=None,
+        help="Optional Hugging Face checkpoint (e.g. cambridgeltl/SapBERT-from-PubMedBERT-fulltext-mean-token) for node text",
+    )
+    parser.add_argument(
+        "--text-encoder-pooling",
+        choices=["mean", "cls"],
+        default="mean",
+        help="Pooling strategy when using a transformer text encoder",
+    )
+    parser.add_argument(
+        "--text-encoder-batch-size",
+        type=int,
+        default=128,
+        help="Batch size for transformer inference over node texts",
+    )
+    parser.add_argument(
+        "--text-encoder-max-length",
+        type=int,
+        default=None,
+        help="Override maximum token length for transformer encoding (applies to all node types if set)",
+    )
+    parser.add_argument(
+        "--no-text-encoder-normalize",
+        action="store_true",
+        help="Disable L2 normalisation of transformer embeddings",
     )
     parser.add_argument(
         "--hidden-dim",
@@ -1263,6 +1405,39 @@ def main() -> None:
     df = attach_adjuvant_classes(df)
     records = build_vaccine_records(df)
 
+    text_encoder: Optional[Tuple["PreTrainedTokenizerBase", "PreTrainedModel"]] = None
+    text_encoder_config: Optional[Mapping[str, object]] = None
+    hf_model: Optional["PreTrainedModel"] = None
+    if args.text_encoder_checkpoint:
+        try:
+            from transformers import AutoModel, AutoTokenizer
+        except ImportError as exc:  # pragma: no cover - optional dependency guard
+            raise ImportError(
+                "Using --text-encoder-checkpoint requires the `transformers` package."
+            ) from exc
+
+        print(f"Loading text encoder {args.text_encoder_checkpoint!s}")
+        tokenizer = AutoTokenizer.from_pretrained(args.text_encoder_checkpoint)
+        hf_model = AutoModel.from_pretrained(args.text_encoder_checkpoint)
+        encoder_device = torch.device(args.device)
+        hf_model.to(encoder_device)
+        hf_model.eval()
+
+        max_lengths = dict(DEFAULT_TEXT_ENCODER_MAX_LENGTHS)
+        if args.text_encoder_max_length is not None:
+            for key in max_lengths:
+                max_lengths[key] = args.text_encoder_max_length
+
+        text_encoder = (tokenizer, hf_model)
+        text_encoder_config = {
+            "pooling": args.text_encoder_pooling,
+            "batch_size": args.text_encoder_batch_size,
+            "max_lengths": max_lengths,
+            "default_max_length": args.text_encoder_max_length or 64,
+            "device": encoder_device,
+            "normalize": not args.no_text_encoder_normalize,
+        }
+
     split_dir = args.output_dir / "splits"
     split_dir.mkdir(parents=True, exist_ok=True)
 
@@ -1286,8 +1461,16 @@ def main() -> None:
         return
 
     graph, mappings, positives_lookup, candidate_pool, candidate_ids = build_graph(
-        df, args.feature_dim
+        df,
+        args.feature_dim,
+        text_encoder=text_encoder,
+        text_encoder_config=text_encoder_config,
     )
+
+    if hf_model is not None:
+        hf_model.to("cpu")
+        del hf_model
+
     device = torch.device(args.device)
 
     results_dir = args.output_dir / "results"

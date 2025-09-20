@@ -32,6 +32,9 @@ Before you begin, ensure you have the following installed:
 * **PyTorch Geometric (optional but required for training the ranker):**
   Install following the [official instructions](https://pytorch-geometric.readthedocs.io/)
   to ensure the correct PyTorch/CUDA wheels are pulled in.
+* **Transformers (optional):** Install via `pip install transformers` if you intend to
+  build node features with SapBERT or other Hugging Face checkpoints while training
+  the recommender.
 
 ## Installation
 
@@ -138,6 +141,19 @@ datasets and training a vaccine→adjuvant ranker:
     (and corresponding `val`/`test` files) and stores evaluation metrics under
     `artifacts/results/<scheme>.json`. Use `--skip-training` if you only need the
     manifests for downstream experiments.
+
+    To replace the default hashed bag-of-words features with SapBERT embeddings,
+    supply the Hugging Face checkpoint and pooling strategy. The mean-token
+    variant (`cambridgeltl/SapBERT-from-PubMedBERT-fulltext-mean-token`) is a
+    strong default for combining labels, definitions, and synonym strings:
+
+    ```bash
+    python train_ranker.py \
+        --data-path data/processed/training_samples.csv \
+        --output-dir artifacts \
+        --text-encoder-checkpoint cambridgeltl/SapBERT-from-PubMedBERT-fulltext-mean-token \
+        --text-encoder-pooling mean
+    ```
 
 ## Code Overview
 
