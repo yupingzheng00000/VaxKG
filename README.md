@@ -102,6 +102,38 @@ The script will perform the following actions:
 
 You can observe the progress and any potential errors in the console output.
 
+### Training data preparation and modelling
+
+The repository also contains utilities for building machine-learning ready
+datasets and training a vaccine→adjuvant ranker:
+
+1.  **Prepare the training snapshot.** This joins the curated VO/Vaxjo/Vaxvec
+    metadata into the relational exports and emits the processed CSV/JSON
+    artefacts used for modelling.
+
+    ```bash
+    python prepare_training_data.py --data-dir data --output-dir data/processed
+    ```
+
+2.  **Train the graph-based recommender.** The `train_ranker.py` script builds
+    both leave-vaccine-out (transductive) and leave-disease-out (inductive)
+    splits, constructs a heterograph with hashed text features, and optimises an
+    R-GCN style encoder with a ListNet ranking loss plus an auxiliary link
+    prediction head.
+
+    ```bash
+    python train_ranker.py \
+        --data-path data/processed/training_samples.csv \
+        --output-dir artifacts \
+        --epochs 300 \
+        --list-size 50
+    ```
+
+    The script writes split manifests to `artifacts/splits/<scheme>/train.jsonl`
+    (and corresponding `val`/`test` files) and stores evaluation metrics under
+    `artifacts/results/<scheme>.json`. Use `--skip-training` if you only need the
+    manifests for downstream experiments.
+
 ## Code Overview
 
 The provided Python code contains the following key functions:
