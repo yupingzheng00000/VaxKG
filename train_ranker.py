@@ -478,7 +478,29 @@ class LinkPredictionSampler:
         return positive_tensor, negative_tensor
 
 
+def _get_or_empty_series(df: pd.DataFrame, column: str) -> pd.Series:
+    """Return ``df[column]`` if it exists, else an empty Series with matching index."""
+
+    if column in df.columns:
+        return df[column]
+    return pd.Series(index=df.index, dtype=object)
+
+
 def build_vaccine_records(df: pd.DataFrame) -> Dict[int, Dict[str, object]]:
+    df = df.copy()
+    if "disease_key" not in df.columns:
+        disease_series = _get_or_empty_series(df, "disease_name")
+        pathogen_series = _get_or_empty_series(df, "pathogen_name")
+        df["disease_key"] = disease_series.fillna(pathogen_series)
+        df["disease_key"] = df["disease_key"].fillna("unspecified_disease")
+    else:
+        df["disease_key"] = df["disease_key"].fillna("unspecified_disease")
+
+    if "platform_group" not in df.columns:
+        platform_series = _get_or_empty_series(df, "platform_type")
+        df["platform_group"] = platform_series
+    df["platform_group"] = df["platform_group"].fillna("unspecified")
+
     records: Dict[int, Dict[str, object]] = {}
     grouped = df.groupby("vaccine_id", dropna=False)
     for vaccine_id, group in grouped:
