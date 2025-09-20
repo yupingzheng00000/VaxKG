@@ -29,6 +29,9 @@ Before you begin, ensure you have the following installed:
     pip install python-dotenv
     ```
 * **Neosemantics (n10s):** This Neo4j extension is used for importing the OWL ontology.
+* **PyTorch Geometric (optional but required for training the ranker):**
+  Install following the [official instructions](https://pytorch-geometric.readthedocs.io/)
+  to ensure the correct PyTorch/CUDA wheels are pulled in.
 
 ## Installation
 
@@ -117,9 +120,9 @@ datasets and training a vaccine→adjuvant ranker:
 
 2.  **Train the graph-based recommender.** The `train_ranker.py` script builds
     both leave-vaccine-out (transductive) and leave-disease-out (inductive)
-    splits, constructs a heterograph with hashed text features, and optimises an
-    R-GCN style encoder with a ListNet ranking loss plus an auxiliary link
-    prediction head.
+    splits, constructs a PyTorch Geometric `HeteroData` graph with hashed text
+    features, and optimises a PyG hetero encoder with a ListNet ranking loss
+    plus an auxiliary link prediction head.
 
     ```bash
     python train_ranker.py \

@@ -1,21 +1,20 @@
-"""Train a vaccine-to-adjuvant ranker using heterograph message passing.
+"""Train a vaccine-to-adjuvant ranker using PyTorch Geometric.
 
 This script implements the modelling blueprint we discussed earlier:
 
 * Build transductive (leave-vaccine-out) and inductive (leave-disease-out)
   splits with persisted JSONL manifests for reproducibility.
-* Assemble a heterograph over Vaccine, Disease, Platform, and Adjuvant nodes
-  with hashed text features derived from the processed training snapshot.
-* Optimise an R-GCN style encoder with a listwise ranking loss (ListNet) and
-  an auxiliary typed negative-sampling link prediction head.
+* Assemble a :class:`~torch_geometric.data.HeteroData` graph spanning Vaccine,
+  Disease, Platform, and Adjuvant nodes with hashed text features derived from
+  the processed training snapshot.
+* Optimise a PyG-powered relational encoder with a listwise ranking loss
+  (ListNet) and an auxiliary typed negative-sampling link prediction head.
 * Evaluate with NDCG@K / Recall@K for ranking and filtered MRR / Hits@K for
   link prediction, mirroring common KG benchmarks.
 
-The implementation purposely avoids heavy third-party dependencies beyond
-PyTorch/Numpy/Pandas so it can run in constrained research environments.  The
-message passing layers operate on an explicit heterograph dictionary rather
-than relying on PyG kernels, but the semantics line up with the relational
-GNN design from the original R-GCN paper.
+PyTorch Geometric handles the heterogeneous message passing and aggregation,
+reducing custom tensor plumbing and giving us tested CUDA kernels for faster
+training on larger graphs.
 """
 from __future__ import annotations
 
@@ -26,7 +25,6 @@ import json
 import math
 import random
 import re
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Mapping, Optional, Sequence, Tuple
 
@@ -35,6 +33,15 @@ import pandas as pd
 import torch
 from torch import Tensor, nn
 import torch.nn.functional as F
+
+try:
+    from torch_geometric.data import HeteroData
+    from torch_geometric.nn import HeteroConv, SAGEConv
+except ImportError as exc:  # pragma: no cover - dependency guard
+    raise ImportError(
+        "train_ranker.py now depends on PyTorch Geometric. Install it via "
+        "`pip install torch-geometric` (see https://pytorch-geometric.readthedocs.io)."
+    ) from exc
 
 TOKEN_PATTERN = re.compile(r"[\w-]+", re.UNICODE)
 ADJUVANT_CLASS_ORDER: Sequence[str] = (
@@ -149,121 +156,56 @@ def canonical_adjuvant_class(
     return "other"
 
 
-@dataclass
-class GraphData:
-    """Minimal heterograph container for message passing."""
-
-    x_dict: Dict[str, Tensor]
-    edge_index_dict: Dict[Tuple[str, str, str], Tensor]
-
-    def to(self, device: torch.device) -> "GraphData":
-        return GraphData(
-            {node_type: tensor.to(device) for node_type, tensor in self.x_dict.items()},
-            {
-                edge_type: edge_index.to(device)
-                for edge_type, edge_index in self.edge_index_dict.items()
-            },
-        )
-
-
-class RelGraphConvLayer(nn.Module):
-    """Relation-specific graph convolution following the R-GCN template."""
-
-    def __init__(
-        self,
-        node_types: Sequence[str],
-        edge_types: Sequence[Tuple[str, str, str]],
-        hidden_dim: int,
-        dropout: float = 0.0,
-    ) -> None:
-        super().__init__()
-        self.hidden_dim = hidden_dim
-        self.dropout = nn.Dropout(dropout)
-        self.relation_weights = nn.ModuleDict()
-        for edge_type in edge_types:
-            key = self._edge_key(edge_type)
-            self.relation_weights[key] = nn.Linear(hidden_dim, hidden_dim, bias=False)
-        self.root_weights = nn.ModuleDict(
-            {node_type: nn.Linear(hidden_dim, hidden_dim, bias=True) for node_type in node_types}
-        )
-
-    @staticmethod
-    def _edge_key(edge_type: Tuple[str, str, str]) -> str:
-        src, rel, dst = edge_type
-        return f"{src}__{rel}__{dst}"
-
-    def forward(
-        self,
-        x_dict: Mapping[str, Tensor],
-        edge_index_dict: Mapping[Tuple[str, str, str], Tensor],
-    ) -> Dict[str, Tensor]:
-        device = next(iter(x_dict.values())).device
-        out: Dict[str, Tensor] = {
-            node_type: torch.zeros_like(x, device=device) for node_type, x in x_dict.items()
-        }
-
-        for edge_type, edge_index in edge_index_dict.items():
-            src_type, _, dst_type = edge_type
-            src_x = x_dict[src_type]
-            weight = self.relation_weights[self._edge_key(edge_type)]
-            messages = weight(src_x)
-
-            src_nodes = edge_index[0]
-            dst_nodes = edge_index[1]
-            aggregated = torch.zeros(
-                (x_dict[dst_type].size(0), self.hidden_dim), device=device, dtype=messages.dtype
-            )
-            aggregated.index_add_(0, dst_nodes, messages[src_nodes])
-
-            counts = torch.zeros(
-                x_dict[dst_type].size(0), device=device, dtype=messages.dtype
-            )
-            ones = torch.ones(dst_nodes.size(0), device=device, dtype=messages.dtype)
-            counts.index_add_(0, dst_nodes, ones)
-            counts = counts.clamp_min_(1.0).unsqueeze(-1)
-            aggregated = aggregated / counts
-            out[dst_type] = out[dst_type] + aggregated
-
-        for node_type, root in self.root_weights.items():
-            out[node_type] = root(x_dict[node_type]) + out[node_type]
-            out[node_type] = F.relu(out[node_type])
-            out[node_type] = self.dropout(out[node_type])
-        return out
-
-
-class RGCNEncoder(nn.Module):
-    """Stacked R-GCN style encoder with shared hidden dimension."""
+class PyGHeteroEncoder(nn.Module):
+    """Stack message-passing layers using PyTorch Geometric primitives."""
 
     def __init__(
         self,
         node_feat_dims: Mapping[str, int],
-        edge_types: Sequence[Tuple[str, str, str]],
+        metadata: Tuple[Sequence[str], Sequence[Tuple[str, str, str]]],
         hidden_dim: int,
         num_layers: int,
         dropout: float,
     ) -> None:
         super().__init__()
-        self.node_types = list(node_feat_dims.keys())
+        node_types, edge_types = metadata
+        self.dropout = dropout
         self.input_projections = nn.ModuleDict(
             {
                 node_type: nn.Linear(feat_dim, hidden_dim)
                 for node_type, feat_dim in node_feat_dims.items()
             }
         )
-        self.layers = nn.ModuleList(
-            [
-                RelGraphConvLayer(self.node_types, edge_types, hidden_dim, dropout)
-                for _ in range(num_layers)
-            ]
-        )
+        self.convs = nn.ModuleList()
+        for _ in range(num_layers):
+            hetero_conv = HeteroConv(
+                {
+                    edge_type: SAGEConv((-1, -1), hidden_dim)
+                    for edge_type in edge_types
+                },
+                aggr="mean",
+            )
+            self.convs.append(hetero_conv)
+        self.node_types = list(node_types)
 
-    def forward(self, graph: GraphData) -> Dict[str, Tensor]:
+    def forward(self, data: HeteroData) -> Dict[str, Tensor]:
         x_dict = {
-            node_type: F.relu(self.input_projections[node_type](features))
-            for node_type, features in graph.x_dict.items()
+            node_type: F.relu(self.input_projections[node_type](data[node_type].x))
+            for node_type in self.node_types
         }
-        for layer in self.layers:
-            x_dict = layer(x_dict, graph.edge_index_dict)
+        edge_index_dict = data.edge_index_dict
+        for conv in self.convs:
+            updated = conv(x_dict, edge_index_dict)
+            new_x: Dict[str, Tensor] = {}
+            for node_type in self.node_types:
+                residual = x_dict[node_type]
+                message = updated.get(node_type)
+                if message is None:
+                    message = torch.zeros_like(residual)
+                activated = F.relu(residual + message)
+                dropped = F.dropout(activated, p=self.dropout, training=self.training)
+                new_x[node_type] = dropped
+            x_dict = new_x
         return x_dict
 
 
@@ -634,7 +576,7 @@ def build_graph(
     df: pd.DataFrame,
     feature_dim: int,
 ) -> Tuple[
-    GraphData,
+    HeteroData,
     Dict[str, Dict[object, int]],
     Dict[int, List[int]],
     Dict[int, List[int]],
@@ -705,13 +647,6 @@ def build_graph(
         ]
         adjuvant_texts.append(" ".join(filter(None, parts)))
 
-    node_features = {
-        "vaccine": hashed_text_features(vaccine_texts, feature_dim),
-        "disease": hashed_text_features(disease_texts, feature_dim),
-        "platform": hashed_text_features(platform_texts, feature_dim),
-        "adjuvant": hashed_text_features(adjuvant_texts, feature_dim),
-    }
-
     edges: Dict[Tuple[str, str, str], List[Tuple[int, int]]] = {
         ("vaccine", "for_disease", "disease"): [],
         ("disease", "rev_for_disease", "vaccine"): [],
@@ -747,17 +682,22 @@ def build_graph(
         candidate_pool[vaccine_idx] = negatives
         positives_lookup[vaccine_idx] = positives_list
 
-    edge_index_dict: Dict[Tuple[str, str, str], Tensor] = {}
+    graph = HeteroData()
+    graph["vaccine"].x = hashed_text_features(vaccine_texts, feature_dim)
+    graph["disease"].x = hashed_text_features(disease_texts, feature_dim)
+    graph["platform"].x = hashed_text_features(platform_texts, feature_dim)
+    graph["adjuvant"].x = hashed_text_features(adjuvant_texts, feature_dim)
+
     for edge_type, edge_list in edges.items():
         if edge_list:
             unique_edges = list(dict.fromkeys(edge_list))
             edge_tensor = torch.tensor(unique_edges, dtype=torch.long).t().contiguous()
         else:
             edge_tensor = torch.empty((2, 0), dtype=torch.long)
-        edge_index_dict[edge_type] = edge_tensor
+        graph[edge_type].edge_index = edge_tensor
 
     return (
-        GraphData(node_features, edge_index_dict),
+        graph,
         mappings,
         positives_lookup,
         candidate_pool,
@@ -779,7 +719,7 @@ def attach_adjuvant_classes(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def train_one_split(
-    graph: GraphData,
+    graph: HeteroData,
     mappings: Mapping[str, Mapping[object, int]],
     positives_lookup: Mapping[int, Sequence[int]],
     candidate_pool: Mapping[int, Sequence[int]],
@@ -834,8 +774,16 @@ def train_one_split(
         else None
     )
 
-    node_feat_dims = {node_type: features.size(1) for node_type, features in graph.x_dict.items()}
-    model = RGCNEncoder(node_feat_dims, list(graph.edge_index_dict.keys()), args.hidden_dim, args.layers, args.dropout)
+    node_feat_dims = {
+        node_type: features.size(1) for node_type, features in graph.x_dict.items()
+    }
+    model = PyGHeteroEncoder(
+        node_feat_dims,
+        graph.metadata(),
+        args.hidden_dim,
+        args.layers,
+        args.dropout,
+    )
     ranking_head = ListNetRankingHead().to(device)
     link_head = LinkPredictionHead(args.self_adversarial_temperature).to(device)
 
@@ -985,8 +933,18 @@ def parse_args() -> argparse.Namespace:
         default=256,
         help="Dimension of hashed text features per node",
     )
-    parser.add_argument("--hidden-dim", type=int, default=128, help="Hidden dimension for R-GCN layers")
-    parser.add_argument("--layers", type=int, default=2, help="Number of R-GCN layers")
+    parser.add_argument(
+        "--hidden-dim",
+        type=int,
+        default=128,
+        help="Hidden dimension for the PyG message passing layers",
+    )
+    parser.add_argument(
+        "--layers",
+        type=int,
+        default=2,
+        help="Number of PyG hetero message passing layers",
+    )
     parser.add_argument("--dropout", type=float, default=0.3, help="Dropout applied after each layer")
     parser.add_argument("--list-size", type=int, default=50, help="Candidate list size for ListNet training")
     parser.add_argument(
