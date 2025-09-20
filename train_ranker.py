@@ -36,7 +36,7 @@ import torch.nn.functional as F
 
 try:
     from torch_geometric.data import HeteroData
-    from torch_geometric.nn import HeteroConv, SAGEConv
+    from torch_geometric.nn import APPNP, HeteroConv, SAGEConv
 except ImportError as exc:  # pragma: no cover - dependency guard
     raise ImportError(
         "train_ranker.py now depends on PyTorch Geometric. Install it via "
@@ -166,6 +166,9 @@ class PyGHeteroEncoder(nn.Module):
         hidden_dim: int,
         num_layers: int,
         dropout: float,
+        appnp_steps: int,
+        appnp_alpha: float,
+        appnp_dropout: float,
     ) -> None:
         super().__init__()
         node_types, edge_types = metadata
@@ -187,6 +190,11 @@ class PyGHeteroEncoder(nn.Module):
             )
             self.convs.append(hetero_conv)
         self.node_types = list(node_types)
+        self.appnp = (
+            APPNP(K=appnp_steps, alpha=appnp_alpha, dropout=appnp_dropout)
+            if appnp_steps > 0
+            else None
+        )
 
     def forward(self, data: HeteroData) -> Dict[str, Tensor]:
         x_dict = {
@@ -206,6 +214,16 @@ class PyGHeteroEncoder(nn.Module):
                 dropped = F.dropout(activated, p=self.dropout, training=self.training)
                 new_x[node_type] = dropped
             x_dict = new_x
+        if self.appnp is not None:
+            homogeneous = data.to_homogeneous()
+            sizes = [x_dict[node_type].size(0) for node_type in self.node_types]
+            stacked = torch.cat([x_dict[node_type] for node_type in self.node_types], dim=0)
+            smoothed = self.appnp(stacked, homogeneous.edge_index.to(stacked.device))
+            split_tensors = torch.split(smoothed, sizes)
+            x_dict = {
+                node_type: tensor
+                for node_type, tensor in zip(self.node_types, split_tensors)
+            }
         return x_dict
 
 
@@ -223,11 +241,11 @@ class ListNetRankingHead(nn.Module):
         adjuvant_repr = embeddings["adjuvant"][candidate_indices]
         scores = torch.einsum("bd,bkd->bk", vaccine_repr, adjuvant_repr)
 
-        target_distribution = torch.softmax(relevance, dim=1)
-        predicted_distribution = torch.softmax(scores, dim=1)
-        loss = -torch.sum(
-            target_distribution * torch.log(predicted_distribution + 1e-9), dim=1
-        ).mean()
+        positive_mask = (relevance > 0).float()
+        positive_mass = positive_mask.sum(dim=1, keepdim=True).clamp_min(1e-9)
+        target_distribution = positive_mask / positive_mass
+        log_probs = F.log_softmax(scores, dim=1)
+        loss = -(target_distribution * log_probs).sum(dim=1).mean()
         return loss, scores
 
 
@@ -718,6 +736,35 @@ def attach_adjuvant_classes(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+def restrict_label_edges_for_training(
+    graph: HeteroData, train_vaccine_indices: Sequence[int]
+) -> HeteroData:
+    """Filter ``contains_adjuvant`` edges to vaccines in the training split."""
+
+    filtered = graph.clone()
+    edge_index = filtered["vaccine", "contains_adjuvant", "adjuvant"].edge_index
+    if edge_index.numel() == 0:
+        return filtered
+    train_tensor = torch.tensor(
+        sorted(set(int(idx) for idx in train_vaccine_indices)),
+        dtype=torch.long,
+        device=edge_index.device,
+    )
+    if train_tensor.numel() == 0:
+        forward_empty = edge_index.new_empty((2, 0))
+        reverse_empty = edge_index.new_empty((2, 0))
+        filtered["vaccine", "contains_adjuvant", "adjuvant"].edge_index = forward_empty
+        filtered["adjuvant", "rev_contains_adjuvant", "vaccine"].edge_index = reverse_empty
+        return filtered
+    keep_mask = torch.isin(edge_index[0], train_tensor)
+    filtered_edge_index = edge_index[:, keep_mask]
+    filtered["vaccine", "contains_adjuvant", "adjuvant"].edge_index = filtered_edge_index
+    filtered["adjuvant", "rev_contains_adjuvant", "vaccine"].edge_index = (
+        filtered_edge_index.flip(0)
+    )
+    return filtered
+
+
 def train_one_split(
     graph: HeteroData,
     mappings: Mapping[str, Mapping[object, int]],
@@ -727,6 +774,7 @@ def train_one_split(
     manifests: Mapping[str, Sequence[Mapping[str, object]]],
     args: argparse.Namespace,
     device: torch.device,
+    scheme: str,
 ) -> Dict[str, Dict[str, float]]:
     train_vaccines = [
         mappings["vaccine"][entry["vaccine_id"]]
@@ -746,6 +794,8 @@ def train_one_split(
 
     if not train_vaccines:
         raise ValueError("Training split is empty; cannot optimise model")
+
+    train_graph = restrict_label_edges_for_training(graph, train_vaccines)
 
     train_dataset = VaccineAdjuvantListDataset(
         train_vaccines,
@@ -783,6 +833,9 @@ def train_one_split(
         args.hidden_dim,
         args.layers,
         args.dropout,
+        args.appnp_steps,
+        args.appnp_alpha,
+        args.appnp_dropout,
     )
     ranking_head = ListNetRankingHead().to(device)
     link_head = LinkPredictionHead(args.self_adversarial_temperature).to(device)
@@ -796,7 +849,7 @@ def train_one_split(
     ]
     optimizer = torch.optim.AdamW(param_groups, weight_decay=args.weight_decay)
 
-    graph_device = graph.to(device)
+    train_graph_device = train_graph.to(device)
     model = model.to(device)
     results: Dict[str, Dict[str, float]] = {}
     best_val = -float("inf")
@@ -814,7 +867,7 @@ def train_one_split(
             labels = labels.to(device)
 
             optimizer.zero_grad()
-            embeddings = model(graph_device)
+            embeddings = model(train_graph_device)
             rank_loss, _ = ranking_head(embeddings, vaccines, candidates, labels)
             lp_loss = torch.tensor(0.0, device=device)
             if link_sampler is not None:
@@ -838,7 +891,7 @@ def train_one_split(
 
         model.eval()
         with torch.no_grad():
-            embeddings = model(graph_device)
+            embeddings = model(train_graph_device)
         val_metrics = (
             evaluate_ranking(embeddings, val_vaccines, positives_lookup, candidate_ids, (5, 10))
             if val_vaccines
@@ -862,10 +915,25 @@ def train_one_split(
 
     if best_state is not None:
         model.load_state_dict(best_state)
+        checkpoint_dir = args.output_dir / "checkpoints"
+        checkpoint_dir.mkdir(parents=True, exist_ok=True)
+        checkpoint_path = checkpoint_dir / f"{scheme}_best.pt"
+        cpu_state = {key: tensor.cpu() for key, tensor in best_state.items()}
+        torch.save(
+            {
+                "state_dict": cpu_state,
+                "metadata": graph.metadata(),
+                "mappings": mappings,
+                "args": vars(args),
+                "split": scheme,
+            },
+            checkpoint_path,
+        )
+        print(f"Saved best checkpoint to {checkpoint_path}")
 
     model.eval()
     with torch.no_grad():
-        embeddings = model(graph_device)
+        embeddings = model(train_graph_device)
 
     train_metrics = evaluate_ranking(embeddings, train_vaccines, positives_lookup, candidate_ids, (5, 10))
     val_metrics = (
@@ -946,6 +1014,24 @@ def parse_args() -> argparse.Namespace:
         help="Number of PyG hetero message passing layers",
     )
     parser.add_argument("--dropout", type=float, default=0.3, help="Dropout applied after each layer")
+    parser.add_argument(
+        "--appnp-steps",
+        type=int,
+        default=10,
+        help="Propagation steps for APPNP smoothing (0 disables)",
+    )
+    parser.add_argument(
+        "--appnp-alpha",
+        type=float,
+        default=0.1,
+        help="Teleport (restart) probability for APPNP smoothing",
+    )
+    parser.add_argument(
+        "--appnp-dropout",
+        type=float,
+        default=0.0,
+        help="Dropout applied inside APPNP propagation",
+    )
     parser.add_argument("--list-size", type=int, default=50, help="Candidate list size for ListNet training")
     parser.add_argument(
         "--negatives-per-triple",
@@ -1044,6 +1130,7 @@ def main() -> None:
             manifests,
             args,
             device,
+            scheme,
         )
         result_path = results_dir / f"{scheme}.json"
         with result_path.open("w", encoding="utf-8") as handle:
