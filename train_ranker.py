@@ -164,7 +164,8 @@ def canonical_adjuvant_class(
 ) -> str:
     """Collapse ontology lineage into reviewer-friendly adjuvant classes."""
 
-    text = " ".join(filter(None, [vo_parent, display_name, definition])).lower()
+    parts = [_safe_text(vo_parent), _safe_text(display_name), _safe_text(definition)]
+    text = " ".join(part for part in parts if part).lower()
     if any(keyword in text for keyword in ("aluminum", "alum", "alhydrogel")):
         return "alum"
     if any(
