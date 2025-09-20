@@ -26,7 +26,7 @@ import math
 import random
 import re
 from pathlib import Path
-from typing import Dict, List, Mapping, Optional, Sequence, Tuple
+from typing import Dict, List, Mapping, Optional, Sequence, Set, Tuple
 
 import numpy as np
 import pandas as pd
@@ -216,14 +216,45 @@ class PyGHeteroEncoder(nn.Module):
             x_dict = new_x
         if self.appnp is not None:
             homogeneous = data.to_homogeneous()
-            sizes = [x_dict[node_type].size(0) for node_type in self.node_types]
-            stacked = torch.cat([x_dict[node_type] for node_type in self.node_types], dim=0)
-            smoothed = self.appnp(stacked, homogeneous.edge_index.to(stacked.device))
-            split_tensors = torch.split(smoothed, sizes)
-            x_dict = {
-                node_type: tensor
-                for node_type, tensor in zip(self.node_types, split_tensors)
+            node_type_tensor = homogeneous.node_type
+            sample = next(iter(x_dict.values()))
+            stacked = torch.zeros(
+                (int(node_type_tensor.numel()), sample.size(1)),
+                dtype=sample.dtype,
+                device=sample.device,
+            )
+            type_indices = {
+                node_type: idx for idx, node_type in enumerate(data.node_types)
             }
+            index_cache: Dict[str, Tensor] = {}
+            for node_type in self.node_types:
+                features = x_dict[node_type]
+                type_idx = type_indices[node_type]
+                positions = (node_type_tensor == type_idx).nonzero(as_tuple=False).view(-1)
+                positions = positions.to(features.device)
+                if positions.numel() != features.size(0):
+                    raise AssertionError(
+                        "APPNP mapping mismatch: found "
+                        f"{positions.numel()} positions for node type {node_type} "
+                        f"but {features.size(0)} feature rows"
+                    )
+                stacked[positions] = features
+                index_cache[node_type] = positions
+
+            if index_cache:
+                covered = torch.cat(list(index_cache.values()))
+                covered_sorted = torch.sort(covered)[0]
+                expected = torch.arange(
+                    node_type_tensor.numel(), device=covered.device, dtype=covered.dtype
+                )
+                if not torch.equal(covered_sorted, expected):
+                    raise AssertionError(
+                        "APPNP mapping did not cover every homogeneous node exactly once"
+                    )
+
+            smoothed = self.appnp(stacked, homogeneous.edge_index.to(stacked.device))
+            for node_type, positions in index_cache.items():
+                x_dict[node_type] = smoothed[positions]
         return x_dict
 
 
@@ -765,6 +796,120 @@ def restrict_label_edges_for_training(
     return filtered
 
 
+def restrict_context_edges_for_training(
+    graph: HeteroData,
+    train_vaccine_indices: Sequence[int],
+    train_disease_indices: Optional[Sequence[int]] = None,
+) -> HeteroData:
+    """Drop context edges that touch held-out vaccines or diseases."""
+
+    filtered = graph.clone()
+    vaccine_mask = torch.zeros(filtered["vaccine"].num_nodes, dtype=torch.bool)
+    if train_vaccine_indices:
+        vaccine_mask[
+            torch.tensor(
+                sorted(set(int(v) for v in train_vaccine_indices)), dtype=torch.long
+            )
+        ] = True
+
+    disease_mask: Optional[Tensor] = None
+    if train_disease_indices is not None:
+        disease_mask = torch.zeros(filtered["disease"].num_nodes, dtype=torch.bool)
+        if train_disease_indices:
+            disease_mask[
+                torch.tensor(
+                    sorted(set(int(d) for d in train_disease_indices)), dtype=torch.long
+                )
+            ] = True
+
+    forward_fd = filtered["vaccine", "for_disease", "disease"].edge_index
+    if forward_fd.numel() > 0:
+        keep = vaccine_mask[forward_fd[0]]
+        if disease_mask is not None:
+            keep &= disease_mask[forward_fd[1]]
+        filtered["vaccine", "for_disease", "disease"].edge_index = forward_fd[:, keep]
+
+    reverse_fd = filtered["disease", "rev_for_disease", "vaccine"].edge_index
+    if reverse_fd.numel() > 0:
+        keep = vaccine_mask[reverse_fd[1]]
+        if disease_mask is not None:
+            keep &= disease_mask[reverse_fd[0]]
+        filtered["disease", "rev_for_disease", "vaccine"].edge_index = reverse_fd[:, keep]
+
+    forward_platform = filtered["vaccine", "uses_platform", "platform"].edge_index
+    if forward_platform.numel() > 0:
+        keep = vaccine_mask[forward_platform[0]]
+        filtered["vaccine", "uses_platform", "platform"].edge_index = forward_platform[:, keep]
+
+    reverse_platform = filtered["platform", "rev_uses_platform", "vaccine"].edge_index
+    if reverse_platform.numel() > 0:
+        keep = vaccine_mask[reverse_platform[1]]
+        filtered["platform", "rev_uses_platform", "vaccine"].edge_index = reverse_platform[:, keep]
+
+    return filtered
+
+
+def verify_no_context_leakage(
+    graph: HeteroData,
+    heldout_vaccines: Sequence[int],
+    heldout_diseases: Optional[Sequence[int]] = None,
+) -> None:
+    """Assert that training graph edges do not reference held-out nodes."""
+
+    if heldout_vaccines:
+        disallowed_v = torch.tensor(
+            sorted(set(int(v) for v in heldout_vaccines)), dtype=torch.long
+        )
+        disallowed_v = disallowed_v.to(
+            graph["vaccine", "contains_adjuvant", "adjuvant"].edge_index.device
+        )
+
+        def _count(edge_type: Tuple[str, str, str], row: int) -> int:
+            edge_index = graph[edge_type].edge_index
+            if edge_index.numel() == 0:
+                return 0
+            return int(torch.isin(edge_index[row], disallowed_v).sum().item())
+
+        vaccine_leak = sum(
+            _count(edge_type, row)
+            for edge_type, row in [
+                (("vaccine", "contains_adjuvant", "adjuvant"), 0),
+                (("adjuvant", "rev_contains_adjuvant", "vaccine"), 1),
+                (("vaccine", "for_disease", "disease"), 0),
+                (("disease", "rev_for_disease", "vaccine"), 1),
+                (("vaccine", "uses_platform", "platform"), 0),
+                (("platform", "rev_uses_platform", "vaccine"), 1),
+            ]
+        )
+        if vaccine_leak:
+            raise AssertionError(
+                f"Training graph still references {vaccine_leak} held-out vaccine nodes"
+            )
+        print("Verified: no held-out vaccine indices remain in training graph edges")
+
+    if heldout_diseases:
+        disallowed_d = torch.tensor(
+            sorted(set(int(d) for d in heldout_diseases)), dtype=torch.long
+        )
+        disallowed_d = disallowed_d.to(
+            graph["vaccine", "for_disease", "disease"].edge_index.device
+        )
+
+        def _count_disease(edge_type: Tuple[str, str, str], row: int) -> int:
+            edge_index = graph[edge_type].edge_index
+            if edge_index.numel() == 0:
+                return 0
+            return int(torch.isin(edge_index[row], disallowed_d).sum().item())
+
+        disease_leak = _count_disease(("vaccine", "for_disease", "disease"), 1) + _count_disease(
+            ("disease", "rev_for_disease", "vaccine"), 0
+        )
+        if disease_leak:
+            raise AssertionError(
+                f"Training graph still references {disease_leak} held-out disease nodes"
+            )
+        print("Verified: no held-out disease indices remain in training graph edges")
+
 def train_one_split(
     graph: HeteroData,
     mappings: Mapping[str, Mapping[object, int]],
@@ -776,6 +921,16 @@ def train_one_split(
     device: torch.device,
     scheme: str,
 ) -> Dict[str, Dict[str, float]]:
+    def _collect_diseases(entries: Sequence[Mapping[str, object]]) -> List[int]:
+        indices: Set[int] = set()
+        for entry in entries:
+            diseases = entry.get("diseases") or []
+            for disease in diseases:
+                idx = mappings["disease"].get(disease)
+                if idx is not None:
+                    indices.add(idx)
+        return sorted(indices)
+
     train_vaccines = [
         mappings["vaccine"][entry["vaccine_id"]]
         for entry in manifests["train"]
@@ -795,7 +950,26 @@ def train_one_split(
     if not train_vaccines:
         raise ValueError("Training split is empty; cannot optimise model")
 
+    train_diseases = _collect_diseases(manifests.get("train", []))
+    val_diseases = _collect_diseases(manifests.get("val", []))
+    test_diseases = _collect_diseases(manifests.get("test", []))
+
     train_graph = restrict_label_edges_for_training(graph, train_vaccines)
+    train_graph = restrict_context_edges_for_training(
+        train_graph,
+        train_vaccines,
+        train_diseases if scheme == "inductive" else None,
+    )
+
+    heldout_vaccines = sorted(set(val_vaccines + test_vaccines))
+    heldout_diseases = (
+        sorted(set(val_diseases + test_diseases)) if scheme == "inductive" else []
+    )
+    verify_no_context_leakage(
+        train_graph,
+        heldout_vaccines,
+        heldout_diseases if heldout_diseases else None,
+    )
 
     train_dataset = VaccineAdjuvantListDataset(
         train_vaccines,
