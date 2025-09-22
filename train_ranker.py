@@ -25,6 +25,7 @@ import json
 import math
 import random
 import re
+from collections import OrderedDict
 from pathlib import Path
 from typing import TYPE_CHECKING, Dict, List, Mapping, Optional, Sequence, Set, Tuple
 
@@ -63,6 +64,39 @@ DEFAULT_TEXT_ENCODER_MAX_LENGTHS: Mapping[str, int] = {
     "platform": 32,
     "adjuvant": 96,
 }
+
+# Deterministic vocabularies for structured adjuvant features.
+IMMUNE_PROFILE_KEYWORDS = OrderedDict(
+    [
+        ("th1", ("th1",)),
+        ("th2", ("th2",)),
+        ("th17", ("th17",)),
+        ("ifn", ("ifn", "interferon")),
+        ("tfh_gc", ("tfh", "t follicular helper", "germinal center", "germinal centre")),
+        ("mucosal", ("mucosal", "iga")),
+    ]
+)
+
+RECEPTOR_KEYWORDS = OrderedDict(
+    [
+        ("tlr1", ("tlr1", "toll-like receptor 1")),
+        ("tlr2", ("tlr2", "toll-like receptor 2")),
+        ("tlr3", ("tlr3", "toll-like receptor 3")),
+        ("tlr4", ("tlr4", "toll-like receptor 4")),
+        ("tlr5", ("tlr5", "toll-like receptor 5")),
+        ("tlr6", ("tlr6", "toll-like receptor 6")),
+        ("tlr7", ("tlr7", "tlr7/8", "tlr7-8")),
+        ("tlr8", ("tlr8", "tlr7/8", "tlr8/9")),
+        ("tlr9", ("tlr9", "tlr9/8", "tlr7/9", "toll-like receptor 9")),
+        ("sting", ("sting", "stimulator of interferon genes", "tmem173", "cgas-sting")),
+        ("myd88", ("myd88",)),
+        ("nod2", ("nod2", "nlr family member 2")),
+    ]
+)
+
+IMMUNE_PROFILE_DIM = len(IMMUNE_PROFILE_KEYWORDS)
+RECEPTOR_DIM = len(RECEPTOR_KEYWORDS)
+STRUCTURED_ADJUVANT_DIM = IMMUNE_PROFILE_DIM + RECEPTOR_DIM
 
 
 def set_global_seed(seed: int) -> None:
@@ -155,6 +189,53 @@ def _aggregate_series(series: Optional[pd.Series]) -> str:
     if cleaned.empty:
         return ""
     return "; ".join(str(value) for value in cleaned.tolist())
+
+
+def _collect_group_strings(group: pd.DataFrame, column: str) -> List[str]:
+    if column not in group:
+        return []
+    values: List[str] = []
+    for value in group[column].dropna().tolist():
+        text = _safe_text(value).strip()
+        if text:
+            values.append(text)
+    return values
+
+
+def _expand_numeric_pattern(text: str, pattern: str, prefix: str) -> str:
+    def _repl(match: re.Match[str]) -> str:
+        digits = re.findall(r"\d+", match.group(0))
+        return " ".join(f"{prefix}{digit}" for digit in digits)
+
+    return re.sub(pattern, _repl, text)
+
+
+def _prepare_structured_text(values: Sequence[str]) -> str:
+    if not values:
+        return ""
+    text = " ".join(values).lower()
+    text = text.replace("\n", " ").replace("\r", " ")
+    text = _expand_numeric_pattern(text, r"tlr\d(?:\s*/\s*\d)+", "tlr")
+    text = _expand_numeric_pattern(text, r"th\d(?:\s*/\s*th?\d)+", "th")
+    for token in ("/", "|", "+", "(", ")"):
+        text = text.replace(token, " ")
+    return text
+
+
+def _multi_hot_from_keywords(values: Sequence[str], keywords: Mapping[str, Sequence[str]]) -> List[float]:
+    if not keywords:
+        return []
+    prepared = _prepare_structured_text(values)
+    return [
+        1.0
+        if prepared and any(keyword in prepared for keyword in synonyms)
+        else 0.0
+        for synonyms in keywords.values()
+    ]
+
+
+def _has_nan_token(text: str) -> bool:
+    return any(token.lower() == "nan" for token in TOKEN_PATTERN.findall(text))
 
 
 def canonical_adjuvant_class(
@@ -766,16 +847,90 @@ def build_graph(
 
     adjuvant_texts: List[str] = []
     adjuvant_grouped = df.groupby("adjuvant_vo_id")
+    immune_vectors: List[List[float]] = []
+    receptor_vectors: List[List[float]] = []
+    longest_vo_definition_tokens = 0
+    sample_logs: List[Tuple[str, str]] = []
     for adjuvant_id in adjuvant_ids:
         group = adjuvant_grouped.get_group(adjuvant_id)
+        preferred = (
+            _safe_text(group["vo_preferred_label"].iloc[0])
+            if "vo_preferred_label" in group
+            else ""
+        )
+        alternative = (
+            _aggregate_series(group["vo_alternative_labels"])
+            if "vo_alternative_labels" in group
+            else ""
+        )
+        definition = (
+            _safe_text(group["vo_definition"].iloc[0]).replace("\n", " ")
+            if "vo_definition" in group
+            else ""
+        )
+        if definition:
+            longest_vo_definition_tokens = max(
+                longest_vo_definition_tokens,
+                len(definition.split()),
+            )
+        display_name = (
+            _safe_text(group["adjuvant_display_name"].iloc[0])
+            if "adjuvant_display_name" in group
+            else ""
+        )
+        description = (
+            _safe_text(group["adjuvant_description"].iloc[0]).replace("\n", " ")
+            if "adjuvant_description" in group
+            else ""
+        )
+        synonyms = (
+            _aggregate_series(group["adjuvant_synonyms"])
+            if "adjuvant_synonyms" in group
+            else ""
+        )
+        roles = (
+            _aggregate_series(group["adjuvant_roles"])
+            if "adjuvant_roles" in group
+            else ""
+        )
+        immune_text = (
+            _aggregate_series(group["adjuvant_immune_profile"])
+            if "adjuvant_immune_profile" in group
+            else ""
+        )
         parts = [
-            _safe_text(group["adjuvant_display_name"].iloc[0] if "adjuvant_display_name" in group else ""),
-            _safe_text(group["adjuvant_description"].iloc[0] if "adjuvant_description" in group else ""),
-            _aggregate_series(group["adjuvant_synonyms"]) if "adjuvant_synonyms" in group else "",
-            _aggregate_series(group["adjuvant_roles"]) if "adjuvant_roles" in group else "",
-            _aggregate_series(group["adjuvant_immune_profile"]) if "adjuvant_immune_profile" in group else "",
+            preferred,
+            alternative,
+            definition,
+            display_name,
+            description,
+            synonyms,
+            roles,
+            immune_text,
         ]
-        adjuvant_texts.append(" ".join(filter(None, parts)))
+        text = " ".join(filter(None, parts))
+        adjuvant_texts.append(text)
+        if text and len(sample_logs) < 3:
+            sample_logs.append((adjuvant_id, text[:200]))
+
+        immune_sources: List[str] = []
+        for column in ("vo_immune_profile", "adjuvant_immune_profile"):
+            immune_sources.extend(_collect_group_strings(group, column))
+        receptor_sources: List[str] = []
+        for column in ("adjuvant_molecular_receptors", "vo_molecular_receptors"):
+            receptor_sources.extend(_collect_group_strings(group, column))
+
+        immune_vectors.append(_multi_hot_from_keywords(immune_sources, IMMUNE_PROFILE_KEYWORDS))
+        receptor_vectors.append(_multi_hot_from_keywords(receptor_sources, RECEPTOR_KEYWORDS))
+
+    if sample_logs:
+        print("Sample adjuvant text features (VO-enriched):")
+        for adjuvant_id, snippet in sample_logs:
+            if _has_nan_token(snippet):
+                raise AssertionError(
+                    f"Adjuvant text for {adjuvant_id} still contains a NaN token"
+                )
+            print(f"  {adjuvant_id}: {snippet}")
 
     edges: Dict[Tuple[str, str, str], List[Tuple[int, int]]] = {
         ("vaccine", "for_disease", "disease"): [],
@@ -812,13 +967,43 @@ def build_graph(
         candidate_pool[vaccine_idx] = negatives
         positives_lookup[vaccine_idx] = positives_list
 
+    if IMMUNE_PROFILE_DIM:
+        immune_tensor = torch.tensor(immune_vectors, dtype=torch.float32)
+    else:
+        immune_tensor = torch.zeros((len(adjuvant_ids), 0), dtype=torch.float32)
+    if RECEPTOR_DIM:
+        receptor_tensor = torch.tensor(receptor_vectors, dtype=torch.float32)
+    else:
+        receptor_tensor = torch.zeros((len(adjuvant_ids), 0), dtype=torch.float32)
+    structured_parts: List[Tensor] = []
+    if immune_tensor.numel():
+        structured_parts.append(immune_tensor)
+    if receptor_tensor.numel():
+        structured_parts.append(receptor_tensor)
+    if structured_parts:
+        adjuvant_structured = torch.cat(structured_parts, dim=1)
+    else:
+        adjuvant_structured = torch.zeros((len(adjuvant_ids), 0), dtype=torch.float32)
+
+    print(
+        "Structured adjuvant feature dims:",
+        {
+            "immune_profile": IMMUNE_PROFILE_DIM,
+            "receptors": RECEPTOR_DIM,
+        },
+    )
+
     graph = HeteroData()
 
     if text_encoder is None:
         graph["vaccine"].x = hashed_text_features(vaccine_texts, feature_dim)
         graph["disease"].x = hashed_text_features(disease_texts, feature_dim)
         graph["platform"].x = hashed_text_features(platform_texts, feature_dim)
-        graph["adjuvant"].x = hashed_text_features(adjuvant_texts, feature_dim)
+        adjuvant_hashed = hashed_text_features(adjuvant_texts, feature_dim)
+        if adjuvant_structured.size(1):
+            graph["adjuvant"].x = torch.cat([adjuvant_hashed, adjuvant_structured], dim=1)
+        else:
+            graph["adjuvant"].x = adjuvant_hashed
     else:
         tokenizer, model = text_encoder
         config = dict(text_encoder_config or {})
@@ -828,6 +1013,18 @@ def build_graph(
         default_length = int(config.get("default_max_length", 64))
         device = torch.device(config.get("device", "cpu"))
         normalize = bool(config.get("normalize", True))
+
+        if longest_vo_definition_tokens:
+            approx_tokens = int(math.ceil(longest_vo_definition_tokens * 1.3))
+            boosted = max(approx_tokens, 128)
+            current = int(max_lengths.get("adjuvant", DEFAULT_TEXT_ENCODER_MAX_LENGTHS["adjuvant"]))
+            max_lengths["adjuvant"] = min(512, max(current, boosted))
+            print(
+                "Transformer max_length for adjuvants set to",
+                max_lengths["adjuvant"],
+                "based on longest VO definition token count",
+                longest_vo_definition_tokens,
+            )
 
         def _length(node_type: str) -> int:
             return int(max_lengths.get(node_type, default_length))
@@ -872,6 +1069,8 @@ def build_graph(
             device=device,
             normalize=normalize,
         )
+        if adjuvant_structured.size(1):
+            graph["adjuvant"].x = torch.cat([graph["adjuvant"].x, adjuvant_structured], dim=1)
 
     for edge_type, edge_list in edges.items():
         if edge_list:
@@ -1309,7 +1508,11 @@ def parse_args() -> argparse.Namespace:
         "--feature-dim",
         type=int,
         default=256,
-        help="Dimension of hashed text features per node (ignored when using a transformer encoder)",
+        help=(
+            "Dimension of hashed text features per node (adjuvant nodes append "
+            f"{STRUCTURED_ADJUVANT_DIM} structured immune/receptor dimensions; "
+            "ignored when using a transformer encoder for the text component)"
+        ),
     )
     parser.add_argument(
         "--text-encoder-checkpoint",
