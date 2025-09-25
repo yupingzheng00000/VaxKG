@@ -202,6 +202,50 @@ def _collect_group_strings(group: pd.DataFrame, column: str) -> List[str]:
     return values
 
 
+def _split_multi_value(text: str) -> List[str]:
+    if not text:
+        return []
+    parts = re.split(r"[;,]", text)
+    return [part.strip() for part in parts if part and part.strip()]
+
+
+def _clean_synonyms(
+    preferred_label: str,
+    synonym_sources: Sequence[str],
+    *,
+    max_synonyms: int = 8,
+) -> List[str]:
+    """Return de-duplicated synonym list with vendor noise removed."""
+
+    cleaned: List[str] = []
+    seen: Set[str] = set()
+    preferred_norm = preferred_label.strip().casefold()
+    for source in synonym_sources:
+        for candidate in _split_multi_value(source):
+            if not candidate:
+                continue
+            if any(symbol in candidate for symbol in ("®", "™")):
+                continue
+            lower = candidate.casefold()
+            if "(tm" in lower or "tm)" in lower:
+                continue
+            if lower == preferred_norm:
+                continue
+            if lower in seen:
+                continue
+            seen.add(lower)
+            cleaned.append(candidate)
+            if len(cleaned) >= max_synonyms:
+                return cleaned
+    return cleaned
+
+
+def _layer_norm_features(tensor: Tensor) -> Tensor:
+    if tensor.dim() != 2 or tensor.size(1) == 0:
+        return tensor
+    return F.layer_norm(tensor, (tensor.size(1),))
+
+
 def _expand_numeric_pattern(text: str, pattern: str, prefix: str) -> str:
     def _repl(match: re.Match[str]) -> str:
         digits = re.findall(r"\d+", match.group(0))
@@ -858,11 +902,6 @@ def build_graph(
             if "vo_preferred_label" in group
             else ""
         )
-        alternative = (
-            _aggregate_series(group["vo_alternative_labels"])
-            if "vo_alternative_labels" in group
-            else ""
-        )
         definition = (
             _safe_text(group["vo_definition"].iloc[0]).replace("\n", " ")
             if "vo_definition" in group
@@ -883,32 +922,21 @@ def build_graph(
             if "adjuvant_description" in group
             else ""
         )
-        synonyms = (
-            _aggregate_series(group["adjuvant_synonyms"])
-            if "adjuvant_synonyms" in group
-            else ""
-        )
-        roles = (
-            _aggregate_series(group["adjuvant_roles"])
-            if "adjuvant_roles" in group
-            else ""
-        )
-        immune_text = (
-            _aggregate_series(group["adjuvant_immune_profile"])
-            if "adjuvant_immune_profile" in group
-            else ""
-        )
-        parts = [
-            preferred,
-            alternative,
-            definition,
-            display_name,
-            description,
-            synonyms,
-            roles,
-            immune_text,
-        ]
-        text = " ".join(filter(None, parts))
+        synonym_sources: List[str] = []
+        for column in ("vo_alternative_labels", "adjuvant_synonyms"):
+            synonym_sources.extend(_collect_group_strings(group, column))
+        label_for_dedup = preferred or display_name or ""
+        cleaned_synonyms = _clean_synonyms(label_for_dedup, synonym_sources)
+
+        definition_or_description = definition or description
+        primary_label = preferred or display_name or (cleaned_synonyms[0] if cleaned_synonyms else "")
+        text_parts: List[str] = []
+        if primary_label:
+            text_parts.append(primary_label)
+        text_parts.extend(cleaned_synonyms)
+        if definition_or_description:
+            text_parts.append(definition_or_description)
+        text = " ".join(text_parts)
         adjuvant_texts.append(text)
         if text and len(sample_logs) < 3:
             sample_logs.append((adjuvant_id, text[:200]))
@@ -1001,7 +1029,8 @@ def build_graph(
         graph["platform"].x = hashed_text_features(platform_texts, feature_dim)
         adjuvant_hashed = hashed_text_features(adjuvant_texts, feature_dim)
         if adjuvant_structured.size(1):
-            graph["adjuvant"].x = torch.cat([adjuvant_hashed, adjuvant_structured], dim=1)
+            combined = torch.cat([adjuvant_hashed, adjuvant_structured], dim=1)
+            graph["adjuvant"].x = _layer_norm_features(combined)
         else:
             graph["adjuvant"].x = adjuvant_hashed
     else:
@@ -1070,7 +1099,8 @@ def build_graph(
             normalize=normalize,
         )
         if adjuvant_structured.size(1):
-            graph["adjuvant"].x = torch.cat([graph["adjuvant"].x, adjuvant_structured], dim=1)
+            combined = torch.cat([graph["adjuvant"].x, adjuvant_structured], dim=1)
+            graph["adjuvant"].x = _layer_norm_features(combined)
 
     for edge_type, edge_list in edges.items():
         if edge_list:
@@ -1588,7 +1618,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--head-lr", type=float, default=1e-3, help="Learning rate for ranking/link heads")
     parser.add_argument("--weight-decay", type=float, default=1e-4, help="AdamW weight decay")
     parser.add_argument("--clip-grad", type=float, default=1.0, help="Gradient clipping norm (0 disables)")
-    parser.add_argument("--lambda-lp", type=float, default=0.2, help="Weight for the link prediction auxiliary loss")
+    parser.add_argument(
+        "--lambda-lp",
+        type=float,
+        default=0.3,
+        help="Weight for the link prediction auxiliary loss (down-weighted to prioritise ranking)",
+    )
     parser.add_argument(
         "--self-adversarial-temperature",
         type=float,
