@@ -155,6 +155,23 @@ datasets and training a vaccine→adjuvant ranker:
         --text-encoder-pooling mean
     ```
 
+3.  **Try the trained recommender.** Use `showcase_ranker.py` to load a saved
+    checkpoint and produce top-k adjuvant recommendations for a specific
+    vaccine without re-running training.
+
+    ```bash
+    python showcase_ranker.py \
+        --checkpoint artifacts/checkpoints/transductive_best.pt \
+        --vaccine-name "Anthrax Vaccine Adsorbed (AVA)" \
+        --top-k 5
+    ```
+
+    Add `--list-vaccines` to display a sample of vaccine identifiers from the
+    processed snapshot, or pass `--vaccine-id` if multiple records share the
+    same name. The script rebuilds the PyG heterograph with the same feature
+    settings stored in the checkpoint, restores the encoder weights, and prints
+    both known and recommended adjuvants with brief ontology context.
+
 ## Code Overview
 
 The provided Python code contains the following key functions:
