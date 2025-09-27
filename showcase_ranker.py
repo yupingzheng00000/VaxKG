@@ -18,11 +18,12 @@ unsure which identifiers are present in the processed snapshot.
 from __future__ import annotations
 
 import argparse
-import math
 import re
 from pathlib import Path
 from collections import defaultdict
 from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
+
+import math
 
 import pandas as pd
 import torch
@@ -57,6 +58,24 @@ def _split_semistructured(text: str) -> List[str]:
     return tokens
 
 
+def _normalize_stage_tokens(values: Iterable[str]) -> Tuple[List[str], List[str]]:
+    display_values: List[str] = []
+    tokens: List[str] = []
+    for value in values:
+        cleaned = value.strip()
+        if not cleaned:
+            continue
+        display_values.append(cleaned)
+        lowered = cleaned.lower()
+        for token in re.split(r"[,;/]| and ", lowered):
+            stripped = token.strip()
+            if stripped:
+                tokens.append(stripped)
+    unique_display = sorted(dict.fromkeys(display_values), key=str.lower)
+    unique_tokens = sorted(dict.fromkeys(tokens))
+    return unique_display, unique_tokens
+
+
 def _build_adjuvant_lookup(df: pd.DataFrame) -> Dict[str, Dict[str, object]]:
     parent_to_children: Dict[str, set[str]] = defaultdict(set)
     for _, row in df.iterrows():
@@ -79,6 +98,20 @@ def _build_adjuvant_lookup(df: pd.DataFrame) -> Dict[str, Dict[str, object]]:
                 continue
             for value in group[column].dropna():
                 raw_synonyms.extend(_split_semistructured(str(value)))
+
+        stage_sources: List[str] = []
+        if "vaxjo_stage" in group:
+            stage_sources.extend(str(v) for v in group["vaxjo_stage"].dropna())
+        if "adjuvant_roles" in group:
+            stage_sources.extend(_split_semistructured(str(v)) for v in group["adjuvant_roles"].dropna())
+
+        flattened_stage_sources: List[str] = []
+        for item in stage_sources:
+            if isinstance(item, list):
+                flattened_stage_sources.extend(item)
+            else:
+                flattened_stage_sources.append(item)
+        stage_display, stage_tokens = _normalize_stage_tokens(flattened_stage_sources)
 
         deduped: List[str] = []
         seen_lower: set[str] = set()
@@ -107,6 +140,8 @@ def _build_adjuvant_lookup(df: pd.DataFrame) -> Dict[str, Dict[str, object]]:
             "synonyms": deduped,
             "parent_label": parent_label,
             "ontobee_url": ontobee_url,
+            "stage_display": stage_display,
+            "stage_tokens": stage_tokens,
         }
         vac_id = _first_nonempty(group.get("vac_adjuvant_id", []))
         if vac_id:
@@ -127,7 +162,29 @@ def _build_adjuvant_lookup(df: pd.DataFrame) -> Dict[str, Dict[str, object]]:
                     siblings.append(sibling_id)
         metadata["siblings"] = siblings
 
-    return lookup
+    PRECLINICAL_KEYWORDS = {
+        "research",
+        "preclinical",
+        "animal",
+        "mouse",
+        "mice",
+        "murine",
+        "veterinary",
+    }
+    BANNED_DEFAULT_IDS = {
+        "VO:0000139",  # complete Freund's adjuvant
+        "VO:0000142",  # incomplete Freund's adjuvant
+        "VO:0000143",  # cholera toxin vaccine adjuvant
+    }
+
+    for adjuvant_id, metadata in lookup.items():
+        stage_tokens = metadata.get("stage_tokens", [])
+        default_exclude_reason: Optional[str] = None
+        if stage_tokens and any(token in PRECLINICAL_KEYWORDS for token in stage_tokens):
+            default_exclude_reason = "research-stage"
+        if adjuvant_id in BANNED_DEFAULT_IDS:
+            default_exclude_reason = default_exclude_reason or "research-only"
+        metadata["default_exclude_reason"] = default_exclude_reason
 
 
 def _maybe_load_text_encoder(
@@ -247,6 +304,11 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Print a sample of vaccine IDs and names, then exit",
     )
+    parser.add_argument(
+        "--include-preclinical",
+        action="store_true",
+        help="Allow research/preclinical-only adjuvants in the ranked output",
+    )
     return parser.parse_args()
 
 
@@ -328,7 +390,7 @@ def main() -> None:
     raw_scores = torch.mv(adjuvant_repr, vaccine_repr).cpu()
 
     adjusted_scores = raw_scores.clone()
-    KNOWN_EDGE_BOOST = 0.75
+    KNOWN_EDGE_PIN = 10.0
     GENERIC_PENALTY = 0.25
 
     inverse_adjuvant = {index: key for key, index in mappings["adjuvant"].items()}
@@ -338,13 +400,18 @@ def main() -> None:
     for idx, score in enumerate(adjusted_scores):
         vo_id = inverse_adjuvant[idx]
         metadata = adjuvant_lookup.get(vo_id, {})
+        if (metadata.get("default_exclude_reason") and not args.include_preclinical):
+            adjusted_scores[idx] = float("-inf")
+            continue
         if idx in known_indices:
-            adjusted_scores[idx] = score + KNOWN_EDGE_BOOST
+            adjusted_scores[idx] = score + KNOWN_EDGE_PIN
         if metadata.get("is_generic"):
             adjusted_scores[idx] = adjusted_scores[idx] - GENERIC_PENALTY
 
     class_best: Dict[str, Tuple[int, float, str]] = {}
     for idx, score in enumerate(adjusted_scores.tolist()):
+        if math.isinf(score) and score < 0:
+            continue
         vo_id = inverse_adjuvant[idx]
         metadata = adjuvant_lookup.get(vo_id, {})
         parent_label = metadata.get("parent_label") or metadata.get("label")
@@ -391,6 +458,9 @@ def main() -> None:
             print(f"      aka: {synonyms}")
         if immune:
             print(f"      immune profile: {immune}")
+        stage_display = metadata.get("stage_display")
+        if stage_display:
+            print(f"      development stage: {', '.join(stage_display)}")
         if definition:
             print(f"      definition: {definition}")
         if class_line:
