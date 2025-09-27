@@ -21,6 +21,7 @@ import argparse
 import math
 import re
 from pathlib import Path
+from collections import defaultdict
 from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 
 import pandas as pd
@@ -57,6 +58,12 @@ def _split_semistructured(text: str) -> List[str]:
 
 
 def _build_adjuvant_lookup(df: pd.DataFrame) -> Dict[str, Dict[str, object]]:
+    parent_to_children: Dict[str, set[str]] = defaultdict(set)
+    for _, row in df.iterrows():
+        parent_label = str(row.get("vo_parent", "") or "").strip()
+        if parent_label:
+            parent_to_children[parent_label.lower()].add(str(row["adjuvant_vo_id"]))
+
     lookup: Dict[str, Dict[str, object]] = {}
     for adjuvant_id, group in df.groupby("adjuvant_vo_id"):
         preferred = _first_nonempty(group.get("vo_preferred_label", []))
@@ -65,22 +72,61 @@ def _build_adjuvant_lookup(df: pd.DataFrame) -> Dict[str, Dict[str, object]]:
         immune_profile = _first_nonempty(
             list(group.get("vo_immune_profile", []))
         ) or _first_nonempty(list(group.get("adjuvant_immune_profile", [])))
-        synonyms: List[str] = []
+        parent_label = _first_nonempty(group.get("vo_parent", []))
+        raw_synonyms: List[str] = []
         for column in ("vo_alternative_labels", "adjuvant_synonyms"):
             if column not in group:
                 continue
             for value in group[column].dropna():
-                synonyms.extend(_split_semistructured(str(value)))
+                raw_synonyms.extend(_split_semistructured(str(value)))
+
         deduped: List[str] = []
-        for synonym in synonyms:
-            if synonym not in deduped and synonym != preferred:
+        seen_lower: set[str] = set()
+        label_to_compare = (preferred or display or str(adjuvant_id)).lower()
+        for synonym in raw_synonyms:
+            lowered = synonym.lower()
+            if lowered == label_to_compare or lowered in seen_lower:
+                continue
+            seen_lower.add(lowered)
+            if lowered == "alum" and "potassium" not in label_to_compare:
+                deduped.append("aluminum salts (hydroxide/phosphate)")
+            else:
                 deduped.append(synonym)
-        lookup[str(adjuvant_id)] = {
+
+        underscore_id = str(adjuvant_id).replace(":", "_")
+        ontobee_url = (
+            "https://ontobee.org/ontology/VO?iri=http://purl.obolibrary.org/obo/"
+            f"{underscore_id}"
+        )
+
+        metadata = {
             "label": preferred or display or str(adjuvant_id),
+            "display_name": display or preferred or str(adjuvant_id),
             "definition": definition,
             "immune_profile": immune_profile,
             "synonyms": deduped,
+            "parent_label": parent_label,
+            "ontobee_url": ontobee_url,
         }
+        vac_id = _first_nonempty(group.get("vac_adjuvant_id", []))
+        if vac_id:
+            metadata["vac_link"] = f"https://vac.niaid.nih.gov/view?id={vac_id}"
+        lookup[str(adjuvant_id)] = metadata
+
+    for adjuvant_id, metadata in lookup.items():
+        label_lower = metadata["label"].lower()
+        metadata["is_generic"] = bool(
+            parent_to_children.get(label_lower)
+            and adjuvant_id not in parent_to_children[label_lower]
+        )
+        parent_label = (metadata.get("parent_label") or "").lower()
+        siblings = []
+        if parent_label and parent_label in parent_to_children:
+            for sibling_id in sorted(parent_to_children[parent_label]):
+                if sibling_id != adjuvant_id and sibling_id in lookup:
+                    siblings.append(sibling_id)
+        metadata["siblings"] = siblings
+
     return lookup
 
 
@@ -279,15 +325,38 @@ def main() -> None:
         embeddings = model(graph_device)
     vaccine_repr = embeddings["vaccine"][vaccine_index]
     adjuvant_repr = embeddings["adjuvant"]
-    scores = torch.mv(adjuvant_repr, vaccine_repr).cpu()
+    raw_scores = torch.mv(adjuvant_repr, vaccine_repr).cpu()
 
-    order = torch.argsort(scores, descending=True)
-    top_k = min(int(args.top_k), order.numel())
-    top_indices = order[:top_k].tolist()
+    adjusted_scores = raw_scores.clone()
+    KNOWN_EDGE_BOOST = 0.75
+    GENERIC_PENALTY = 0.25
 
     inverse_adjuvant = {index: key for key, index in mappings["adjuvant"].items()}
     adjuvant_lookup = _build_adjuvant_lookup(df)
     known_indices = set(positives_lookup.get(vaccine_index, []))
+
+    for idx, score in enumerate(adjusted_scores):
+        vo_id = inverse_adjuvant[idx]
+        metadata = adjuvant_lookup.get(vo_id, {})
+        if idx in known_indices:
+            adjusted_scores[idx] = score + KNOWN_EDGE_BOOST
+        if metadata.get("is_generic"):
+            adjusted_scores[idx] = adjusted_scores[idx] - GENERIC_PENALTY
+
+    class_best: Dict[str, Tuple[int, float, str]] = {}
+    for idx, score in enumerate(adjusted_scores.tolist()):
+        vo_id = inverse_adjuvant[idx]
+        metadata = adjuvant_lookup.get(vo_id, {})
+        parent_label = metadata.get("parent_label") or metadata.get("label")
+        key = parent_label.lower() if parent_label else metadata.get("label", vo_id).lower()
+        best = class_best.get(key)
+        if best is None or score > best[1]:
+            class_best[key] = (idx, score, parent_label)
+
+    ordered_classes = sorted(class_best.values(), key=lambda item: item[1], reverse=True)
+    top_k = min(int(args.top_k), len(ordered_classes))
+    top_indices = [entry[0] for entry in ordered_classes[:top_k]]
+
     known_labels = [inverse_adjuvant[idx] for idx in sorted(known_indices)]
 
     print()
@@ -304,7 +373,7 @@ def main() -> None:
     print()
     print(f"Top {top_k} recommended adjuvants:")
     for rank, adjuvant_idx in enumerate(top_indices, start=1):
-        score = float(scores[adjuvant_idx].item())
+        score = float(adjusted_scores[adjuvant_idx].item())
         vo_id = inverse_adjuvant[adjuvant_idx]
         metadata = adjuvant_lookup.get(vo_id, {})
         label = metadata.get("label", vo_id)
@@ -312,13 +381,35 @@ def main() -> None:
         definition = _truncate(metadata.get("definition", ""))
         immune = metadata.get("immune_profile")
         marker = "✔ known" if adjuvant_idx in known_indices else "  novel"
-        print(f"{rank:2d}. {label} ({vo_id}) — score={score:.4f} [{marker}]")
+        parent_label = metadata.get("parent_label")
+        if parent_label and parent_label.lower() != label.lower():
+            class_line = f"class: {parent_label}"
+        else:
+            class_line = ""
+        print(f"{rank:2d}. {label} ({vo_id}) — adjusted score={score:.4f} [{marker}]")
         if synonyms:
             print(f"      aka: {synonyms}")
         if immune:
             print(f"      immune profile: {immune}")
         if definition:
             print(f"      definition: {definition}")
+        if class_line:
+            print(f"      {class_line}")
+        siblings = metadata.get("siblings", [])
+        if siblings:
+            formatted = ", ".join(
+                adjuvant_lookup.get(sib, {}).get("label", sib) for sib in siblings
+            )
+            print(f"      similar formulations: {formatted}")
+        evidence_links: List[str] = []
+        ontobee_url = metadata.get("ontobee_url")
+        if ontobee_url:
+            evidence_links.append(f"VO term: {ontobee_url}")
+        vac_link = metadata.get("vac_link")
+        if vac_link:
+            evidence_links.append(f"VAC record: {vac_link}")
+        if evidence_links:
+            print("      evidence: " + "; ".join(evidence_links))
 
 
 if __name__ == "__main__":
