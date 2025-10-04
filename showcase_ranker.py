@@ -260,6 +260,38 @@ def _resolve_vaccine(
     return resolved_id, label
 
 
+def _resolve_disease(
+    df: pd.DataFrame, *, disease_name: str
+) -> Tuple[str, str]:
+    """Resolve disease name to disease_key for mapping lookup.
+    
+    Returns:
+        (disease_key, display_label)
+    """
+    # Build disease_name column (prefer disease_name, fallback pathogen_name)
+    disease_col = df["disease_name"].fillna(df["pathogen_name"]).astype(str)
+    
+    lowered = disease_name.strip().lower()
+    mask = disease_col.str.lower() == lowered
+    subset = df[mask]
+    
+    if subset.empty:
+        # Try partial match
+        partial = df[disease_col.str.lower().str.contains(lowered, na=False)]
+        if partial.empty:
+            raise ValueError(f"Disease name '{disease_name}' not found in training snapshot")
+        candidates = sorted({s for s in partial["disease_name"].dropna().unique()})
+        raise ValueError(
+            f"Multiple close matches found for '{disease_name}': {candidates}. "
+            "Please refine your query."
+        )
+    
+    # Get disease_key from first match
+    disease_key = disease_col[subset.index[0]]
+    display_label = subset["disease_name"].iloc[0] if not pd.isna(subset["disease_name"].iloc[0]) else disease_key
+    return disease_key, display_label
+
+
 def _pretty_synonyms(values: Sequence[str], limit: int = 3) -> str:
     if not values:
         return ""
@@ -276,8 +308,43 @@ def _truncate(text: str, limit: int = 200) -> str:
     return cleaned[: limit - 1].rstrip() + "…"
 
 
+def load_disease_positives(
+    csv_path: Path, mappings: Mapping[str, Mapping[object, int]]
+) -> Tuple[Dict[int, List[int]], Dict[Tuple[int, int], int]]:
+    """Load disease→adjuvant positives and edge weights from CSV.
+    
+    Returns:
+        (disease_positives_lookup, disease_edge_weights)
+        - disease_positives_lookup: {disease_idx: [adj_idx1, adj_idx2, ...]}
+        - disease_edge_weights: {(disease_idx, adj_idx): edge_weight}
+    """
+    disease_positives_lookup: Dict[int, List[int]] = defaultdict(list)
+    disease_edge_weights: Dict[Tuple[int, int], int] = {}
+    
+    if not csv_path.exists():
+        raise FileNotFoundError(
+            f"Disease-adjuvant pairs not found at {csv_path}. "
+            "Run `python src/build_da_pairs.py` first."
+        )
+    
+    df = pd.read_csv(csv_path)
+    for _, row in df.iterrows():
+        disease_key = row["disease_key"]
+        adjuvant_vo_id = row["adjuvant_vo_id"]
+        edge_weight = int(row["edge_weight"])
+        
+        d_idx = mappings["disease"].get(disease_key)
+        a_idx = mappings["adjuvant"].get(adjuvant_vo_id)
+        
+        if d_idx is not None and a_idx is not None:
+            disease_positives_lookup[d_idx].append(a_idx)
+            disease_edge_weights[(d_idx, a_idx)] = edge_weight
+    
+    return dict(disease_positives_lookup), disease_edge_weights
+
+
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Showcase vaccine→adjuvant recommendations")
+    parser = argparse.ArgumentParser(description="Showcase vaccine→adjuvant or disease→adjuvant recommendations")
     parser.add_argument(
         "--checkpoint",
         type=Path,
@@ -290,8 +357,11 @@ def parse_args() -> argparse.Namespace:
         default=Path("data/processed/training_samples.csv"),
         help="Processed training CSV used during fitting",
     )
-    parser.add_argument("--vaccine-id", type=int, default=None, help="Numeric vaccine identifier")
-    parser.add_argument("--vaccine-name", type=str, default=None, help="Case-insensitive vaccine name")
+    # Mutually exclusive query type group
+    query_group = parser.add_mutually_exclusive_group(required=True)
+    query_group.add_argument("--vaccine-id", type=int, default=None, help="Numeric vaccine identifier")
+    query_group.add_argument("--vaccine-name", type=str, default=None, help="Case-insensitive vaccine name")
+    query_group.add_argument("--disease-name", type=str, default=None, help="Query by disease name")
     parser.add_argument("--top-k", type=int, default=5, help="How many recommendations to display")
     parser.add_argument(
         "--device",
@@ -378,16 +448,44 @@ def main() -> None:
     model.to(device)
     model.eval()
 
-    vaccine_id, vaccine_label = _resolve_vaccine(
-        df, vaccine_id=args.vaccine_id, vaccine_name=args.vaccine_name
-    )
-    vaccine_index = mappings["vaccine"][vaccine_id]
+    # Step 3: Resolve query based on type (vaccine or disease)
+    if args.vaccine_name or args.vaccine_id:
+        query_type = "vaccine"
+        vaccine_id, query_label = _resolve_vaccine(
+            df, vaccine_id=args.vaccine_id, vaccine_name=args.vaccine_name
+        )
+        query_index = mappings["vaccine"][vaccine_id]
+        known_indices = set(positives_lookup.get(query_index, []))
+        disease_edge_weights = {}  # Not used for vaccine queries
+        
+    elif args.disease_name:
+        query_type = "disease"
+        disease_key, query_label = _resolve_disease(df, disease_name=args.disease_name)
+        
+        if disease_key not in mappings["disease"]:
+            raise ValueError(
+                f"Disease '{args.disease_name}' (key='{disease_key}') not found in training snapshot. "
+                "Only diseases present in training_samples.csv are supported."
+            )
+        
+        query_index = mappings["disease"][disease_key]
+        
+        # Load disease→adjuvant positives from disease_adjuvant_pairs.csv
+        disease_adj_csv = Path("data/processed/disease_adjuvant_pairs.csv")
+        disease_positives_lookup, disease_edge_weights = load_disease_positives(
+            disease_adj_csv, mappings
+        )
+        known_indices = set(disease_positives_lookup.get(query_index, []))
+    else:
+        raise ValueError("Provide --vaccine-name, --vaccine-id, or --disease-name")
 
+    # Step 4: Unified scoring (same for both query types)
     with torch.no_grad():
         embeddings = model(graph_device)
-    vaccine_repr = embeddings["vaccine"][vaccine_index]
+    
+    query_repr = embeddings[query_type][query_index]
     adjuvant_repr = embeddings["adjuvant"]
-    raw_scores = torch.mv(adjuvant_repr, vaccine_repr).cpu()
+    raw_scores = torch.mv(adjuvant_repr, query_repr).cpu()
 
     adjusted_scores = raw_scores.clone()
     KNOWN_EDGE_PIN = 10.0
@@ -395,7 +493,6 @@ def main() -> None:
 
     inverse_adjuvant = {index: key for key, index in mappings["adjuvant"].items()}
     adjuvant_lookup = _build_adjuvant_lookup(df)
-    known_indices = set(positives_lookup.get(vaccine_index, []))
 
     for idx, score in enumerate(adjusted_scores):
         vo_id = inverse_adjuvant[idx]
@@ -427,15 +524,25 @@ def main() -> None:
     known_labels = [inverse_adjuvant[idx] for idx in sorted(known_indices)]
 
     print()
-    print(f"Vaccine: {vaccine_label} (ID {vaccine_id})")
+    if query_type == "vaccine":
+        print(f"Vaccine: {query_label} (ID {vaccine_id})")
+    else:  # disease
+        print(f"Disease: {query_label}")
+    
     if known_labels:
         pretty_known = [adjuvant_lookup.get(vo_id, {}).get("label", vo_id) for vo_id in known_labels]
         formatted = ", ".join(
             f"{label} [{vo_id}]" for label, vo_id in zip(pretty_known, known_labels)
         )
-        print(f"Known adjuvants in snapshot: {formatted}")
+        if query_type == "vaccine":
+            print(f"Known adjuvants in snapshot: {formatted}")
+        else:
+            print(f"Known adjuvants for this disease: {formatted}")
     else:
-        print("No labelled adjuvants found for this vaccine in the snapshot.")
+        if query_type == "vaccine":
+            print("No labelled adjuvants found for this vaccine in the snapshot.")
+        else:
+            print("No labelled adjuvants found for this disease in the snapshot.")
 
     print()
     print(f"Top {top_k} recommended adjuvants:")
@@ -447,7 +554,15 @@ def main() -> None:
         synonyms = _pretty_synonyms(metadata.get("synonyms", []))
         definition = _truncate(metadata.get("definition", ""))
         immune = metadata.get("immune_profile")
-        marker = "✔ known" if adjuvant_idx in known_indices else "  novel"
+        
+        # Step 5: Enhanced marker for disease queries with edge_weight
+        if query_type == "disease" and adjuvant_idx in known_indices:
+            edge_weight = disease_edge_weights.get((query_index, adjuvant_idx), 1)
+            marker = f"✔ known (used by {edge_weight} vaccine{'s' if edge_weight > 1 else ''})"
+        elif adjuvant_idx in known_indices:
+            marker = "✔ known"
+        else:
+            marker = "  novel"
         parent_label = metadata.get("parent_label")
         if parent_label and parent_label.lower() != label.lower():
             class_line = f"class: {parent_label}"

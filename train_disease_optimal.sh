@@ -28,7 +28,6 @@ echo ""
 DATA_DIR="data"
 PROCESSED_DIR="data/processed"
 OUTPUT_DIR="results/disease_sapbert_optimal"
-RUN_NAME="disease_sapbert_v1"
 CHECKPOINT="cambridgeltl/SapBERT-from-PubMedBERT-fulltext-mean-token"
 
 # Training hyperparameters (optimal)
@@ -155,7 +154,6 @@ echo ""
 python train_disease_ranker.py \
     --data-path "$PROCESSED_DIR/training_samples.csv" \
     --output-dir "$OUTPUT_DIR" \
-    --run-name "$RUN_NAME" \
     --split-scheme both \
     --text-encoder-checkpoint "$CHECKPOINT" \
     --text-encoder-pooling mean \
@@ -236,11 +234,18 @@ echo "  - $OUTPUT_DIR/results/transductive.json"
 echo "  - $OUTPUT_DIR/results/inductive.json"
 echo ""
 echo "Next steps:"
-echo "  1. Try inference with showcase_ranker.py:"
+echo "  1. Try disease query (NEW!):"
 echo ""
 echo "     python showcase_ranker.py \\"
 echo "         --checkpoint $OUTPUT_DIR/checkpoints/transductive_best.pt \\"
 echo "         --disease-name \"Hepatitis B\" \\"
+echo "         --top-k 10"
+echo ""
+echo "  2. Or try vaccine query (original):"
+echo ""
+echo "     python showcase_ranker.py \\"
+echo "         --checkpoint $OUTPUT_DIR/checkpoints/transductive_best.pt \\"
+echo "         --vaccine-name \"Hepatitis B Vaccine\" \\"
 echo "         --top-k 10"
 echo ""
 echo "  2. Check detailed results:"
