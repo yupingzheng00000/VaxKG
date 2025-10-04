@@ -1,4 +1,8 @@
-"""Train a vaccine-to-adjuvant ranker using PyTorch Geometric.
+"""Train a dual-head (vaccine→adjuvant + disease→adjuvant) ranker using PyTorch Geometric.
+
+This script extends the single-head vaccine ranker to support disease queries.
+Key additions: DualRanker with mechanism-aware scoring, disease batch sampling,
+and joint training with backward compatibility guarantees.
 
 This script implements the modelling blueprint we discussed earlier:
 
@@ -34,6 +38,16 @@ import pandas as pd
 import torch
 from torch import Tensor, nn
 import torch.nn.functional as F
+
+# Disease head utilities
+import sys
+sys.path.insert(0, str(Path(__file__).parent / "src"))
+from disease_head_utils import (
+    load_disease_positives,
+    sample_disease_batch,
+    build_vo_class_lookup,
+    listnet_loss_disease,
+)
 
 try:
     from torch_geometric.data import HeteroData
@@ -499,6 +513,29 @@ class DualRanker(nn.Module):
             return base_score + self.gamma * mech_score
         
         return base_score
+    
+    def forward(
+        self,
+        embeddings: Mapping[str, Tensor],
+        vaccine_indices: Tensor,
+        candidate_indices: Tensor,
+        relevance: Tensor,
+    ) -> Tuple[Tensor, Tensor]:
+        """Vaccine head forward pass (backward compatible with ListNetRankingHead API)."""
+        vaccine_repr = embeddings["vaccine"][vaccine_indices]  # [B, H]
+        adjuvant_repr = embeddings["adjuvant"][candidate_indices]  # [B, K, H]
+        
+        # Score with vaccine head
+        scores = self.score_vax(vaccine_repr, adjuvant_repr)  # [B, K]
+        
+        # ListNet loss: uniform distribution over positives
+        positive_mask = (relevance > 0).float()
+        positive_mass = positive_mask.sum(dim=1, keepdim=True).clamp_min(1e-9)
+        target_distribution = positive_mask / positive_mass
+        log_probs = F.log_softmax(scores, dim=1)
+        loss = -(target_distribution * log_probs).sum(dim=1).mean()
+        
+        return loss, scores
 
 
 class ListNetRankingHead(nn.Module):
@@ -854,6 +891,67 @@ def evaluate_ranking(
     }
 
 
+def evaluate_disease_ranking(
+    embeddings: Mapping[str, Tensor],
+    disease_indices: Sequence[int],
+    disease_positives: Mapping[int, Sequence[int]],
+    candidate_ids: Sequence[int],
+    ranking_head: torch.nn.Module,
+    ks: Sequence[int],
+) -> Dict[str, float]:
+    """
+    Evaluate disease→adjuvant ranking performance.
+    
+    Args:
+        embeddings: Node embeddings from encoder
+        disease_indices: Disease query indices to evaluate
+        disease_positives: Mapping from disease_idx → [adjuvant_idx1, ...]
+        candidate_ids: All candidate adjuvant indices
+        ranking_head: DualRanker model (uses score_dis() for scoring)
+        ks: Top-K values for metrics (e.g., [5, 10])
+    
+    Returns:
+        Dict with keys like "ndcg@5", "ndcg@10", "recall@5", "recall@10"
+    """
+    disease_repr = embeddings["disease"]
+    adjuvant_repr = embeddings["adjuvant"]
+    
+    candidate_tensor = torch.tensor(candidate_ids, dtype=torch.long, device=disease_repr.device)
+    candidate_embeddings = adjuvant_repr[candidate_tensor]  # [K, H]
+    
+    metrics = {f"ndcg@{k}": [] for k in ks}
+    metrics.update({f"recall@{k}": [] for k in ks})
+    
+    for disease_idx in disease_indices:
+        positives = disease_positives.get(disease_idx, [])
+        if not positives:
+            continue  # Skip diseases with no known adjuvants
+        
+        # Get disease embedding and reshape for batched scoring
+        disease_vec = disease_repr[disease_idx]  # [H]
+        disease_batched = disease_vec.unsqueeze(0)  # [1, H]
+        candidates_batched = candidate_embeddings.unsqueeze(0)  # [1, K, H]
+        
+        # Score using DualRanker's score_dis() (Bilinear layer)
+        with torch.no_grad():
+            scores = ranking_head.score_dis(disease_batched, candidates_batched)  # [1, K]
+            scores = scores.squeeze(0)  # [K]
+        
+        # Rank candidates by score (descending)
+        order = torch.argsort(scores, descending=True)
+        ranked_candidates = candidate_tensor[order].tolist()
+        positive_list = list(positives)
+        
+        for k in ks:
+            metrics[f"ndcg@{k}"].append(ndcg_at_k(ranked_candidates, positive_list, k))
+            metrics[f"recall@{k}"].append(recall_at_k(ranked_candidates, positive_list, k))
+    
+    return {
+        name: float(np.mean(values)) if values else 0.0
+        for name, values in metrics.items()
+    }
+
+
 def evaluate_link_prediction(
     embeddings: Mapping[str, Tensor],
     edges: Sequence[Tuple[int, int]],
@@ -898,6 +996,8 @@ def build_graph(
     Dict[int, List[int]],
     Dict[int, List[int]],
     List[int],
+    Dict[int, List[int]],
+    Dict[Tuple[int, int], int],
 ]:
     df = df.copy()
     df = df.dropna(subset=["vaccine_id", "adjuvant_vo_id"])
@@ -1029,6 +1129,8 @@ def build_graph(
         ("platform", "rev_uses_platform", "vaccine"): [],
         ("vaccine", "contains_adjuvant", "adjuvant"): [],
         ("adjuvant", "rev_contains_adjuvant", "vaccine"): [],
+        ("disease", "has_adjuvant", "adjuvant"): [],
+        ("adjuvant", "rev_has_adjuvant", "disease"): [],
     }
 
     positives_lookup_raw: Dict[int, set] = {}
@@ -1056,6 +1158,31 @@ def build_graph(
         negatives = [idx for idx in all_adjuvant_indices if idx not in positives_list]
         candidate_pool[vaccine_idx] = negatives
         positives_lookup[vaccine_idx] = positives_list
+
+    # Load disease→adjuvant edges from CSV
+    disease_adj_csv = Path("data/processed/disease_adjuvant_pairs.csv")
+    disease_positives_lookup: Dict[int, List[int]] = {}
+    disease_edge_weights: Dict[Tuple[int, int], int] = {}
+    
+    if disease_adj_csv.exists():
+        try:
+            disease_positives_lookup, disease_edge_weights = load_disease_positives(
+                disease_adj_csv, mappings
+            )
+            # Populate disease→adjuvant edges
+            for d_idx, adj_list in disease_positives_lookup.items():
+                for a_idx in adj_list:
+                    edges[("disease", "has_adjuvant", "adjuvant")].append((d_idx, a_idx))
+                    edges[("adjuvant", "rev_has_adjuvant", "disease")].append((a_idx, d_idx))
+            print(f"Loaded {sum(len(v) for v in disease_positives_lookup.values())} disease→adjuvant edges from {disease_adj_csv}")
+        except Exception as e:
+            print(f"Warning: Failed to load disease→adjuvant pairs from {disease_adj_csv}: {e}")
+            print("Continuing without disease head supervision...")
+            disease_positives_lookup = {}
+            disease_edge_weights = {}
+    else:
+        print(f"Info: Disease→adjuvant pairs CSV not found at {disease_adj_csv}")
+        print("Disease head will not have supervision edges. Run 'python src/build_da_pairs.py' to generate.")
 
     if IMMUNE_PROFILE_DIM:
         immune_tensor = torch.tensor(immune_vectors, dtype=torch.float32)
@@ -1178,6 +1305,8 @@ def build_graph(
         positives_lookup,
         candidate_pool,
         all_adjuvant_indices,
+        disease_positives_lookup,
+        disease_edge_weights,
     )
 
 
@@ -1273,6 +1402,18 @@ def restrict_context_edges_for_training(
         keep = vaccine_mask[reverse_platform[1]]
         filtered["platform", "rev_uses_platform", "vaccine"].edge_index = reverse_platform[:, keep]
 
+    # Filter disease→adjuvant edges (NEW for disease head)
+    if disease_mask is not None:
+        forward_da = filtered["disease", "has_adjuvant", "adjuvant"].edge_index
+        if forward_da.numel() > 0:
+            keep = disease_mask[forward_da[0]]  # Keep only train diseases as sources
+            filtered["disease", "has_adjuvant", "adjuvant"].edge_index = forward_da[:, keep]
+        
+        reverse_da = filtered["adjuvant", "rev_has_adjuvant", "disease"].edge_index
+        if reverse_da.numel() > 0:
+            keep = disease_mask[reverse_da[1]]  # Keep only train diseases as targets
+            filtered["adjuvant", "rev_has_adjuvant", "disease"].edge_index = reverse_da[:, keep]
+
     return filtered
 
 
@@ -1331,6 +1472,11 @@ def verify_no_context_leakage(
         disease_leak = _count_disease(("vaccine", "for_disease", "disease"), 1) + _count_disease(
             ("disease", "rev_for_disease", "vaccine"), 0
         )
+        
+        # NEW: Check disease→adjuvant edges don't reference held-out diseases
+        disease_leak += _count_disease(("disease", "has_adjuvant", "adjuvant"), 0)
+        disease_leak += _count_disease(("adjuvant", "rev_has_adjuvant", "disease"), 1)
+        
         if disease_leak:
             raise AssertionError(
                 f"Training graph still references {disease_leak} held-out disease nodes"
@@ -1343,6 +1489,8 @@ def train_one_split(
     positives_lookup: Mapping[int, Sequence[int]],
     candidate_pool: Mapping[int, Sequence[int]],
     candidate_ids: Sequence[int],
+    disease_positives_lookup: Mapping[int, Sequence[int]],
+    disease_edge_weights: Mapping[Tuple[int, int], int],
     manifests: Mapping[str, Sequence[Mapping[str, object]]],
     args: argparse.Namespace,
     device: torch.device,
@@ -1438,7 +1586,10 @@ def train_one_split(
         args.appnp_alpha,
         args.appnp_dropout,
     )
-    ranking_head = ListNetRankingHead().to(device)
+    
+    # NEW: Use DualRanker instead of ListNetRankingHead for disease head support
+    mech_in_dim = None  # TODO: set to actual mechanism vector dim if using mechanism-aware scoring
+    ranking_head = DualRanker(args.hidden_dim, mech_in_dim, args.gamma_mech).to(device)
     link_head = LinkPredictionHead(args.self_adversarial_temperature).to(device)
 
     param_groups = [
@@ -1460,8 +1611,11 @@ def train_one_split(
     for epoch in range(1, args.epochs + 1):
         model.train()
         total_loss = 0.0
-        total_rank = 0.0
+        total_rank_vax = 0.0
+        total_rank_dis = 0.0
         total_lp = 0.0
+        
+        # Process vaccine batches
         for vaccines, candidates, labels in train_loader:
             vaccines = vaccines.to(device)
             candidates = candidates.to(device)
@@ -1469,39 +1623,91 @@ def train_one_split(
 
             optimizer.zero_grad()
             embeddings = model(train_graph_device)
-            rank_loss, _ = ranking_head(embeddings, vaccines, candidates, labels)
+            
+            # Vaccine head loss (backward compatible)
+            rank_loss_vax, _ = ranking_head(embeddings, vaccines, candidates, labels)
+            
             lp_loss = torch.tensor(0.0, device=device)
             if link_sampler is not None:
                 pos_edges, neg_samples = link_sampler.sample(len(vaccines))
                 pos_edges = pos_edges.to(device)
                 neg_samples = neg_samples.to(device)
                 lp_loss = link_head(embeddings, pos_edges, neg_samples)
-            loss = rank_loss + args.lambda_lp * lp_loss
+            
+            loss = rank_loss_vax + args.lambda_lp * lp_loss
             loss.backward()
             if args.clip_grad > 0:
                 torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip_grad)
             optimizer.step()
 
             total_loss += loss.item()
-            total_rank += rank_loss.item()
+            total_rank_vax += rank_loss_vax.item()
             total_lp += lp_loss.item() if link_sampler is not None else 0.0
+        
+        # NEW: Disease batch sampling and training (inline after vaccine batches)
+        if args.lambda_disease > 0 and train_diseases:
+            # Sample one disease batch per epoch
+            from src.disease_head_utils import sample_disease_batch, listnet_loss_disease
+            disease_batch = sample_disease_batch(
+                train_diseases, 
+                disease_positives_lookup=disease_positives_lookup,
+                all_adjuvant_indices=list(candidate_ids),
+                batch_size=min(args.disease_batch_size, len(train_diseases)),
+                max_positives=args.list_size,
+                num_negatives=args.list_size
+            )
+            
+            # Compute disease head loss
+            optimizer.zero_grad()
+            embeddings = model(train_graph_device)
+            
+            # Disease→adjuvant ranking loss using ListNet
+            rank_loss_dis = listnet_loss_disease(
+                embeddings,
+                disease_batch,
+                ranking_head,  # DualRanker instance with score_dis() method
+                device
+            )
+            
+            loss_dis = args.lambda_disease * rank_loss_dis
+            if loss_dis.item() > 0:
+                loss_dis.backward()
+                if args.clip_grad > 0:
+                    torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip_grad)
+                optimizer.step()
+                
+                total_loss += loss_dis.item()
+                total_rank_dis += rank_loss_dis.item()
 
         avg_loss = total_loss / max(1, len(train_loader))
-        avg_rank = total_rank / max(1, len(train_loader))
+        avg_rank_vax = total_rank_vax / max(1, len(train_loader))
+        avg_rank_dis = total_rank_dis if total_rank_dis > 0 else 0.0
         avg_lp = total_lp / max(1, len(train_loader))
 
         model.eval()
         with torch.no_grad():
             embeddings = model(train_graph_device)
+        
+        # Vaccine head validation (primary for early stopping)
         val_metrics = (
             evaluate_ranking(embeddings, val_vaccines, positives_lookup, candidate_ids, (5, 10))
             if val_vaccines
             else {"ndcg@5": 0.0, "ndcg@10": 0.0}
         )
         score = val_metrics.get("ndcg@10", 0.0)
+        
+        # Disease head validation (NEW)
+        val_dis_metrics = {}
+        if val_diseases and args.lambda_disease > 0:
+            val_dis_metrics = evaluate_disease_ranking(
+                embeddings, val_diseases, disease_positives_lookup, 
+                candidate_ids, ranking_head, (5, 10)
+            )
+        
         print(
-            f"Epoch {epoch:03d} | loss={avg_loss:.4f} rank={avg_rank:.4f} lp={avg_lp:.4f} "
-            f"val_ndcg10={score:.4f}"
+            f"Epoch {epoch:03d} | loss={avg_loss:.4f} "
+            f"vax_rank={avg_rank_vax:.4f} dis_rank={avg_rank_dis:.4f} lp={avg_lp:.4f} | "
+            f"val_vax_ndcg10={score:.4f} val_dis_ndcg10={val_dis_metrics.get('ndcg@10', 0.0):.4f}"
         )
 
         if score > best_val:
@@ -1548,6 +1754,33 @@ def train_one_split(
         else {}
     )
 
+    # Disease head evaluation (NEW)
+    disease_train_metrics = {}
+    disease_val_metrics = {}
+    disease_test_metrics = {}
+    
+    if disease_positives_lookup and args.lambda_disease > 0:
+        # Compute disease train metrics
+        if train_diseases:
+            disease_train_metrics = evaluate_disease_ranking(
+                embeddings, train_diseases, disease_positives_lookup,
+                candidate_ids, ranking_head, (5, 10)
+            )
+        
+        # Compute disease val metrics
+        if val_diseases:
+            disease_val_metrics = evaluate_disease_ranking(
+                embeddings, val_diseases, disease_positives_lookup,
+                candidate_ids, ranking_head, (5, 10)
+            )
+        
+        # Compute disease test metrics (for inductive split)
+        if test_diseases:
+            disease_test_metrics = evaluate_disease_ranking(
+                embeddings, test_diseases, disease_positives_lookup,
+                candidate_ids, ranking_head, (5, 10)
+            )
+
     link_metrics: Dict[str, Dict[str, float]] = {}
     if train_edges:
         link_metrics["train"] = evaluate_link_prediction(
@@ -1579,6 +1812,15 @@ def train_one_split(
         results["ranking_test"] = test_metrics
     if link_metrics:
         results["link_prediction"] = link_metrics
+    
+    # Disease head results (NEW)
+    if disease_train_metrics:
+        results["disease_ranking_train"] = disease_train_metrics
+    if disease_val_metrics:
+        results["disease_ranking_val"] = disease_val_metrics
+    if disease_test_metrics:
+        results["disease_ranking_test"] = disease_test_metrics
+    
     return results
 
 
@@ -1687,6 +1929,24 @@ def parse_args() -> argparse.Namespace:
         help="Weight for the link prediction auxiliary loss (down-weighted to prioritise ranking)",
     )
     parser.add_argument(
+        "--lambda-disease",
+        type=float,
+        default=1.0,
+        help="Weight for the disease→adjuvant ranking loss (NEW for disease head)",
+    )
+    parser.add_argument(
+        "--gamma-mech",
+        type=float,
+        default=0.3,
+        help="Weight for mechanism-aware compatibility scoring in disease head (NEW)",
+    )
+    parser.add_argument(
+        "--disease-batch-size",
+        type=int,
+        default=32,
+        help="Batch size for disease queries per epoch (NEW for disease head)",
+    )
+    parser.add_argument(
         "--self-adversarial-temperature",
         type=float,
         default=1.0,
@@ -1783,7 +2043,15 @@ def main() -> None:
         print("Split manifests generated; skipping training as requested")
         return
 
-    graph, mappings, positives_lookup, candidate_pool, candidate_ids = build_graph(
+    (
+        graph,
+        mappings,
+        positives_lookup,
+        candidate_pool,
+        candidate_ids,
+        disease_positives_lookup,
+        disease_edge_weights,
+    ) = build_graph(
         df,
         args.feature_dim,
         text_encoder=text_encoder,
@@ -1807,6 +2075,8 @@ def main() -> None:
             positives_lookup,
             candidate_pool,
             candidate_ids,
+            disease_positives_lookup,
+            disease_edge_weights,
             manifests,
             args,
             device,
