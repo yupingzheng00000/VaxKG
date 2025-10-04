@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import argparse
 import re
+import sys
 from pathlib import Path
 from collections import defaultdict
 from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
@@ -444,7 +445,36 @@ def main() -> None:
         float(saved_args.get("appnp_alpha", 0.1)),
         float(saved_args.get("appnp_dropout", 0.0)),
     )
-    model.load_state_dict(state_dict)
+    
+    # Load checkpoint with strict=False to support old checkpoints
+    # (trained before disease→adjuvant edges were added)
+    missing_keys, unexpected_keys = model.load_state_dict(state_dict, strict=False)
+    
+    if missing_keys:
+        print(f"⚠️  Warning: Missing keys in checkpoint (expected for new features):")
+        for key in missing_keys[:5]:  # Show first 5
+            print(f"    - {key}")
+        if len(missing_keys) > 5:
+            print(f"    ... and {len(missing_keys) - 5} more")
+        print()
+    
+    if unexpected_keys:
+        print(f"⚠️  Warning: Unexpected keys in checkpoint (will be ignored):")
+        for key in unexpected_keys[:5]:
+            print(f"    - {key}")
+        if len(unexpected_keys) > 5:
+            print(f"    ... and {len(unexpected_keys) - 5} more")
+        print()
+    
+    # Check if disease→adjuvant edges are trained
+    has_disease_adj_edges = any("disease___has_adjuvant" in k for k in state_dict.keys())
+    if not has_disease_adj_edges and args.disease_name:
+        print("❌ ERROR: This checkpoint was trained WITHOUT disease→adjuvant edges.")
+        print("   Disease queries will not work properly.")
+        print("\n   To fix: Retrain the model with train_disease_ranker.py")
+        print("   For now, you can only use --vaccine-name queries with this checkpoint.\n")
+        sys.exit(1)
+    
     model.to(device)
     model.eval()
 
