@@ -89,7 +89,21 @@ def load_per_query_metrics(
     macro_key = f"{prefix}_{split}"
 
     with path.open("r", encoding="utf-8") as handle:
-        payload = json.load(handle)
+        raw_text = handle.read()
+
+    try:
+        payload = json.loads(raw_text)
+    except json.JSONDecodeError as exc:
+        hint = ""
+        lines = [line for line in raw_text.splitlines() if line.strip()]
+        if path.suffix == ".jsonl" or all(line.lstrip().startswith("{") for line in lines[:3]):
+            hint = (
+                " Detected a JSON Lines file; pass the aggregate metrics JSON "
+                "(e.g., artifacts/results/<scheme>.json) instead."
+            )
+        raise ValueError(
+            f"Failed to parse metrics file {path}: {exc}.{hint}"
+        ) from exc
 
     if per_query_key not in payload:
         available = ", ".join(sorted(payload.keys()))
