@@ -260,6 +260,13 @@ def main() -> None:
 
     baseline_macro = macro_data[args.baseline]
 
+    if len(system_order) == 1:
+        print(
+            "[info] Only one system provided. Add more entries to --systems to compare "
+            "against the baseline and run paired randomization tests."
+        )
+        print()
+
     if args.metrics:
         metrics_to_use = args.metrics
     else:
