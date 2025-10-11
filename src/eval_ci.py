@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+from collections.abc import Mapping as MappingABC
 from typing import Dict, List, Mapping, Sequence
 
 import numpy as np
@@ -94,16 +95,41 @@ def load_per_query_metrics(
     try:
         payload = json.loads(raw_text)
     except json.JSONDecodeError as exc:
-        hint = ""
-        lines = [line for line in raw_text.splitlines() if line.strip()]
-        if path.suffix == ".jsonl" or all(line.lstrip().startswith("{") for line in lines[:3]):
-            hint = (
-                " Detected a JSON Lines file; pass the aggregate metrics JSON "
-                "(e.g., artifacts/results/<scheme>.json) instead."
-            )
-        raise ValueError(
-            f"Failed to parse metrics file {path}: {exc}.{hint}"
-        ) from exc
+        # Fall back to JSON Lines: take the last record containing the per-query key.
+        records: List[Mapping[str, object]] = []
+        for line in raw_text.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                record = json.loads(line)
+            except json.JSONDecodeError:
+                records = []
+                break
+            records.append(record)
+
+        payload = None
+        if records:
+            for record in reversed(records):
+                if isinstance(record, MappingABC) and per_query_key in record:
+                    payload = record
+                    break
+
+        if payload is None:
+            hint = ""
+            lines = [line for line in raw_text.splitlines() if line.strip()]
+            if path.suffix == ".jsonl" or all(
+                line.lstrip().startswith("{") for line in lines[:3]
+            ):
+                hint = (
+                    " Detected a JSON Lines file but none of the entries contained "
+                    f"'{per_query_key}'. Pass the aggregate metrics JSON (e.g., "
+                    "artifacts/results/<scheme>.json) or regenerate metrics with per-query "
+                    "payloads."
+                )
+            raise ValueError(
+                f"Failed to parse metrics file {path}: {exc}.{hint}"
+            ) from exc
 
     if per_query_key not in payload:
         available = ", ".join(sorted(payload.keys()))
