@@ -46,6 +46,7 @@ python showcase_ranker.py \
     * [Step 2: Generate Disease→Adjuvant Pairs](#step-2-generate-diseaseadjuvant-pairs-new)
     * [Step 3: Train the Recommender](#step-3-train-the-recommender)
     * [Step 4: Try the Trained Recommender](#step-4-try-the-trained-recommender)
+    * [Step 5: Compute Confidence Intervals & Non-inferiority Verdicts](#step-5-compute-confidence-intervals--non-inferiority-verdicts-new)
 * [Output Files and Results](#output-files-and-results)
 * [Expected Performance](#expected-performance)
 * [Troubleshooting](#troubleshooting)
@@ -195,14 +196,18 @@ python train_ranker.py \
 
 **Option B: Dual-head (Vaccine + Disease) recommender (NEW)**
 
-The `train_disease_ranker.py` script extends the original model with a disease→adjuvant 
-head, enabling both vaccine-based and disease-based adjuvant recommendations:
+The `train_disease_ranker.py` script extends the original model with a disease→adjuvant
+head, enabling both vaccine-based and disease-based adjuvant recommendations.
+It also materialises the vaccine-head **disease baseline** that is used for
+non-inferiority/equivalence analysis via the `--disease-baseline-aggregation`
+flag (default: `max`, alternative: `mean`).
 
 ```bash
 python train_disease_ranker.py \
     --data-path data/processed/training_samples.csv \
     --output-dir results/disease_dual_head \
     --run-name disease_v1 \
+    --disease-baseline-aggregation max \
     --split-scheme both \
     --epochs 100 \
     --batch-size 128 \
@@ -282,6 +287,56 @@ brief ontology context.
 - `--include-preclinical 1`: Include research-stage adjuvants in recommendations
 - `--route IM`: Filter by administration route (IM, IN, oral, ID)
 - `--coverage 0.9`: Use conformal prediction for calibrated top-K sets (if implemented)
+
+#### Step 5: Compute confidence intervals & non-inferiority verdicts (NEW)
+
+Training now persists **per-query metrics** for both the disease head and the
+vaccine-head-derived disease baseline (see `artifacts/results/<scheme>.json`). Use
+`src/eval_ci.py` to bootstrap confidence intervals, paired randomisation tests,
+and 90 % Δ confidence intervals for non-inferiority/equivalence checks.
+
+1. Re-run `train_disease_ranker.py` (or at least its evaluation stage) with the
+   latest code so the metrics JSON includes the new `*_per_query` payloads.
+2. Compare one or more systems by pointing the CI tool at the relevant metrics
+   files. Supply `name=/path/to/results.json` pairs via `--systems` and identify
+   the baseline using `--baseline`.
+
+Examples:
+
+```bash
+# Non-inferiority of the disease head vs vaccine baseline on the test split
+python src/eval_ci.py \
+  --systems dual_head@disease_head=artifacts/results/transductive.json \
+            vaccine_baseline@vaccine_agg=artifacts/results/transductive.json \
+  --baseline vaccine_baseline \
+  --head disease \
+  --split test \
+  --delta ndcg@10=0.02 recall@10=0.03
+
+# Compare two checkpoints (e.g., SapBERT tuned vs frozen)
+python src/eval_ci.py \
+  --systems tuned@vaccine_head=results/sapbert_tuned/results/inductive.json \
+            frozen@vaccine_head=results/sapbert_frozen/results/inductive.json \
+  --baseline frozen \
+  --head vaccine \
+  --split test \
+  --metrics ndcg@5 ndcg@10 recall@5 recall@10
+```
+
+Key options:
+
+- `--delta metric=value` sets the non-inferiority/equivalence margin (δ) per metric.
+- `--disease-baseline-aggregation` (training flag) controls how vaccine predictions
+  are aggregated to disease scores for the baseline recorded in the metrics JSON.
+- `--metrics` restricts evaluation to the listed metrics; omit it to analyse all
+  metrics shared across systems.
+- Append `@disease_head`, `@vaccine_head`, or `@vaccine_agg` to the system name in
+  `--systems` to choose which metric block to load from the JSON artefact.
+
+The tool prints tables containing bootstrap 95 % CIs for each system, paired
+randomisation p-values against the baseline, and a verdict column indicating
+whether the dual-head extension is *Equivalent*, *Non-inferior*, or *Inferior*
+under the supplied δ.
 
 ## Output Files and Results
 
