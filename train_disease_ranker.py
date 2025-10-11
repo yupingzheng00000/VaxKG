@@ -864,7 +864,7 @@ def evaluate_ranking(
     positives: Mapping[int, Sequence[int]],
     candidate_ids: Sequence[int],
     ks: Sequence[int],
-) -> Dict[str, float]:
+) -> Dict[str, Dict[str, float]]:
     adjuvant_repr = embeddings["adjuvant"]
     vaccine_repr = embeddings["vaccine"]
     candidate_tensor = torch.tensor(candidate_ids, dtype=torch.long, device=adjuvant_repr.device)
@@ -872,6 +872,7 @@ def evaluate_ranking(
 
     metrics = {f"ndcg@{k}": [] for k in ks}
     metrics.update({f"recall@{k}": [] for k in ks})
+    per_query: Dict[str, Dict[str, float]] = {}
 
     for vaccine_idx in vaccine_indices:
         if vaccine_idx not in positives:
@@ -881,14 +882,23 @@ def evaluate_ranking(
         order = torch.argsort(scores, descending=True)
         ranked_candidates = candidate_tensor[order].tolist()
         positive_list = list(positives[vaccine_idx])
+        query_metrics: Dict[str, float] = {}
         for k in ks:
-            metrics[f"ndcg@{k}"].append(ndcg_at_k(ranked_candidates, positive_list, k))
-            metrics[f"recall@{k}"].append(recall_at_k(ranked_candidates, positive_list, k))
+            ndcg_value = ndcg_at_k(ranked_candidates, positive_list, k)
+            recall_value = recall_at_k(ranked_candidates, positive_list, k)
+            metrics[f"ndcg@{k}"].append(ndcg_value)
+            metrics[f"recall@{k}"].append(recall_value)
+            query_metrics[f"ndcg@{k}"] = ndcg_value
+            query_metrics[f"recall@{k}"] = recall_value
+        if query_metrics:
+            per_query[str(vaccine_idx)] = query_metrics
 
-    return {
+    macro = {
         name: float(np.mean(values)) if values else 0.0
         for name, values in metrics.items()
     }
+
+    return {"macro": macro, "per_query": per_query}
 
 
 def evaluate_disease_ranking(
@@ -898,7 +908,7 @@ def evaluate_disease_ranking(
     candidate_ids: Sequence[int],
     ranking_head: torch.nn.Module,
     ks: Sequence[int],
-) -> Dict[str, float]:
+) -> Dict[str, Dict[str, float]]:
     """
     Evaluate disease→adjuvant ranking performance.
     
@@ -911,7 +921,10 @@ def evaluate_disease_ranking(
         ks: Top-K values for metrics (e.g., [5, 10])
     
     Returns:
-        Dict with keys like "ndcg@5", "ndcg@10", "recall@5", "recall@10"
+        Dictionary with two sections:
+
+        * ``macro`` – mean metrics across diseases.
+        * ``per_query`` – mapping of disease index (as a string) to per-metric scores.
     """
     disease_repr = embeddings["disease"]
     adjuvant_repr = embeddings["adjuvant"]
@@ -921,7 +934,8 @@ def evaluate_disease_ranking(
     
     metrics = {f"ndcg@{k}": [] for k in ks}
     metrics.update({f"recall@{k}": [] for k in ks})
-    
+    per_query: Dict[str, Dict[str, float]] = {}
+
     for disease_idx in disease_indices:
         positives = disease_positives.get(disease_idx, [])
         if not positives:
@@ -942,14 +956,23 @@ def evaluate_disease_ranking(
         ranked_candidates = candidate_tensor[order].tolist()
         positive_list = list(positives)
         
+        query_metrics: Dict[str, float] = {}
         for k in ks:
-            metrics[f"ndcg@{k}"].append(ndcg_at_k(ranked_candidates, positive_list, k))
-            metrics[f"recall@{k}"].append(recall_at_k(ranked_candidates, positive_list, k))
-    
-    return {
+            ndcg_value = ndcg_at_k(ranked_candidates, positive_list, k)
+            recall_value = recall_at_k(ranked_candidates, positive_list, k)
+            metrics[f"ndcg@{k}"].append(ndcg_value)
+            metrics[f"recall@{k}"].append(recall_value)
+            query_metrics[f"ndcg@{k}"] = ndcg_value
+            query_metrics[f"recall@{k}"] = recall_value
+        if query_metrics:
+            per_query[str(disease_idx)] = query_metrics
+
+    macro = {
         name: float(np.mean(values)) if values else 0.0
         for name, values in metrics.items()
     }
+
+    return {"macro": macro, "per_query": per_query}
 
 
 def evaluate_link_prediction(
@@ -1692,22 +1715,23 @@ def train_one_split(
         val_metrics = (
             evaluate_ranking(embeddings, val_vaccines, positives_lookup, candidate_ids, (5, 10))
             if val_vaccines
-            else {"ndcg@5": 0.0, "ndcg@10": 0.0}
+            else {"macro": {"ndcg@5": 0.0, "ndcg@10": 0.0}, "per_query": {}}
         )
-        score = val_metrics.get("ndcg@10", 0.0)
-        
+        score = val_metrics["macro"].get("ndcg@10", 0.0)
+
         # Disease head validation (NEW)
-        val_dis_metrics = {}
+        val_dis_metrics = {"macro": {}, "per_query": {}}
         if val_diseases and args.lambda_disease > 0:
             val_dis_metrics = evaluate_disease_ranking(
-                embeddings, val_diseases, disease_positives_lookup, 
+                embeddings, val_diseases, disease_positives_lookup,
                 candidate_ids, ranking_head, (5, 10)
             )
         
         print(
             f"Epoch {epoch:03d} | loss={avg_loss:.4f} "
             f"vax_rank={avg_rank_vax:.4f} dis_rank={avg_rank_dis:.4f} lp={avg_lp:.4f} | "
-            f"val_vax_ndcg10={score:.4f} val_dis_ndcg10={val_dis_metrics.get('ndcg@10', 0.0):.4f}"
+            f"val_vax_ndcg10={score:.4f} "
+            f"val_dis_ndcg10={val_dis_metrics['macro'].get('ndcg@10', 0.0):.4f}"
         )
 
         if score > best_val:
@@ -1746,19 +1770,19 @@ def train_one_split(
     val_metrics = (
         evaluate_ranking(embeddings, val_vaccines, positives_lookup, candidate_ids, (5, 10))
         if val_vaccines
-        else {}
+        else {"macro": {}, "per_query": {}}
     )
     test_metrics = (
         evaluate_ranking(embeddings, test_vaccines, positives_lookup, candidate_ids, (5, 10))
         if test_vaccines
-        else {}
+        else {"macro": {}, "per_query": {}}
     )
 
     # Disease head evaluation (NEW)
-    disease_train_metrics = {}
-    disease_val_metrics = {}
-    disease_test_metrics = {}
-    
+    disease_train_metrics = {"macro": {}, "per_query": {}}
+    disease_val_metrics = {"macro": {}, "per_query": {}}
+    disease_test_metrics = {"macro": {}, "per_query": {}}
+
     if disease_positives_lookup and args.lambda_disease > 0:
         # Compute disease train metrics
         if train_diseases:
@@ -1766,14 +1790,14 @@ def train_one_split(
                 embeddings, train_diseases, disease_positives_lookup,
                 candidate_ids, ranking_head, (5, 10)
             )
-        
+
         # Compute disease val metrics
         if val_diseases:
             disease_val_metrics = evaluate_disease_ranking(
                 embeddings, val_diseases, disease_positives_lookup,
                 candidate_ids, ranking_head, (5, 10)
             )
-        
+
         # Compute disease test metrics (for inductive split)
         if test_diseases:
             disease_test_metrics = evaluate_disease_ranking(
@@ -1805,21 +1829,33 @@ def train_one_split(
             embeddings, test_edges, positives_lookup, candidate_ids, (1, 3, 10)
         )
 
-    results["ranking_train"] = train_metrics
-    if val_metrics:
-        results["ranking_val"] = val_metrics
-    if test_metrics:
-        results["ranking_test"] = test_metrics
+    results["ranking_train"] = train_metrics["macro"]
+    if train_metrics["per_query"]:
+        results["ranking_train_per_query"] = train_metrics["per_query"]
+    if val_metrics["macro"]:
+        results["ranking_val"] = val_metrics["macro"]
+    if val_metrics["per_query"]:
+        results["ranking_val_per_query"] = val_metrics["per_query"]
+    if test_metrics["macro"]:
+        results["ranking_test"] = test_metrics["macro"]
+    if test_metrics["per_query"]:
+        results["ranking_test_per_query"] = test_metrics["per_query"]
     if link_metrics:
         results["link_prediction"] = link_metrics
     
     # Disease head results (NEW)
-    if disease_train_metrics:
-        results["disease_ranking_train"] = disease_train_metrics
-    if disease_val_metrics:
-        results["disease_ranking_val"] = disease_val_metrics
-    if disease_test_metrics:
-        results["disease_ranking_test"] = disease_test_metrics
+    if disease_train_metrics["macro"]:
+        results["disease_ranking_train"] = disease_train_metrics["macro"]
+    if disease_train_metrics["per_query"]:
+        results["disease_ranking_train_per_query"] = disease_train_metrics["per_query"]
+    if disease_val_metrics["macro"]:
+        results["disease_ranking_val"] = disease_val_metrics["macro"]
+    if disease_val_metrics["per_query"]:
+        results["disease_ranking_val_per_query"] = disease_val_metrics["per_query"]
+    if disease_test_metrics["macro"]:
+        results["disease_ranking_test"] = disease_test_metrics["macro"]
+    if disease_test_metrics["per_query"]:
+        results["disease_ranking_test_per_query"] = disease_test_metrics["per_query"]
     
     return results
 
