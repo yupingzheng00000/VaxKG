@@ -1,14 +1,41 @@
-"""Compute bootstrap confidence intervals and paired randomization tests."""
+"""Compute CIs, paired tests, and non-inferiority verdicts for stored metrics."""
 
 from __future__ import annotations
 
 import argparse
 import json
+from dataclasses import dataclass
 from pathlib import Path
 from collections.abc import Mapping as MappingABC
 from typing import Dict, List, Mapping, Sequence
 
 import numpy as np
+
+
+def spawn_rng(master: np.random.Generator) -> np.random.Generator:
+    """Derive a child generator from ``master`` for reproducibility."""
+
+    return np.random.default_rng(master.integers(0, 2**63))
+
+
+def bootstrap_mean_distribution(
+    per_query_scores: Sequence[float],
+    *,
+    iterations: int,
+    rng: np.random.Generator,
+) -> np.ndarray:
+    """Return bootstrap distribution of the mean for ``per_query_scores``."""
+
+    scores = np.asarray(per_query_scores, dtype=float)
+    if scores.size == 0:
+        raise ValueError("Cannot bootstrap confidence interval without scores")
+
+    boot_means = np.empty(iterations, dtype=float)
+    n = scores.size
+    for i in range(iterations):
+        indices = rng.integers(0, n, size=n)
+        boot_means[i] = float(scores[indices].mean())
+    return boot_means
 
 
 def percentile_bootstrap_ci(
@@ -20,15 +47,9 @@ def percentile_bootstrap_ci(
 ) -> tuple[float, float]:
     """Return percentile bootstrap confidence interval for the mean."""
 
-    scores = np.asarray(per_query_scores, dtype=float)
-    if scores.size == 0:
-        raise ValueError("Cannot bootstrap confidence interval without scores")
-
-    boot_means = np.empty(iterations, dtype=float)
-    n = scores.size
-    for i in range(iterations):
-        indices = rng.integers(0, n, size=n)
-        boot_means[i] = float(scores[indices].mean())
+    boot_means = bootstrap_mean_distribution(
+        per_query_scores, iterations=iterations, rng=rng
+    )
     lo, hi = np.percentile(
         boot_means,
         [100 * alpha / 2.0, 100 * (1.0 - alpha / 2.0)],
@@ -64,30 +85,127 @@ def paired_randomization_test(
     return observed, float(p_value)
 
 
-def parse_system_specs(specs: Sequence[str]) -> List[tuple[str, Path]]:
-    parsed: List[tuple[str, Path]] = []
+@dataclass(frozen=True)
+class SystemSpec:
+    name: str
+    variant: str
+    path: Path
+
+
+def parse_system_specs(specs: Sequence[str]) -> List[SystemSpec]:
+    parsed: List[SystemSpec] = []
     for spec in specs:
         if "=" not in spec:
             raise ValueError(
                 f"System specification '{spec}' must be of the form name=/path/to/results.json"
             )
-        name, path_str = spec.split("=", 1)
+        raw_name, path_str = spec.split("=", 1)
+        if "@" in raw_name:
+            name, variant = raw_name.split("@", 1)
+            variant = variant or "default"
+        else:
+            name, variant = raw_name, "default"
+        name = name.strip()
+        variant = variant.strip() or "default"
+        if not name:
+            raise ValueError(f"System specification '{spec}' is missing a system name")
         path = Path(path_str)
         if not path.exists():
             raise FileNotFoundError(f"Metrics file not found: {path}")
-        parsed.append((name, path))
+        parsed.append(SystemSpec(name=name, variant=variant, path=path))
     return parsed
+
+
+def resolve_metric_prefix(head: str, variant: str) -> tuple[str, str]:
+    """Return metric prefix and canonical variant for ``head``/``variant``."""
+
+    normalised = variant.replace("-", "_").lower()
+    if head == "vaccine":
+        aliases = {
+            "default": "vaccine_head",
+            "vaccine": "vaccine_head",
+            "vaccine_head": "vaccine_head",
+        }
+        canonical = aliases.get(normalised)
+        if canonical:
+            return "ranking", canonical
+        raise ValueError(
+            f"Unsupported variant '{variant}' for head '{head}'. "
+            "Valid options: 'vaccine_head'."
+        )
+
+    aliases = {
+        "default": "disease_head",
+        "disease": "disease_head",
+        "disease_head": "disease_head",
+        "head": "disease_head",
+        "vaccine_agg": "vaccine_agg",
+        "vaccineagg": "vaccine_agg",
+        "vaccine_agg_baseline": "vaccine_agg",
+        "baseline": "vaccine_agg",
+        "vaccine_baseline": "vaccine_agg",
+    }
+    canonical = aliases.get(normalised)
+    if canonical == "disease_head":
+        return "disease_ranking", canonical
+    if canonical == "vaccine_agg":
+        return "disease_from_vaccine", canonical
+    raise ValueError(
+        f"Unsupported variant '{variant}' for head '{head}'. Valid options: "
+        "'disease_head' (default) or 'vaccine_agg'."
+    )
+
+
+def parse_delta_specs(delta_specs: Sequence[str]) -> Dict[str, float]:
+    margins: Dict[str, float] = {}
+    for spec in delta_specs:
+        if "=" not in spec:
+            raise ValueError(
+                f"Delta specification '{spec}' must be of the form metric=value"
+            )
+        metric, value = spec.split("=", 1)
+        metric = metric.strip()
+        if not metric:
+            raise ValueError(f"Delta specification '{spec}' is missing a metric name")
+        try:
+            margins[metric] = float(value)
+        except ValueError as exc:  # pragma: no cover - defensive parsing
+            raise ValueError(
+                f"Delta specification '{spec}' has a non-numeric value"
+            ) from exc
+    return margins
+
+
+def classify_equivalence(
+    ci90_lo: float,
+    ci90_hi: float,
+    lower_95: float,
+    delta: float,
+) -> str:
+    """Return textual verdict for non-inferiority/equivalence tests."""
+
+    margin = abs(delta)
+    if ci90_lo > -margin and ci90_hi < margin:
+        verdict = "Equivalent"
+    elif lower_95 > -margin:
+        verdict = "Non-inferior"
+    elif ci90_hi < -margin:
+        verdict = "Inferior"
+    elif ci90_lo > margin:
+        verdict = "Superior"
+    else:
+        verdict = "Inconclusive"
+    return f"{verdict} (δ={margin:.4f})"
 
 
 def load_per_query_metrics(
     path: Path,
     *,
-    head: str,
+    metric_prefix: str,
     split: str,
 ) -> tuple[Dict[str, Dict[str, float]], Mapping[str, float]]:
-    prefix = "ranking" if head == "vaccine" else "disease_ranking"
-    per_query_key = f"{prefix}_{split}_per_query"
-    macro_key = f"{prefix}_{split}"
+    per_query_key = f"{metric_prefix}_{split}_per_query"
+    macro_key = f"{metric_prefix}_{split}"
 
     with path.open("r", encoding="utf-8") as handle:
         raw_text = handle.read()
@@ -234,6 +352,18 @@ def build_arg_parser() -> argparse.ArgumentParser:
         help="Significance level for CIs and star annotations",
     )
     parser.add_argument(
+        "--equivalence-alpha",
+        type=float,
+        default=0.10,
+        help="Two-sided alpha for equivalence (e.g., 0.10 yields a 90% CI on Δ)",
+    )
+    parser.add_argument(
+        "--delta",
+        nargs="*",
+        default=[],
+        help="Non-inferiority/equivalence margins per metric (e.g., ndcg@10=0.02)",
+    )
+    parser.add_argument(
         "--seed",
         type=int,
         default=13,
@@ -247,16 +377,23 @@ def main() -> None:
     args = parser.parse_args()
 
     specs = parse_system_specs(args.systems)
-    system_order = [name for name, _ in specs]
+    system_order = [spec.name for spec in specs]
     if args.baseline not in system_order:
         raise ValueError("--baseline must match one of the provided system names")
 
+    delta_margins = parse_delta_specs(args.delta)
+
     per_query_data: Dict[str, Dict[str, Dict[str, float]]] = {}
     macro_data: Dict[str, Mapping[str, float]] = {}
-    for name, path in specs:
-        per_query, macro = load_per_query_metrics(path, head=args.head, split=args.split)
-        per_query_data[name] = per_query
-        macro_data[name] = macro
+    system_variants: Dict[str, str] = {}
+    for spec in specs:
+        prefix, canonical_variant = resolve_metric_prefix(args.head, spec.variant)
+        per_query, macro = load_per_query_metrics(
+            spec.path, metric_prefix=prefix, split=args.split
+        )
+        per_query_data[spec.name] = per_query
+        macro_data[spec.name] = macro
+        system_variants[spec.name] = canonical_variant
 
     baseline_macro = macro_data[args.baseline]
 
@@ -277,9 +414,12 @@ def main() -> None:
 
     rng_master = np.random.default_rng(args.seed)
 
+    system_descriptions = [
+        f"{name} ({system_variants.get(name, 'n/a')})" for name in system_order
+    ]
     print(
         f"Split: {args.split} | Head: {args.head} | Baseline: {args.baseline} | Systems: "
-        f"{', '.join(system_order)}"
+        f"{', '.join(system_descriptions)}"
     )
     print()
 
@@ -299,40 +439,85 @@ def main() -> None:
 
         baseline_values = metric_arrays[args.baseline]
         baseline_mean = float(baseline_values.mean())
-        baseline_ci_lo, baseline_ci_hi = percentile_bootstrap_ci(
+        baseline_boot = bootstrap_mean_distribution(
             baseline_values,
             iterations=args.bootstrap,
-            alpha=args.alpha,
-            rng=np.random.default_rng(rng_master.integers(0, 2**32)),
+            rng=spawn_rng(rng_master),
+        )
+        baseline_ci_lo, baseline_ci_hi = np.percentile(
+            baseline_boot,
+            [100 * args.alpha / 2.0, 100 * (1.0 - args.alpha / 2.0)],
         )
 
         print(f"Metric: {metric} (n={n_queries})")
-        print(f"{'System':<20}{'Mean':>12}{'95% CI':>20}{('Δ vs ' + args.baseline):>18}{'p-value':>12}")
+        print(
+            f"{'System':<20}{'Mean':>12}{'95% CI':>20}{('Δ vs ' + args.baseline):>18}"
+            f"{'90% CI(Δ)':>18}{'95% LB(Δ)':>15}{'Verdict (δ)':>20}{'p-value':>12}"
+        )
 
         for name in system_order:
             values = metric_arrays[name]
             mean = float(values.mean())
-            ci_lo, ci_hi = percentile_bootstrap_ci(
+            boot = bootstrap_mean_distribution(
                 values,
                 iterations=args.bootstrap,
-                alpha=args.alpha,
-                rng=np.random.default_rng(rng_master.integers(0, 2**32)),
+                rng=spawn_rng(rng_master),
+            )
+            ci_lo, ci_hi = np.percentile(
+                boot,
+                [100 * args.alpha / 2.0, 100 * (1.0 - args.alpha / 2.0)],
             )
             ci_str = format_ci(ci_lo, ci_hi)
             if name == args.baseline:
                 diff_str = f"{0.0:+.4f}"
+                ci90_str = "-"
+                lb95_str = "-"
+                verdict_str = "-"
                 p_str = "-"
             else:
-                diff, p_value = paired_randomization_test(
+                diffs = values - baseline_values
+                diff = float(diffs.mean())
+                diff_boot = bootstrap_mean_distribution(
+                    diffs,
+                    iterations=args.bootstrap,
+                    rng=spawn_rng(rng_master),
+                )
+                ci90_bounds = np.percentile(
+                    diff_boot,
+                    [
+                        100 * args.equivalence_alpha / 2.0,
+                        100 * (1.0 - args.equivalence_alpha / 2.0),
+                    ],
+                )
+                lower_95 = float(np.percentile(diff_boot, args.alpha * 100))
+                diff_rand, p_value = paired_randomization_test(
                     values,
                     baseline_values,
                     iterations=args.permutations,
-                    rng=np.random.default_rng(rng_master.integers(0, 2**32)),
+                    rng=spawn_rng(rng_master),
                 )
+                # paired_randomization_test returns the observed mean difference;
+                # ensure consistency with bootstrap-based mean.
+                if abs(diff_rand - diff) > 1e-6:
+                    diff = diff_rand
                 diff_str = f"{diff:+.4f}"
+                ci90_str = format_ci(float(ci90_bounds[0]), float(ci90_bounds[1]))
+                lb95_str = f"{lower_95:.4f}"
+                if metric in delta_margins:
+                    verdict_str = classify_equivalence(
+                        float(ci90_bounds[0]),
+                        float(ci90_bounds[1]),
+                        lower_95,
+                        delta_margins[metric],
+                    )
+                else:
+                    verdict_str = "δ not set"
                 p_str = format_p_value(p_value, args.alpha)
 
-            print(f"{name:<20}{mean:>12.4f}{ci_str:>20}{diff_str:>18}{p_str:>12}")
+            print(
+                f"{name:<20}{mean:>12.4f}{ci_str:>20}{diff_str:>18}{ci90_str:>18}"
+                f"{lb95_str:>15}{verdict_str:>20}{p_str:>12}"
+            )
 
         if metric in baseline_macro:
             macro_mean = float(baseline_macro[metric])

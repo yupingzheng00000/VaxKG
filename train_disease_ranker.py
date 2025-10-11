@@ -975,6 +975,88 @@ def evaluate_disease_ranking(
     return {"macro": macro, "per_query": per_query}
 
 
+def evaluate_disease_via_vaccines(
+    embeddings: Mapping[str, Tensor],
+    disease_indices: Sequence[int],
+    disease_to_vaccines: Mapping[int, Sequence[int]],
+    disease_positives: Mapping[int, Sequence[int]],
+    candidate_ids: Sequence[int],
+    aggregation: str,
+    ks: Sequence[int],
+) -> Dict[str, Dict[str, float]]:
+    """Evaluate disease→adjuvant ranking by aggregating vaccine scores.
+
+    Args:
+        embeddings: Learned node embeddings.
+        disease_indices: Disease query indices for this split.
+        disease_to_vaccines: Mapping of disease index → vaccine indices associated
+            with that disease within the split.
+        disease_positives: Mapping of disease index → positive adjuvant indices.
+        candidate_ids: Candidate adjuvant indices considered for ranking.
+        aggregation: Aggregation strategy (``"max"`` or ``"mean"``) used to merge
+            vaccine-level scores into disease-level scores.
+        ks: Top-k cut-offs for metrics.
+
+    Returns:
+        Dictionary mirroring :func:`evaluate_disease_ranking` with ``macro`` and
+        ``per_query`` sections.
+    """
+
+    if aggregation not in {"max", "mean"}:
+        raise ValueError(
+            "aggregation must be either 'max' or 'mean' for vaccine-to-disease evaluation"
+        )
+
+    vaccine_repr = embeddings["vaccine"]
+    adjuvant_repr = embeddings["adjuvant"]
+    device = vaccine_repr.device
+
+    candidate_tensor = torch.tensor(candidate_ids, dtype=torch.long, device=device)
+    candidate_vectors = adjuvant_repr[candidate_tensor]
+
+    metrics = {f"ndcg@{k}": [] for k in ks}
+    metrics.update({f"recall@{k}": [] for k in ks})
+    per_query: Dict[str, Dict[str, float]] = {}
+
+    for disease_idx in disease_indices:
+        positives = disease_positives.get(disease_idx, [])
+        vaccine_indices = disease_to_vaccines.get(disease_idx, [])
+        if not positives or not vaccine_indices:
+            continue
+
+        vaccine_tensor = torch.tensor(vaccine_indices, dtype=torch.long, device=device)
+        vaccine_vectors = vaccine_repr[vaccine_tensor]
+        scores = torch.matmul(vaccine_vectors, candidate_vectors.t())  # [num_vaccines, K]
+
+        if aggregation == "max":
+            agg_scores = scores.max(dim=0).values
+        else:  # aggregation == "mean"
+            agg_scores = scores.mean(dim=0)
+
+        order = torch.argsort(agg_scores, descending=True)
+        ranked_candidates = candidate_tensor[order].tolist()
+        positive_list = list(positives)
+
+        query_metrics: Dict[str, float] = {}
+        for k in ks:
+            ndcg_value = ndcg_at_k(ranked_candidates, positive_list, k)
+            recall_value = recall_at_k(ranked_candidates, positive_list, k)
+            metrics[f"ndcg@{k}"].append(ndcg_value)
+            metrics[f"recall@{k}"].append(recall_value)
+            query_metrics[f"ndcg@{k}"] = ndcg_value
+            query_metrics[f"recall@{k}"] = recall_value
+
+        if query_metrics:
+            per_query[str(disease_idx)] = query_metrics
+
+    macro = {
+        name: float(np.mean(values)) if values else 0.0
+        for name, values in metrics.items()
+    }
+
+    return {"macro": macro, "per_query": per_query}
+
+
 def evaluate_link_prediction(
     embeddings: Mapping[str, Tensor],
     edges: Sequence[Tuple[int, int]],
@@ -1529,6 +1611,23 @@ def train_one_split(
                     indices.add(idx)
         return sorted(indices)
 
+    def _disease_to_vaccines(
+        entries: Sequence[Mapping[str, object]]
+    ) -> Dict[int, List[int]]:
+        mapping: Dict[int, Set[int]] = {}
+        for entry in entries:
+            vaccine_id = entry.get("vaccine_id")
+            if vaccine_id not in mappings["vaccine"]:
+                continue
+            vaccine_idx = mappings["vaccine"][vaccine_id]
+            diseases = entry.get("diseases") or []
+            for disease in diseases:
+                disease_idx = mappings["disease"].get(disease)
+                if disease_idx is None:
+                    continue
+                mapping.setdefault(disease_idx, set()).add(vaccine_idx)
+        return {key: sorted(values) for key, values in mapping.items()}
+
     train_vaccines = [
         mappings["vaccine"][entry["vaccine_id"]]
         for entry in manifests["train"]
@@ -1551,6 +1650,10 @@ def train_one_split(
     train_diseases = _collect_diseases(manifests.get("train", []))
     val_diseases = _collect_diseases(manifests.get("val", []))
     test_diseases = _collect_diseases(manifests.get("test", []))
+
+    train_disease_to_vaccines = _disease_to_vaccines(manifests.get("train", []))
+    val_disease_to_vaccines = _disease_to_vaccines(manifests.get("val", []))
+    test_disease_to_vaccines = _disease_to_vaccines(manifests.get("test", []))
 
     train_graph = restrict_label_edges_for_training(graph, train_vaccines)
     train_graph = restrict_context_edges_for_training(
@@ -1782,6 +1885,9 @@ def train_one_split(
     disease_train_metrics = {"macro": {}, "per_query": {}}
     disease_val_metrics = {"macro": {}, "per_query": {}}
     disease_test_metrics = {"macro": {}, "per_query": {}}
+    vaccine_agg_train = {"macro": {}, "per_query": {}}
+    vaccine_agg_val = {"macro": {}, "per_query": {}}
+    vaccine_agg_test = {"macro": {}, "per_query": {}}
 
     if disease_positives_lookup and args.lambda_disease > 0:
         # Compute disease train metrics
@@ -1803,6 +1909,38 @@ def train_one_split(
             disease_test_metrics = evaluate_disease_ranking(
                 embeddings, test_diseases, disease_positives_lookup,
                 candidate_ids, ranking_head, (5, 10)
+            )
+
+    if disease_positives_lookup:
+        if train_diseases:
+            vaccine_agg_train = evaluate_disease_via_vaccines(
+                embeddings,
+                train_diseases,
+                train_disease_to_vaccines,
+                disease_positives_lookup,
+                candidate_ids,
+                args.disease_baseline_aggregation,
+                (5, 10),
+            )
+        if val_diseases:
+            vaccine_agg_val = evaluate_disease_via_vaccines(
+                embeddings,
+                val_diseases,
+                val_disease_to_vaccines,
+                disease_positives_lookup,
+                candidate_ids,
+                args.disease_baseline_aggregation,
+                (5, 10),
+            )
+        if test_diseases:
+            vaccine_agg_test = evaluate_disease_via_vaccines(
+                embeddings,
+                test_diseases,
+                test_disease_to_vaccines,
+                disease_positives_lookup,
+                candidate_ids,
+                args.disease_baseline_aggregation,
+                (5, 10),
             )
 
     link_metrics: Dict[str, Dict[str, float]] = {}
@@ -1856,7 +1994,22 @@ def train_one_split(
         results["disease_ranking_test"] = disease_test_metrics["macro"]
     if disease_test_metrics["per_query"]:
         results["disease_ranking_test_per_query"] = disease_test_metrics["per_query"]
-    
+
+    if vaccine_agg_train["macro"]:
+        results["disease_from_vaccine_train"] = vaccine_agg_train["macro"]
+    if vaccine_agg_train["per_query"]:
+        results["disease_from_vaccine_train_per_query"] = vaccine_agg_train["per_query"]
+    if vaccine_agg_val["macro"]:
+        results["disease_from_vaccine_val"] = vaccine_agg_val["macro"]
+    if vaccine_agg_val["per_query"]:
+        results["disease_from_vaccine_val_per_query"] = vaccine_agg_val["per_query"]
+    if vaccine_agg_test["macro"]:
+        results["disease_from_vaccine_test"] = vaccine_agg_test["macro"]
+    if vaccine_agg_test["per_query"]:
+        results["disease_from_vaccine_test_per_query"] = vaccine_agg_test["per_query"]
+
+    results["disease_from_vaccine_aggregation"] = args.disease_baseline_aggregation
+
     return results
 
 
@@ -1969,6 +2122,15 @@ def parse_args() -> argparse.Namespace:
         type=float,
         default=1.0,
         help="Weight for the disease→adjuvant ranking loss (NEW for disease head)",
+    )
+    parser.add_argument(
+        "--disease-baseline-aggregation",
+        choices=["max", "mean"],
+        default="max",
+        help=(
+            "Aggregation rule for deriving disease-level scores from the vaccine "
+            "head when computing the non-inferiority baseline"
+        ),
     )
     parser.add_argument(
         "--gamma-mech",
