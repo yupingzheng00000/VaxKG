@@ -198,8 +198,10 @@ python train_ranker.py \
 
 The `train_disease_ranker.py` script extends the original model with a disease→adjuvant
 head, enabling both vaccine-based and disease-based adjuvant recommendations.
-It also materialises the vaccine-head **disease baseline** that is used for
-non-inferiority/equivalence analysis via the `--disease-baseline-aggregation`
+It now optimises an ApproxNDCG surrogate over the top-K adjuvants for each disease
+while retaining a lightly weighted ListNet term (0.2 by default) for optimisation
+stability. The run also materialises the vaccine-head **disease baseline** that is
+used for non-inferiority/equivalence analysis via the `--disease-baseline-aggregation`
 flag (default: `max`, alternative: `mean`).
 
 ```bash
@@ -220,6 +222,10 @@ python train_disease_ranker.py \
 
 **Key parameters for disease head:**
 - `--lambda-disease`: Weight for disease→adjuvant ranking loss (default: 1.0)
+- `--disease-ndcg-weight`: Multiplier on the ApproxNDCG surrogate (default: 1.0)
+- `--disease-listnet-weight`: Retained ListNet stabiliser weight (default: 0.2)
+- `--disease-ndcg-topk`: Number of adjuvants contributing to ApproxNDCG (default: 50)
+- `--disease-ndcg-tau`: Temperature of the sigmoid rank approximation (default: 1.0)
 - `--disease-batch-size`: Number of disease queries per epoch (default: 32)
 - `--gamma-mech`: Weight for mechanism-aware compatibility scoring (default: 0.3)
 - `--split-scheme`: Choose 'transductive', 'inductive', or 'both'

@@ -46,7 +46,7 @@ from disease_head_utils import (
     load_disease_positives,
     sample_disease_batch,
     build_vo_class_lookup,
-    listnet_loss_disease,
+    disease_ranking_losses,
 )
 
 try:
@@ -1773,35 +1773,42 @@ def train_one_split(
         # NEW: Disease batch sampling and training (inline after vaccine batches)
         if args.lambda_disease > 0 and train_diseases:
             # Sample one disease batch per epoch
-            from src.disease_head_utils import sample_disease_batch, listnet_loss_disease
             disease_batch = sample_disease_batch(
-                train_diseases, 
+                train_diseases,
                 disease_positives_lookup=disease_positives_lookup,
                 all_adjuvant_indices=list(candidate_ids),
                 batch_size=min(args.disease_batch_size, len(train_diseases)),
                 max_positives=args.list_size,
                 num_negatives=args.list_size
             )
-            
+
             # Compute disease head loss
             optimizer.zero_grad()
             embeddings = model(train_graph_device)
-            
-            # Disease→adjuvant ranking loss using ListNet
-            rank_loss_dis = listnet_loss_disease(
+
+            ndcg_topk = (
+                args.disease_ndcg_topk if args.disease_ndcg_topk > 0 else None
+            )
+            ndcg_loss_dis, listnet_loss_dis = disease_ranking_losses(
                 embeddings,
                 disease_batch,
-                ranking_head,  # DualRanker instance with score_dis() method
-                device
+                ranking_head,
+                device,
+                ndcg_tau=args.disease_ndcg_tau,
+                ndcg_topk=ndcg_topk,
             )
-            
+
+            rank_loss_dis = (
+                args.disease_ndcg_weight * ndcg_loss_dis
+                + args.disease_listnet_weight * listnet_loss_dis
+            )
             loss_dis = args.lambda_disease * rank_loss_dis
-            if loss_dis.item() > 0:
+            if loss_dis.requires_grad:
                 loss_dis.backward()
                 if args.clip_grad > 0:
                     torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip_grad)
                 optimizer.step()
-                
+
                 total_loss += loss_dis.item()
                 total_rank_dis += rank_loss_dis.item()
 
@@ -2122,6 +2129,30 @@ def parse_args() -> argparse.Namespace:
         type=float,
         default=1.0,
         help="Weight for the disease→adjuvant ranking loss (NEW for disease head)",
+    )
+    parser.add_argument(
+        "--disease-ndcg-weight",
+        type=float,
+        default=1.0,
+        help="Weight applied to the ApproxNDCG surrogate in the disease head loss",
+    )
+    parser.add_argument(
+        "--disease-listnet-weight",
+        type=float,
+        default=0.2,
+        help="Stability weight for the legacy ListNet disease loss component",
+    )
+    parser.add_argument(
+        "--disease-ndcg-topk",
+        type=int,
+        default=50,
+        help="Number of top-scoring adjuvants per disease used in the ApproxNDCG loss",
+    )
+    parser.add_argument(
+        "--disease-ndcg-tau",
+        type=float,
+        default=1.0,
+        help="Temperature for the sigmoid approximation of ranks in ApproxNDCG",
     )
     parser.add_argument(
         "--disease-baseline-aggregation",
