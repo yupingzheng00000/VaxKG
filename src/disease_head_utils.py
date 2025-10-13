@@ -251,7 +251,10 @@ def _approx_ndcg_loss(scores: Tensor, gains: Tensor, tau: float = 1.0) -> Tensor
     # rank_i ≈ 1 + Σ_j sigmoid((s_j - s_i) / τ)
     diff = (scores.unsqueeze(0) - scores.unsqueeze(1)) / tau
     pairwise = torch.sigmoid(diff)
-    pairwise.fill_diagonal_(0.0)
+    mask = torch.ones_like(pairwise) - torch.eye(
+        pairwise.size(0), device=pairwise.device, dtype=pairwise.dtype
+    )
+    pairwise = pairwise * mask
     approx_rank = 1.0 + pairwise.sum(dim=1)
 
     discounts = torch.log2(approx_rank + 1.0).reciprocal()
