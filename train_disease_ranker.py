@@ -23,7 +23,6 @@ training on larger graphs.
 from __future__ import annotations
 
 import argparse
-import copy
 import hashlib
 import json
 import math
@@ -1804,6 +1803,7 @@ def train_one_split(
     results: Dict[str, Dict[str, float]] = {}
     best_val = -float("inf")
     best_state: Optional[Dict[str, Tensor]] = None
+    best_ranking_state: Optional[Dict[str, Tensor]] = None
     patience_counter = 0
 
     for epoch in range(1, args.epochs + 1):
@@ -1921,35 +1921,55 @@ def train_one_split(
         if score > best_val:
             best_val = score
             patience_counter = 0
-            best_state = copy.deepcopy(model.state_dict())
+            best_state = {
+                key: value.detach().cpu()
+                for key, value in model.state_dict().items()
+            }
+            best_ranking_state = {
+                key: value.detach().cpu()
+                for key, value in ranking_head.state_dict().items()
+            }
         else:
             patience_counter += 1
             if patience_counter >= args.patience:
                 print("Early stopping triggered")
                 break
 
-    if best_state is not None:
+    if best_state is None:
+        best_state = {
+            key: value.detach().cpu()
+            for key, value in model.state_dict().items()
+        }
+    else:
         model.load_state_dict(best_state)
-        checkpoint_dir = args.output_dir / "checkpoints"
-        checkpoint_dir.mkdir(parents=True, exist_ok=True)
-        checkpoint_path = checkpoint_dir / f"{scheme}_best.pt"
-        cpu_state = {key: tensor.cpu() for key, tensor in best_state.items()}
-        ranking_state = {
-            key: value.cpu()
+
+    if best_ranking_state is None:
+        best_ranking_state = {
+            key: value.detach().cpu()
             for key, value in ranking_head.state_dict().items()
         }
-        torch.save(
-            {
-                "state_dict": cpu_state,
-                "ranking_head_state_dict": ranking_state,
-                "metadata": graph.metadata(),
-                "mappings": mappings,
-                "args": vars(args),
-                "split": scheme,
-            },
-            checkpoint_path,
-        )
-        print(f"Saved best checkpoint to {checkpoint_path}")
+    else:
+        ranking_head.load_state_dict(best_ranking_state)
+
+    checkpoint_dir = args.output_dir / "checkpoints"
+    checkpoint_dir.mkdir(parents=True, exist_ok=True)
+    checkpoint_path = checkpoint_dir / f"{scheme}_best.pt"
+    cpu_state = {key: tensor.cpu() for key, tensor in best_state.items()}
+    ranking_state = {
+        key: value.cpu() for key, value in best_ranking_state.items()
+    }
+    torch.save(
+        {
+            "state_dict": cpu_state,
+            "ranking_head_state_dict": ranking_state,
+            "metadata": graph.metadata(),
+            "mappings": mappings,
+            "args": vars(args),
+            "split": scheme,
+        },
+        checkpoint_path,
+    )
+    print(f"Saved best checkpoint to {checkpoint_path}")
 
     model.eval()
     with torch.no_grad():
