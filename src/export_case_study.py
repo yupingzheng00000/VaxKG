@@ -7,12 +7,13 @@ import json
 import math
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Mapping, MutableMapping, Optional, Sequence, Tuple
+from typing import Dict, List, Mapping, MutableMapping, Optional, Sequence, Tuple, Union
 
 import numpy as np
 import pandas as pd
 import torch
-from torch import Tensor
+import torch.nn.functional as F
+from torch import Tensor, nn
 
 from train_disease_ranker import (  # type: ignore
     DEFAULT_TEXT_ENCODER_MAX_LENGTHS,
@@ -42,6 +43,50 @@ class ReliabilityBin:
     confidence: float
     precision: float
     count: int
+
+
+class LegacyListNetRanker(nn.Module):
+    """Dot-product ranking head used by the original ``train_ranker.py`` script."""
+
+    def __init__(self) -> None:
+        super().__init__()
+
+    @staticmethod
+    def _dot_product(query: Tensor, candidates: Tensor) -> Tensor:
+        if query.dim() == 2 and candidates.dim() == 3:
+            expanded = query.unsqueeze(1).expand_as(candidates)
+            return (expanded * candidates).sum(dim=-1)
+        return (query * candidates).sum(dim=-1)
+
+    def score_vax(self, h_vax: Tensor, h_adj: Tensor) -> Tensor:
+        return self._dot_product(h_vax, h_adj)
+
+    def score_dis(
+        self, h_dis: Tensor, h_adj: Tensor, mech_vec: Optional[Tensor] = None
+    ) -> Tensor:
+        del mech_vec  # Legacy head ignores mechanism cues entirely.
+        return self._dot_product(h_dis, h_adj)
+
+    def forward(
+        self,
+        embeddings: Mapping[str, Tensor],
+        vaccine_indices: Tensor,
+        candidate_indices: Tensor,
+        relevance: Tensor,
+    ) -> Tuple[Tensor, Tensor]:
+        vaccine_repr = embeddings["vaccine"][vaccine_indices]
+        adjuvant_repr = embeddings["adjuvant"][candidate_indices]
+        scores = self.score_vax(vaccine_repr, adjuvant_repr)
+
+        positive_mask = (relevance > 0).float()
+        positive_mass = positive_mask.sum(dim=1, keepdim=True).clamp_min(1e-9)
+        target_distribution = positive_mask / positive_mass
+        log_probs = F.log_softmax(scores, dim=1)
+        loss = -(target_distribution * log_probs).sum(dim=1).mean()
+        return loss, scores
+
+
+RankerModule = Union[DualRanker, LegacyListNetRanker]
 
 
 def parse_args() -> argparse.Namespace:
@@ -175,11 +220,43 @@ def _prepare_text_encoder(ckpt_args: Mapping[str, object], device: torch.device)
 
 def _load_checkpoint(path: Path) -> MutableMapping[str, object]:
     checkpoint = torch.load(path, map_location="cpu")
-    required_keys = {"state_dict", "ranking_head_state_dict", "args"}
+
+    # Backwards compatibility for checkpoints produced before DualRanker support.
+    # Older files bundled every parameter under ``state_dict`` (including the
+    # ranking head) or stored the model weights under ``model_state_dict``.
+    if "state_dict" not in checkpoint and "model_state_dict" in checkpoint:
+        checkpoint["state_dict"] = checkpoint.pop("model_state_dict")
+
+    if "ranking_head_state_dict" not in checkpoint:
+        state = checkpoint.get("state_dict")
+        if isinstance(state, Mapping):
+            prefix = "ranking_head."
+            ranking_keys = [key for key in state if key.startswith(prefix)]
+            if ranking_keys:
+                checkpoint["ranking_head_state_dict"] = {
+                    key[len(prefix) :]: state[key]
+                    for key in ranking_keys
+                }
+                for key in ranking_keys:
+                    del state[key]
+
+    legacy_head = "ranking_head_state_dict" not in checkpoint
+    checkpoint["_legacy_listnet_head"] = legacy_head
+
+    required_keys = {"state_dict", "args"}
     missing = required_keys - checkpoint.keys()
     if missing:
         missing_str = ", ".join(sorted(missing))
-        raise KeyError(f"Checkpoint at {path} is missing required keys: {missing_str}")
+        raise KeyError(
+            "Checkpoint at "
+            f"{path} is missing required keys: {missing_str}. "
+            "The file was likely produced by an outdated training script."
+        )
+    if not legacy_head and "ranking_head_state_dict" not in checkpoint:
+        raise KeyError(
+            "Checkpoint at "
+            f"{path} is missing 'ranking_head_state_dict' despite recovery attempts."
+        )
     return checkpoint
 
 
@@ -188,7 +265,7 @@ def _build_model(
     ckpt_args: Mapping[str, object],
     checkpoint: Mapping[str, object],
     device: torch.device,
-) -> Tuple[PyGHeteroEncoder, DualRanker, Optional[Tensor]]:
+) -> Tuple[PyGHeteroEncoder, RankerModule, Optional[Tensor]]:
     node_feat_dims = {nt: graph[nt].x.size(1) for nt in graph.node_types}
     model = PyGHeteroEncoder(
         node_feat_dims,
@@ -208,12 +285,20 @@ def _build_model(
     mech_dim = int(structured.size(1)) if isinstance(structured, Tensor) else 0
     use_mech = bool(ckpt_args.get("enable_disease_mechanism_cues", False)) and mech_dim > 0
     mech_in_dim = mech_dim if use_mech else None
-    ranking_head = DualRanker(
-        int(ckpt_args.get("hidden_dim", 128)),
-        mech_in_dim,
-        float(ckpt_args.get("gamma_mech", 0.3)),
-    )
-    ranking_head.load_state_dict(checkpoint["ranking_head_state_dict"])
+    legacy_head = bool(checkpoint.get("_legacy_listnet_head", False))
+    if legacy_head:
+        print(
+            "Warning: checkpoint lacks a dedicated ranking head; using legacy "
+            "dot-product scores (disease ranking quality may degrade)."
+        )
+        ranking_head: RankerModule = LegacyListNetRanker()
+    else:
+        ranking_head = DualRanker(
+            int(ckpt_args.get("hidden_dim", 128)),
+            mech_in_dim,
+            float(ckpt_args.get("gamma_mech", 0.3)),
+        )
+        ranking_head.load_state_dict(checkpoint["ranking_head_state_dict"])
     ranking_head = ranking_head.to(device)
     ranking_head.eval()
 
@@ -228,7 +313,7 @@ def _score_disease(
     disease_idx: int,
     candidate_ids: Sequence[int],
     model: PyGHeteroEncoder,
-    ranking_head: DualRanker,
+    ranking_head: RankerModule,
     graph: "HeteroData",
     adjuvant_mechanism: Optional[Tensor],
     device: torch.device,
