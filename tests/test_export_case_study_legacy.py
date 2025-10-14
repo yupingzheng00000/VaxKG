@@ -19,6 +19,8 @@ if str(SRC_DIR) not in sys.path:
 
 import export_case_study as ecs  # noqa: E402
 
+np = ecs.np
+
 
 class DummyGraph:
     """Minimal stand-in for the PyG HeteroData object."""
@@ -116,3 +118,89 @@ def test_dual_ranker_checkpoint_without_head_errors(tmp_path):
     message = str(err.value)
     assert "train_disease_ranker.py" in message
     assert "ranking_head_state_dict" in message
+
+
+def test_compute_reliability_quantile_and_equal_width():
+    scores = np.array([0.0, 1.0, 2.0, 3.0], dtype=float)
+    candidate_ids = [0, 1, 2, 3]
+    positives = [0, 2]
+
+    quantile_bins, quantile_ece, mode = ecs._compute_reliability(
+        scores,
+        candidate_ids,
+        positives,
+        bins=2,
+        normalisation="minmax",
+        binning="quantile",
+    )
+    assert mode == "quantile"
+    assert [bin.count for bin in quantile_bins] == [2, 2]
+    assert pytest.approx(quantile_ece, rel=1e-4) == 1 / 3
+
+    width_bins, width_ece, mode_width = ecs._compute_reliability(
+        scores,
+        candidate_ids,
+        positives,
+        bins=2,
+        normalisation="minmax",
+        binning="equal_width",
+    )
+    assert mode_width == "equal_width"
+    assert [bin.count for bin in width_bins] == [2, 2]
+    assert pytest.approx(width_ece, rel=1e-4) == pytest.approx(quantile_ece)
+
+
+def test_compute_reliability_quantile_fallback():
+    scores = np.array([0.5, 0.5, 0.5], dtype=float)
+    candidate_ids = [0, 1, 2]
+    positives = [1]
+
+    bins, ece, mode = ecs._compute_reliability(
+        scores,
+        candidate_ids,
+        positives,
+        bins=3,
+        normalisation="minmax",
+        binning="quantile",
+    )
+    assert mode == "equal_width"
+    assert sum(bin.count for bin in bins) == len(scores)
+    assert ece == pytest.approx(0.0)
+
+
+def test_compute_run_metrics_enrichments():
+    scores = np.array([0.9, 0.8, 0.2, 0.1], dtype=float)
+    candidate_ids = [0, 1, 2, 3]
+    order = np.array([0, 1, 2, 3], dtype=int)
+    rank_map = {candidate_ids[idx]: idx + 1 for idx in range(len(candidate_ids))}
+    run = ecs.RunOutputs(label="primary", scores=scores, order=order, rank_map=rank_map)
+
+    positives = [0, 2]
+    gains = {0: 1.0, 2: 1.0}
+    adjuvant_mapping = {idx: f"A{idx}" for idx in candidate_ids}
+    display_lookup = {f"A{idx}": f"Adj {idx}" for idx in candidate_ids}
+    class_lookup = {f"A{idx}": f"cls{idx}" for idx in candidate_ids}
+
+    metrics = ecs._compute_run_metrics(
+        run,
+        candidate_ids,
+        positives,
+        gains,
+        topk=(1, 3),
+        curve_k=4,
+        reliability_bins=2,
+        normalisation="minmax",
+        reliability_binning="equal_width",
+        adjuvant_mapping=adjuvant_mapping,
+        display_lookup=display_lookup,
+        class_lookup=class_lookup,
+    )
+
+    assert metrics["first_hit_rank"] == 1
+    assert metrics["mrr"] == pytest.approx(1.0)
+    assert metrics["reliability"]["mode"] == "equal_width"
+    assert len(metrics["ndcg_curve_k"]) == 4
+    assert metrics["topk_list"][0]["adjuvant_id"] == "A0"
+    assert metrics["topk_list"][0]["relevance_binary"] == 1
+    assert metrics["topk_list"][1]["relevance_binary"] == 0
+    assert metrics["random_recall_multiplier"]["3"] == pytest.approx(4 / 3)
