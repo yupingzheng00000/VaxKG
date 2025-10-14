@@ -7,7 +7,7 @@ import json
 import math
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Mapping, MutableMapping, Optional, Sequence, Tuple, Union
+from typing import Dict, Iterable, List, Mapping, MutableMapping, Optional, Sequence, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -218,6 +218,21 @@ def _prepare_text_encoder(ckpt_args: Mapping[str, object], device: torch.device)
     return (tokenizer, model), config
 
 
+def _looks_like_dual_ranker_checkpoint(args: Mapping[str, object]) -> bool:
+    """Heuristically determine if ``train_disease_ranker.py`` produced the checkpoint."""
+
+    # The dual-ranker script introduces several disease-specific hyperparameters that
+    # never existed in the original ``train_ranker.py`` CLI.  Presence of any of these
+    # keys therefore implies the checkpoint *should* contain a dedicated ranking head.
+    dual_ranker_keys: Iterable[str] = (
+        "lambda_disease",
+        "disease_ndcg_weight",
+        "disease_listnet_weight",
+        "disease_batch_size",
+    )
+    return any(key in args for key in dual_ranker_keys)
+
+
 def _load_checkpoint(path: Path) -> MutableMapping[str, object]:
     checkpoint = torch.load(path, map_location="cpu")
 
@@ -240,9 +255,6 @@ def _load_checkpoint(path: Path) -> MutableMapping[str, object]:
                 for key in ranking_keys:
                     del state[key]
 
-    legacy_head = "ranking_head_state_dict" not in checkpoint
-    checkpoint["_legacy_listnet_head"] = legacy_head
-
     required_keys = {"state_dict", "args"}
     missing = required_keys - checkpoint.keys()
     if missing:
@@ -252,6 +264,21 @@ def _load_checkpoint(path: Path) -> MutableMapping[str, object]:
             f"{path} is missing required keys: {missing_str}. "
             "The file was likely produced by an outdated training script."
         )
+    args = checkpoint.get("args", {})
+    if not isinstance(args, Mapping):
+        args = {}
+
+    legacy_head = "ranking_head_state_dict" not in checkpoint
+    if legacy_head and _looks_like_dual_ranker_checkpoint(args):
+        raise KeyError(
+            "Checkpoint at "
+            f"{path} was produced by train_disease_ranker.py but is missing "
+            "'ranking_head_state_dict'. The run likely failed before saving the "
+            "disease head; please re-train to generate a complete checkpoint."
+        )
+
+    checkpoint["_legacy_listnet_head"] = legacy_head
+
     if not legacy_head and "ranking_head_state_dict" not in checkpoint:
         raise KeyError(
             "Checkpoint at "

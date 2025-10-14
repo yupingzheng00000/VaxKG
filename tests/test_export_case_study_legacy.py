@@ -96,3 +96,23 @@ def test_legacy_checkpoint_falls_back_to_dot_product(monkeypatch, tmp_path, caps
     assert isinstance(model, DummyEncoder)
     assert model.state_loaded is True
     assert adjuvant_mechanism is None
+
+
+def test_dual_ranker_checkpoint_without_head_errors(tmp_path):
+    """Modern checkpoints should refuse to load if the ranking head is missing."""
+
+    ckpt_path = tmp_path / "broken.pt"
+    dual_args = {
+        "data_path": "dummy.csv",
+        "hidden_dim": 8,
+        "lambda_disease": 0.5,
+        "disease_ndcg_weight": 1.0,
+    }
+    torch.save({"state_dict": {}, "args": dual_args}, ckpt_path)
+
+    with pytest.raises(KeyError) as err:
+        ecs._load_checkpoint(ckpt_path)
+
+    message = str(err.value)
+    assert "train_disease_ranker.py" in message
+    assert "ranking_head_state_dict" in message
