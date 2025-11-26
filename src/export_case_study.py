@@ -7,12 +7,13 @@ import json
 import math
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Mapping, MutableMapping, Optional, Sequence, Tuple
+from typing import Dict, Iterable, List, Mapping, MutableMapping, Optional, Sequence, Tuple, Union
 
 import numpy as np
 import pandas as pd
 import torch
-from torch import Tensor
+import torch.nn.functional as F
+from torch import Tensor, nn
 
 from train_disease_ranker import (  # type: ignore
     DEFAULT_TEXT_ENCODER_MAX_LENGTHS,
@@ -42,6 +43,50 @@ class ReliabilityBin:
     confidence: float
     precision: float
     count: int
+
+
+class LegacyListNetRanker(nn.Module):
+    """Dot-product ranking head used by the original ``train_ranker.py`` script."""
+
+    def __init__(self) -> None:
+        super().__init__()
+
+    @staticmethod
+    def _dot_product(query: Tensor, candidates: Tensor) -> Tensor:
+        if query.dim() == 2 and candidates.dim() == 3:
+            expanded = query.unsqueeze(1).expand_as(candidates)
+            return (expanded * candidates).sum(dim=-1)
+        return (query * candidates).sum(dim=-1)
+
+    def score_vax(self, h_vax: Tensor, h_adj: Tensor) -> Tensor:
+        return self._dot_product(h_vax, h_adj)
+
+    def score_dis(
+        self, h_dis: Tensor, h_adj: Tensor, mech_vec: Optional[Tensor] = None
+    ) -> Tensor:
+        del mech_vec  # Legacy head ignores mechanism cues entirely.
+        return self._dot_product(h_dis, h_adj)
+
+    def forward(
+        self,
+        embeddings: Mapping[str, Tensor],
+        vaccine_indices: Tensor,
+        candidate_indices: Tensor,
+        relevance: Tensor,
+    ) -> Tuple[Tensor, Tensor]:
+        vaccine_repr = embeddings["vaccine"][vaccine_indices]
+        adjuvant_repr = embeddings["adjuvant"][candidate_indices]
+        scores = self.score_vax(vaccine_repr, adjuvant_repr)
+
+        positive_mask = (relevance > 0).float()
+        positive_mass = positive_mask.sum(dim=1, keepdim=True).clamp_min(1e-9)
+        target_distribution = positive_mask / positive_mass
+        log_probs = F.log_softmax(scores, dim=1)
+        loss = -(target_distribution * log_probs).sum(dim=1).mean()
+        return loss, scores
+
+
+RankerModule = Union[DualRanker, LegacyListNetRanker]
 
 
 def parse_args() -> argparse.Namespace:
@@ -113,7 +158,16 @@ def parse_args() -> argparse.Namespace:
         "--reliability-bins",
         type=int,
         default=10,
-        help="Number of equal-width bins for the reliability diagram.",
+        help="Number of bins for the reliability diagram.",
+    )
+    parser.add_argument(
+        "--reliability-binning",
+        choices=("equal_width", "quantile"),
+        default="equal_width",
+        help=(
+            "Binning strategy for reliability diagram: equal-width score intervals or "
+            "quantile bins with comparable sample counts."
+        ),
     )
     parser.add_argument(
         "--score-normalization",
@@ -173,13 +227,72 @@ def _prepare_text_encoder(ckpt_args: Mapping[str, object], device: torch.device)
     return (tokenizer, model), config
 
 
+def _looks_like_dual_ranker_checkpoint(args: Mapping[str, object]) -> bool:
+    """Heuristically determine if ``train_disease_ranker.py`` produced the checkpoint."""
+
+    # The dual-ranker script introduces several disease-specific hyperparameters that
+    # never existed in the original ``train_ranker.py`` CLI.  Presence of any of these
+    # keys therefore implies the checkpoint *should* contain a dedicated ranking head.
+    dual_ranker_keys: Iterable[str] = (
+        "lambda_disease",
+        "disease_ndcg_weight",
+        "disease_listnet_weight",
+        "disease_batch_size",
+    )
+    return any(key in args for key in dual_ranker_keys)
+
+
 def _load_checkpoint(path: Path) -> MutableMapping[str, object]:
     checkpoint = torch.load(path, map_location="cpu")
-    required_keys = {"state_dict", "ranking_head_state_dict", "args"}
+
+    # Backwards compatibility for checkpoints produced before DualRanker support.
+    # Older files bundled every parameter under ``state_dict`` (including the
+    # ranking head) or stored the model weights under ``model_state_dict``.
+    if "state_dict" not in checkpoint and "model_state_dict" in checkpoint:
+        checkpoint["state_dict"] = checkpoint.pop("model_state_dict")
+
+    if "ranking_head_state_dict" not in checkpoint:
+        state = checkpoint.get("state_dict")
+        if isinstance(state, Mapping):
+            prefix = "ranking_head."
+            ranking_keys = [key for key in state if key.startswith(prefix)]
+            if ranking_keys:
+                checkpoint["ranking_head_state_dict"] = {
+                    key[len(prefix) :]: state[key]
+                    for key in ranking_keys
+                }
+                for key in ranking_keys:
+                    del state[key]
+
+    required_keys = {"state_dict", "args"}
     missing = required_keys - checkpoint.keys()
     if missing:
         missing_str = ", ".join(sorted(missing))
-        raise KeyError(f"Checkpoint at {path} is missing required keys: {missing_str}")
+        raise KeyError(
+            "Checkpoint at "
+            f"{path} is missing required keys: {missing_str}. "
+            "The file was likely produced by an outdated training script."
+        )
+    args = checkpoint.get("args", {})
+    if not isinstance(args, Mapping):
+        args = {}
+
+    legacy_head = "ranking_head_state_dict" not in checkpoint
+    if legacy_head and _looks_like_dual_ranker_checkpoint(args):
+        raise KeyError(
+            "Checkpoint at "
+            f"{path} was produced by train_disease_ranker.py but is missing "
+            "'ranking_head_state_dict'. The run likely failed before saving the "
+            "disease head; please re-train to generate a complete checkpoint."
+        )
+
+    checkpoint["_legacy_listnet_head"] = legacy_head
+
+    if not legacy_head and "ranking_head_state_dict" not in checkpoint:
+        raise KeyError(
+            "Checkpoint at "
+            f"{path} is missing 'ranking_head_state_dict' despite recovery attempts."
+        )
     return checkpoint
 
 
@@ -188,7 +301,7 @@ def _build_model(
     ckpt_args: Mapping[str, object],
     checkpoint: Mapping[str, object],
     device: torch.device,
-) -> Tuple[PyGHeteroEncoder, DualRanker, Optional[Tensor]]:
+) -> Tuple[PyGHeteroEncoder, RankerModule, Optional[Tensor]]:
     node_feat_dims = {nt: graph[nt].x.size(1) for nt in graph.node_types}
     model = PyGHeteroEncoder(
         node_feat_dims,
@@ -208,12 +321,20 @@ def _build_model(
     mech_dim = int(structured.size(1)) if isinstance(structured, Tensor) else 0
     use_mech = bool(ckpt_args.get("enable_disease_mechanism_cues", False)) and mech_dim > 0
     mech_in_dim = mech_dim if use_mech else None
-    ranking_head = DualRanker(
-        int(ckpt_args.get("hidden_dim", 128)),
-        mech_in_dim,
-        float(ckpt_args.get("gamma_mech", 0.3)),
-    )
-    ranking_head.load_state_dict(checkpoint["ranking_head_state_dict"])
+    legacy_head = bool(checkpoint.get("_legacy_listnet_head", False))
+    if legacy_head:
+        print(
+            "Warning: checkpoint lacks a dedicated ranking head; using legacy "
+            "dot-product scores (disease ranking quality may degrade)."
+        )
+        ranking_head: RankerModule = LegacyListNetRanker()
+    else:
+        ranking_head = DualRanker(
+            int(ckpt_args.get("hidden_dim", 128)),
+            mech_in_dim,
+            float(ckpt_args.get("gamma_mech", 0.3)),
+        )
+        ranking_head.load_state_dict(checkpoint["ranking_head_state_dict"])
     ranking_head = ranking_head.to(device)
     ranking_head.eval()
 
@@ -228,7 +349,7 @@ def _score_disease(
     disease_idx: int,
     candidate_ids: Sequence[int],
     model: PyGHeteroEncoder,
-    ranking_head: DualRanker,
+    ranking_head: RankerModule,
     graph: "HeteroData",
     adjuvant_mechanism: Optional[Tensor],
     device: torch.device,
@@ -288,9 +409,10 @@ def _compute_reliability(
     positives: Sequence[int],
     bins: int,
     normalisation: str,
-) -> Tuple[List[ReliabilityBin], float]:
+    binning: str,
+) -> Tuple[List[ReliabilityBin], float, str]:
     if bins <= 0 or scores.size == 0:
-        return [], 0.0
+        return [], 0.0, "equal_width"
 
     if normalisation == "sigmoid":
         norm_scores = 1.0 / (1.0 + np.exp(-scores))
@@ -306,7 +428,18 @@ def _compute_reliability(
     counts = np.zeros(bins, dtype=int)
     confs = np.zeros(bins, dtype=float)
     precs = np.zeros(bins, dtype=float)
-    edges = np.linspace(0.0, 1.0, bins + 1)
+    applied_mode = "equal_width" if binning != "quantile" else "quantile"
+    if binning == "quantile" and scores.size >= 2 and bins > 1:
+        quantiles = np.linspace(0.0, 1.0, bins + 1)
+        edges = np.quantile(norm_scores, quantiles)
+        edges[0] = float(norm_scores.min())
+        edges[-1] = float(norm_scores.max())
+        if np.any(np.diff(edges) <= 1e-8):
+            edges = np.linspace(0.0, 1.0, bins + 1)
+            applied_mode = "equal_width"
+    else:
+        edges = np.linspace(0.0, 1.0, bins + 1)
+        applied_mode = "equal_width"
     bin_indices = np.digitize(norm_scores, edges, right=False) - 1
     bin_indices = np.clip(bin_indices, 0, bins - 1)
 
@@ -340,7 +473,7 @@ def _compute_reliability(
             )
         )
         ece += (count / total) * abs(precision - confidence)
-    return reliability, float(ece)
+    return reliability, float(ece), applied_mode
 
 
 def _compute_run_metrics(
@@ -352,6 +485,10 @@ def _compute_run_metrics(
     curve_k: int,
     reliability_bins: int,
     normalisation: str,
+    reliability_binning: str,
+    adjuvant_mapping: Mapping[int, str],
+    display_lookup: Mapping[str, str],
+    class_lookup: Mapping[str, str],
 ) -> Dict[str, object]:
     ranked_indices = [int(candidate_ids[i]) for i in run.order]
     metrics: Dict[str, object] = {
@@ -360,7 +497,13 @@ def _compute_run_metrics(
         "num_positives": len(positives),
     }
 
+    score_lookup = {
+        int(candidate_ids[i]): float(run.scores[i]) for i in range(len(candidate_ids))
+    }
+    positives_set = set(positives)
+
     per_k: Dict[str, Dict[str, float]] = {}
+    random_multipliers: Dict[str, Optional[float]] = {}
     for k in topk:
         ranked_slice = ranked_indices[:k]
         per_k[str(k)] = {
@@ -368,14 +511,18 @@ def _compute_run_metrics(
             "recall": _recall_at_k(ranked_slice, positives, k),
             "ndcg": _ndcg_at_k(ranked_slice, gains, positives, k),
         }
+        baseline = k / len(candidate_ids) if len(candidate_ids) > 0 else 0.0
+        if baseline > 0:
+            random_multipliers[str(k)] = per_k[str(k)]["recall"] / baseline
+        else:
+            random_multipliers[str(k)] = None
     metrics["topk"] = per_k
+    metrics["random_recall_multiplier"] = random_multipliers
 
     curve_limit = min(curve_k, len(candidate_ids))
-    dcg_curve = []
-    idcg_curve = []
+    dcg_curve: List[float] = []
+    idcg_curve: List[float] = []
     sorted_gains = sorted(gains.values(), reverse=True)
-    if not sorted_gains:
-        sorted_gains = []
     cumulative_dcg = 0.0
     for idx, candidate in enumerate(ranked_indices[:curve_limit], start=1):
         cumulative_dcg += float(gains.get(candidate, 0.0)) / math.log2(idx + 1)
@@ -387,29 +534,62 @@ def _compute_run_metrics(
         idcg_curve.append(cumulative_idcg)
     metrics["dcg_curve"] = dcg_curve
     metrics["idcg_curve"] = idcg_curve
-    ndcg_at_curve = _ndcg_value(cumulative_dcg, cumulative_idcg)
-    metrics["ndcg@curve_k"] = ndcg_at_curve
+    metrics["ndcg@curve_k"] = _ndcg_value(cumulative_dcg, cumulative_idcg)
+    metrics["ndcg_curve_k"] = [
+        _ndcg_value(dcg_curve[i], idcg_curve[i]) if idcg_curve[i] > 0 else 0.0
+        for i in range(len(dcg_curve))
+    ]
 
-    reliability, ece = _compute_reliability(
+    reliability, ece, applied_binning = _compute_reliability(
         run.scores,
         candidate_ids,
         positives,
         reliability_bins,
         normalisation,
+        reliability_binning,
     )
     metrics["ece"] = ece
-    metrics["reliability_bins"] = [
-        {
-            "lower": bin.lower,
-            "upper": bin.upper,
-            "confidence": bin.confidence,
-            "precision": bin.precision,
-            "count": bin.count,
-        }
-        for bin in reliability
-    ]
-    return metrics
+    metrics["reliability"] = {
+        "mode": applied_binning,
+        "bins": [
+            {
+                "lower": bin.lower,
+                "upper": bin.upper,
+                "confidence": bin.confidence,
+                "precision": bin.precision,
+                "count": bin.count,
+            }
+            for bin in reliability
+        ],
+    }
+    metrics["reliability_bins"] = metrics["reliability"]["bins"]
 
+    first_hit_rank: Optional[int] = None
+    if positives_set:
+        ranks = [run.rank_map.get(pos) for pos in positives_set if pos in run.rank_map]
+        if ranks:
+            first_hit_rank = min(ranks)
+    metrics["first_hit_rank"] = first_hit_rank
+    metrics["mrr"] = (1.0 / first_hit_rank) if first_hit_rank is not None else 0.0
+
+    top_list_limit = min(10, len(ranked_indices))
+    topk_list: List[Dict[str, object]] = []
+    for candidate in ranked_indices[:top_list_limit]:
+        adjuvant_id = adjuvant_mapping.get(candidate, str(candidate))
+        adjuvant_str = str(adjuvant_id)
+        topk_list.append(
+            {
+                "adjuvant_id": adjuvant_str,
+                "adjuvant_label": display_lookup.get(adjuvant_str, adjuvant_str),
+                "score": score_lookup.get(candidate),
+                "relevance_binary": int(candidate in positives_set),
+                "relevance_gain": float(gains.get(candidate, 0.0)),
+                "adjuvant_class": class_lookup.get(adjuvant_str, "unknown"),
+            }
+        )
+    metrics["topk_list"] = topk_list
+
+    return metrics
 
 def _ndcg_value(dcg: float, idcg: float) -> float:
     if idcg <= 0.0:
@@ -622,6 +802,7 @@ def main() -> None:
         "num_candidates": len(candidate_list),
         "num_positives": len(positive_indices),
         "runs": {},
+        "reliability_binning": args.reliability_binning,
     }
     for run in runs:
         metrics_summary["runs"][run.label] = _compute_run_metrics(
@@ -633,6 +814,10 @@ def main() -> None:
             int(args.curve_topk),
             int(args.reliability_bins),
             args.score_normalization,
+            args.reliability_binning,
+            adjuvant_mapping,
+            display_lookup,
+            class_lookup,
         )
 
     if comparison_data is not None:
