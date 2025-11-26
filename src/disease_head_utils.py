@@ -283,6 +283,7 @@ def disease_ranking_losses(
     *,
     ndcg_tau: float = 1.0,
     ndcg_topk: Optional[int] = None,
+    adjuvant_mechanism: Optional[Tensor] = None,
 ) -> Tuple[Tensor, Tensor]:
     """Compute ApproxNDCG and ListNet losses for a disease batch."""
 
@@ -306,7 +307,10 @@ def disease_ranking_losses(
         h_dis = embeddings["disease"][d_idx].unsqueeze(0)
         h_adj = embeddings["adjuvant"][candidate_indices].unsqueeze(0)
 
-        scores = dual_ranker.score_dis(h_dis, h_adj).squeeze(0)
+        mech_vec = None
+        if adjuvant_mechanism is not None and adjuvant_mechanism.numel() > 0:
+            mech_vec = adjuvant_mechanism[candidate_indices].unsqueeze(0)
+        scores = dual_ranker.score_dis(h_dis, h_adj, mech_vec).squeeze(0)
         num_candidates = scores.numel()
         num_pos = len(pos_indices)
 
@@ -358,6 +362,7 @@ def listnet_loss_disease(
     disease_batch: Sequence[Dict[str, object]],
     dual_ranker: torch.nn.Module,
     device: torch.device,
+    adjuvant_mechanism: Optional[Tensor] = None,
 ) -> Tensor:
     """Backward-compatible wrapper returning only the ListNet loss."""
 
@@ -368,5 +373,6 @@ def listnet_loss_disease(
         device,
         ndcg_tau=1.0,
         ndcg_topk=0,
+        adjuvant_mechanism=adjuvant_mechanism,
     )
     return listnet_loss
