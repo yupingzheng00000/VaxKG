@@ -14,6 +14,7 @@ from typing import Dict, List, Mapping, Optional, Sequence, Set, Tuple
 import pandas as pd
 import torch
 from torch import Tensor
+import torch.nn.functional as F
 
 
 def load_disease_positives(
@@ -240,57 +241,138 @@ def build_vo_class_lookup(
     return vo_class_lookup
 
 
+def _approx_ndcg_loss(scores: Tensor, gains: Tensor, tau: float = 1.0) -> Tensor:
+    """Return ``1 - ApproxNDCG`` for the provided ``scores`` and ``gains``."""
+
+    if gains.sum() <= 0:
+        return scores.new_zeros(())
+
+    # Pairwise sigmoid approximation of the rank ("soft" rank)
+    # rank_i ≈ 1 + Σ_j sigmoid((s_j - s_i) / τ)
+    diff = (scores.unsqueeze(0) - scores.unsqueeze(1)) / tau
+    pairwise = torch.sigmoid(diff)
+    mask = torch.ones_like(pairwise) - torch.eye(
+        pairwise.size(0), device=pairwise.device, dtype=pairwise.dtype
+    )
+    pairwise = pairwise * mask
+    approx_rank = 1.0 + pairwise.sum(dim=1)
+
+    discounts = torch.log2(approx_rank + 1.0).reciprocal()
+    approx_dcg = (gains * discounts).sum()
+
+    # Ideal DCG computed on sorted gains for the same slate length
+    ideal_gains = torch.sort(gains, descending=True).values
+    positions = torch.arange(
+        2, gains.numel() + 2, device=gains.device, dtype=gains.dtype
+    )
+    ideal_discounts = torch.log2(positions).reciprocal()
+    ideal_dcg = (ideal_gains * ideal_discounts).sum()
+
+    if ideal_dcg.item() <= 0:
+        return scores.new_zeros(())
+
+    ndcg = approx_dcg / ideal_dcg.clamp_min(1e-9)
+    return (1.0 - ndcg).clamp_min(0.0)
+
+
+def disease_ranking_losses(
+    embeddings: Mapping[str, Tensor],
+    disease_batch: Sequence[Dict[str, object]],
+    dual_ranker: torch.nn.Module,
+    device: torch.device,
+    *,
+    ndcg_tau: float = 1.0,
+    ndcg_topk: Optional[int] = None,
+    adjuvant_mechanism: Optional[Tensor] = None,
+) -> Tuple[Tensor, Tensor]:
+    """Compute ApproxNDCG and ListNet losses for a disease batch."""
+
+    if not disease_batch:
+        zero = torch.tensor(0.0, device=device)
+        return zero, zero
+
+    ndcg_losses: List[Tensor] = []
+    listnet_losses: List[Tensor] = []
+
+    for item in disease_batch:
+        pos_indices: Sequence[int] = item["pos_indices"]
+        if not pos_indices:
+            continue
+
+        candidate_indices: List[int] = list(pos_indices) + list(item["neg_indices"])
+        if not candidate_indices:
+            continue
+
+        d_idx = int(item["disease_idx"])
+        h_dis = embeddings["disease"][d_idx].unsqueeze(0)
+        h_adj = embeddings["adjuvant"][candidate_indices].unsqueeze(0)
+
+        mech_vec = None
+        if adjuvant_mechanism is not None and adjuvant_mechanism.numel() > 0:
+            mech_vec = adjuvant_mechanism[candidate_indices].unsqueeze(0)
+        scores = dual_ranker.score_dis(h_dis, h_adj, mech_vec).squeeze(0)
+        num_candidates = scores.numel()
+        num_pos = len(pos_indices)
+
+        if num_candidates == 0 or num_pos == 0:
+            continue
+
+        target_dist = scores.new_zeros(num_candidates)
+        target_dist[:num_pos] = 1.0 / num_pos
+        log_probs = F.log_softmax(scores, dim=0)
+        listnet_losses.append(-(target_dist * log_probs).sum())
+
+        gains = scores.new_zeros(num_candidates)
+        gains[:num_pos] = 1.0
+
+        if ndcg_topk is not None:
+            k = min(int(ndcg_topk), num_candidates)
+        else:
+            k = num_candidates
+
+        if k <= 0:
+            continue
+
+        if k < num_candidates:
+            top_scores, top_indices = torch.topk(scores, k=k)
+            top_gains = gains[top_indices]
+        else:
+            top_scores = scores
+            top_gains = gains
+
+        ndcg_losses.append(_approx_ndcg_loss(top_scores, top_gains, tau=ndcg_tau))
+
+    if not ndcg_losses and not listnet_losses:
+        zero = torch.tensor(0.0, device=device)
+        return zero, zero
+
+    ndcg_mean = (
+        torch.stack(ndcg_losses).mean() if ndcg_losses else torch.tensor(0.0, device=device)
+    )
+    listnet_mean = (
+        torch.stack(listnet_losses).mean()
+        if listnet_losses
+        else torch.tensor(0.0, device=device)
+    )
+    return ndcg_mean, listnet_mean
+
+
 def listnet_loss_disease(
     embeddings: Mapping[str, Tensor],
     disease_batch: Sequence[Dict[str, object]],
     dual_ranker: torch.nn.Module,
     device: torch.device,
+    adjuvant_mechanism: Optional[Tensor] = None,
 ) -> Tensor:
-    """
-    Compute ListNet ranking loss for disease→adjuvant queries.
-    
-    Args:
-        embeddings: {node_type: embeddings_tensor}
-        disease_batch: List of {disease_idx, pos_indices, neg_indices}
-        dual_ranker: DualRanker model with score_dis() method
-        device: torch device
-    
-    Returns:
-        Scalar loss tensor
-    """
-    if not disease_batch:
-        return torch.tensor(0.0, device=device)
-    
-    batch_losses = []
-    
-    for item in disease_batch:
-        d_idx = item['disease_idx']
-        pos_indices = item['pos_indices']
-        neg_indices = item['neg_indices']
-        
-        # Combine positives and negatives
-        candidate_indices = pos_indices + neg_indices
-        num_pos = len(pos_indices)
-        num_candidates = len(candidate_indices)
-        
-        # Get disease embedding (single query)
-        h_dis = embeddings["disease"][d_idx].unsqueeze(0)  # [1, H]
-        
-        # Get adjuvant embeddings (all candidates)
-        h_adj = embeddings["adjuvant"][candidate_indices]  # [K, H]
-        h_adj = h_adj.unsqueeze(0)  # [1, K, H]
-        
-        # Score using disease head
-        scores = dual_ranker.score_dis(h_dis, h_adj).squeeze(0)  # [K]
-        
-        # Build target distribution (uniform over positives, zero over negatives)
-        target_dist = torch.zeros(num_candidates, device=device)
-        target_dist[:num_pos] = 1.0 / num_pos
-        
-        # ListNet loss
-        log_probs = torch.nn.functional.log_softmax(scores, dim=0)
-        loss = -(target_dist * log_probs).sum()
-        
-        batch_losses.append(loss)
-    
-    return torch.stack(batch_losses).mean() if batch_losses else torch.tensor(0.0, device=device)
+    """Backward-compatible wrapper returning only the ListNet loss."""
+
+    _, listnet_loss = disease_ranking_losses(
+        embeddings,
+        disease_batch,
+        dual_ranker,
+        device,
+        ndcg_tau=1.0,
+        ndcg_topk=0,
+        adjuvant_mechanism=adjuvant_mechanism,
+    )
+    return listnet_loss

@@ -23,7 +23,6 @@ training on larger graphs.
 from __future__ import annotations
 
 import argparse
-import copy
 import hashlib
 import json
 import math
@@ -46,7 +45,7 @@ from disease_head_utils import (
     load_disease_positives,
     sample_disease_batch,
     build_vo_class_lookup,
-    listnet_loss_disease,
+    disease_ranking_losses,
 )
 
 try:
@@ -111,6 +110,16 @@ RECEPTOR_KEYWORDS = OrderedDict(
 IMMUNE_PROFILE_DIM = len(IMMUNE_PROFILE_KEYWORDS)
 RECEPTOR_DIM = len(RECEPTOR_KEYWORDS)
 STRUCTURED_ADJUVANT_DIM = IMMUNE_PROFILE_DIM + RECEPTOR_DIM
+
+# Optional structured cues for diseases (mirrors adjuvant keywords so the
+# mechanism scorer can align receptors/immune profiles across both sides).
+DISEASE_MECHANISM_KEYWORDS = OrderedDict()
+for key, synonyms in IMMUNE_PROFILE_KEYWORDS.items():
+    DISEASE_MECHANISM_KEYWORDS[f"immune_{key}"] = synonyms
+for key, synonyms in RECEPTOR_KEYWORDS.items():
+    DISEASE_MECHANISM_KEYWORDS[f"receptor_{key}"] = synonyms
+
+DISEASE_STRUCTURED_DIM = len(DISEASE_MECHANISM_KEYWORDS)
 
 
 def set_global_seed(seed: int) -> None:
@@ -864,7 +873,7 @@ def evaluate_ranking(
     positives: Mapping[int, Sequence[int]],
     candidate_ids: Sequence[int],
     ks: Sequence[int],
-) -> Dict[str, float]:
+) -> Dict[str, Dict[str, float]]:
     adjuvant_repr = embeddings["adjuvant"]
     vaccine_repr = embeddings["vaccine"]
     candidate_tensor = torch.tensor(candidate_ids, dtype=torch.long, device=adjuvant_repr.device)
@@ -872,6 +881,7 @@ def evaluate_ranking(
 
     metrics = {f"ndcg@{k}": [] for k in ks}
     metrics.update({f"recall@{k}": [] for k in ks})
+    per_query: Dict[str, Dict[str, float]] = {}
 
     for vaccine_idx in vaccine_indices:
         if vaccine_idx not in positives:
@@ -881,14 +891,23 @@ def evaluate_ranking(
         order = torch.argsort(scores, descending=True)
         ranked_candidates = candidate_tensor[order].tolist()
         positive_list = list(positives[vaccine_idx])
+        query_metrics: Dict[str, float] = {}
         for k in ks:
-            metrics[f"ndcg@{k}"].append(ndcg_at_k(ranked_candidates, positive_list, k))
-            metrics[f"recall@{k}"].append(recall_at_k(ranked_candidates, positive_list, k))
+            ndcg_value = ndcg_at_k(ranked_candidates, positive_list, k)
+            recall_value = recall_at_k(ranked_candidates, positive_list, k)
+            metrics[f"ndcg@{k}"].append(ndcg_value)
+            metrics[f"recall@{k}"].append(recall_value)
+            query_metrics[f"ndcg@{k}"] = ndcg_value
+            query_metrics[f"recall@{k}"] = recall_value
+        if query_metrics:
+            per_query[str(vaccine_idx)] = query_metrics
 
-    return {
+    macro = {
         name: float(np.mean(values)) if values else 0.0
         for name, values in metrics.items()
     }
+
+    return {"macro": macro, "per_query": per_query}
 
 
 def evaluate_disease_ranking(
@@ -898,7 +917,9 @@ def evaluate_disease_ranking(
     candidate_ids: Sequence[int],
     ranking_head: torch.nn.Module,
     ks: Sequence[int],
-) -> Dict[str, float]:
+    *,
+    adjuvant_mechanism: Optional[Tensor] = None,
+) -> Dict[str, Dict[str, float]]:
     """
     Evaluate disease→adjuvant ranking performance.
     
@@ -911,7 +932,10 @@ def evaluate_disease_ranking(
         ks: Top-K values for metrics (e.g., [5, 10])
     
     Returns:
-        Dict with keys like "ndcg@5", "ndcg@10", "recall@5", "recall@10"
+        Dictionary with two sections:
+
+        * ``macro`` – mean metrics across diseases.
+        * ``per_query`` – mapping of disease index (as a string) to per-metric scores.
     """
     disease_repr = embeddings["disease"]
     adjuvant_repr = embeddings["adjuvant"]
@@ -921,7 +945,8 @@ def evaluate_disease_ranking(
     
     metrics = {f"ndcg@{k}": [] for k in ks}
     metrics.update({f"recall@{k}": [] for k in ks})
-    
+    per_query: Dict[str, Dict[str, float]] = {}
+
     for disease_idx in disease_indices:
         positives = disease_positives.get(disease_idx, [])
         if not positives:
@@ -934,7 +959,12 @@ def evaluate_disease_ranking(
         
         # Score using DualRanker's score_dis() (Bilinear layer)
         with torch.no_grad():
-            scores = ranking_head.score_dis(disease_batched, candidates_batched)  # [1, K]
+            mech_vec = None
+            if adjuvant_mechanism is not None and adjuvant_mechanism.numel() > 0:
+                mech_vec = adjuvant_mechanism[candidate_tensor].unsqueeze(0)
+            scores = ranking_head.score_dis(
+                disease_batched, candidates_batched, mech_vec
+            )  # [1, K]
             scores = scores.squeeze(0)  # [K]
         
         # Rank candidates by score (descending)
@@ -942,14 +972,105 @@ def evaluate_disease_ranking(
         ranked_candidates = candidate_tensor[order].tolist()
         positive_list = list(positives)
         
+        query_metrics: Dict[str, float] = {}
         for k in ks:
-            metrics[f"ndcg@{k}"].append(ndcg_at_k(ranked_candidates, positive_list, k))
-            metrics[f"recall@{k}"].append(recall_at_k(ranked_candidates, positive_list, k))
-    
-    return {
+            ndcg_value = ndcg_at_k(ranked_candidates, positive_list, k)
+            recall_value = recall_at_k(ranked_candidates, positive_list, k)
+            metrics[f"ndcg@{k}"].append(ndcg_value)
+            metrics[f"recall@{k}"].append(recall_value)
+            query_metrics[f"ndcg@{k}"] = ndcg_value
+            query_metrics[f"recall@{k}"] = recall_value
+        if query_metrics:
+            per_query[str(disease_idx)] = query_metrics
+
+    macro = {
         name: float(np.mean(values)) if values else 0.0
         for name, values in metrics.items()
     }
+
+    return {"macro": macro, "per_query": per_query}
+
+
+def evaluate_disease_via_vaccines(
+    embeddings: Mapping[str, Tensor],
+    disease_indices: Sequence[int],
+    disease_to_vaccines: Mapping[int, Sequence[int]],
+    disease_positives: Mapping[int, Sequence[int]],
+    candidate_ids: Sequence[int],
+    aggregation: str,
+    ks: Sequence[int],
+) -> Dict[str, Dict[str, float]]:
+    """Evaluate disease→adjuvant ranking by aggregating vaccine scores.
+
+    Args:
+        embeddings: Learned node embeddings.
+        disease_indices: Disease query indices for this split.
+        disease_to_vaccines: Mapping of disease index → vaccine indices associated
+            with that disease within the split.
+        disease_positives: Mapping of disease index → positive adjuvant indices.
+        candidate_ids: Candidate adjuvant indices considered for ranking.
+        aggregation: Aggregation strategy (``"max"`` or ``"mean"``) used to merge
+            vaccine-level scores into disease-level scores.
+        ks: Top-k cut-offs for metrics.
+
+    Returns:
+        Dictionary mirroring :func:`evaluate_disease_ranking` with ``macro`` and
+        ``per_query`` sections.
+    """
+
+    if aggregation not in {"max", "mean"}:
+        raise ValueError(
+            "aggregation must be either 'max' or 'mean' for vaccine-to-disease evaluation"
+        )
+
+    vaccine_repr = embeddings["vaccine"]
+    adjuvant_repr = embeddings["adjuvant"]
+    device = vaccine_repr.device
+
+    candidate_tensor = torch.tensor(candidate_ids, dtype=torch.long, device=device)
+    candidate_vectors = adjuvant_repr[candidate_tensor]
+
+    metrics = {f"ndcg@{k}": [] for k in ks}
+    metrics.update({f"recall@{k}": [] for k in ks})
+    per_query: Dict[str, Dict[str, float]] = {}
+
+    for disease_idx in disease_indices:
+        positives = disease_positives.get(disease_idx, [])
+        vaccine_indices = disease_to_vaccines.get(disease_idx, [])
+        if not positives or not vaccine_indices:
+            continue
+
+        vaccine_tensor = torch.tensor(vaccine_indices, dtype=torch.long, device=device)
+        vaccine_vectors = vaccine_repr[vaccine_tensor]
+        scores = torch.matmul(vaccine_vectors, candidate_vectors.t())  # [num_vaccines, K]
+
+        if aggregation == "max":
+            agg_scores = scores.max(dim=0).values
+        else:  # aggregation == "mean"
+            agg_scores = scores.mean(dim=0)
+
+        order = torch.argsort(agg_scores, descending=True)
+        ranked_candidates = candidate_tensor[order].tolist()
+        positive_list = list(positives)
+
+        query_metrics: Dict[str, float] = {}
+        for k in ks:
+            ndcg_value = ndcg_at_k(ranked_candidates, positive_list, k)
+            recall_value = recall_at_k(ranked_candidates, positive_list, k)
+            metrics[f"ndcg@{k}"].append(ndcg_value)
+            metrics[f"recall@{k}"].append(recall_value)
+            query_metrics[f"ndcg@{k}"] = ndcg_value
+            query_metrics[f"recall@{k}"] = recall_value
+
+        if query_metrics:
+            per_query[str(disease_idx)] = query_metrics
+
+    macro = {
+        name: float(np.mean(values)) if values else 0.0
+        for name, values in metrics.items()
+    }
+
+    return {"macro": macro, "per_query": per_query}
 
 
 def evaluate_link_prediction(
@@ -990,6 +1111,7 @@ def build_graph(
     *,
     text_encoder: Optional[Tuple["PreTrainedTokenizerBase", "PreTrainedModel"]] = None,
     text_encoder_config: Optional[Mapping[str, object]] = None,
+    enable_disease_structured: bool = False,
 ) -> Tuple[
     HeteroData,
     Dict[str, Dict[object, int]],
@@ -1032,6 +1154,7 @@ def build_graph(
 
     disease_texts: List[str] = []
     disease_grouped = df.groupby("disease_key")
+    disease_structured_vectors: List[List[float]] = []
     for disease_name in disease_names:
         group = disease_grouped.get_group(disease_name)
         parts = [
@@ -1039,6 +1162,20 @@ def build_graph(
             _aggregate_series(group["pathogen_name"]) if "pathogen_name" in group else "",
         ]
         disease_texts.append(" ".join(filter(None, parts)))
+        if enable_disease_structured and DISEASE_STRUCTURED_DIM:
+            mechanism_sources: List[str] = []
+            mechanism_sources.append(_safe_text(disease_name))
+            mechanism_sources.extend(_collect_group_strings(group, "pathogen_name"))
+            for column in (
+                "disease_notes",
+                "disease_category",
+                "disease_description",
+            ):
+                if column in group:
+                    mechanism_sources.extend(_collect_group_strings(group, column))
+            disease_structured_vectors.append(
+                _multi_hot_from_keywords(mechanism_sources, DISEASE_MECHANISM_KEYWORDS)
+            )
 
     platform_texts: List[str] = []
     platform_grouped = df.groupby("platform_group")
@@ -1210,11 +1347,24 @@ def build_graph(
         },
     )
 
+    if enable_disease_structured and disease_structured_vectors:
+        disease_structured = torch.tensor(disease_structured_vectors, dtype=torch.float32)
+    else:
+        disease_structured = torch.zeros((len(disease_names), 0), dtype=torch.float32)
+
+    if disease_structured.size(1):
+        print("Structured disease feature dims:", {"mechanism": disease_structured.size(1)})
+
     graph = HeteroData()
 
     if text_encoder is None:
         graph["vaccine"].x = hashed_text_features(vaccine_texts, feature_dim)
-        graph["disease"].x = hashed_text_features(disease_texts, feature_dim)
+        disease_hashed = hashed_text_features(disease_texts, feature_dim)
+        if disease_structured.size(1):
+            combined_dis = torch.cat([disease_hashed, disease_structured], dim=1)
+            graph["disease"].x = _layer_norm_features(combined_dis)
+        else:
+            graph["disease"].x = disease_hashed
         graph["platform"].x = hashed_text_features(platform_texts, feature_dim)
         adjuvant_hashed = hashed_text_features(adjuvant_texts, feature_dim)
         if adjuvant_structured.size(1):
@@ -1267,6 +1417,9 @@ def build_graph(
             device=device,
             normalize=normalize,
         )
+        if disease_structured.size(1):
+            combined_dis = torch.cat([graph["disease"].x, disease_structured], dim=1)
+            graph["disease"].x = _layer_norm_features(combined_dis)
         graph["platform"].x = encode_with_transformer(
             platform_texts,
             tokenizer,
@@ -1290,6 +1443,9 @@ def build_graph(
         if adjuvant_structured.size(1):
             combined = torch.cat([graph["adjuvant"].x, adjuvant_structured], dim=1)
             graph["adjuvant"].x = _layer_norm_features(combined)
+
+    graph["adjuvant"].structured = adjuvant_structured
+    graph["disease"].structured = disease_structured
 
     for edge_type, edge_list in edges.items():
         if edge_list:
@@ -1506,6 +1662,23 @@ def train_one_split(
                     indices.add(idx)
         return sorted(indices)
 
+    def _disease_to_vaccines(
+        entries: Sequence[Mapping[str, object]]
+    ) -> Dict[int, List[int]]:
+        mapping: Dict[int, Set[int]] = {}
+        for entry in entries:
+            vaccine_id = entry.get("vaccine_id")
+            if vaccine_id not in mappings["vaccine"]:
+                continue
+            vaccine_idx = mappings["vaccine"][vaccine_id]
+            diseases = entry.get("diseases") or []
+            for disease in diseases:
+                disease_idx = mappings["disease"].get(disease)
+                if disease_idx is None:
+                    continue
+                mapping.setdefault(disease_idx, set()).add(vaccine_idx)
+        return {key: sorted(values) for key, values in mapping.items()}
+
     train_vaccines = [
         mappings["vaccine"][entry["vaccine_id"]]
         for entry in manifests["train"]
@@ -1528,6 +1701,10 @@ def train_one_split(
     train_diseases = _collect_diseases(manifests.get("train", []))
     val_diseases = _collect_diseases(manifests.get("val", []))
     test_diseases = _collect_diseases(manifests.get("test", []))
+
+    train_disease_to_vaccines = _disease_to_vaccines(manifests.get("train", []))
+    val_disease_to_vaccines = _disease_to_vaccines(manifests.get("val", []))
+    test_disease_to_vaccines = _disease_to_vaccines(manifests.get("test", []))
 
     train_graph = restrict_label_edges_for_training(graph, train_vaccines)
     train_graph = restrict_context_edges_for_training(
@@ -1576,6 +1753,19 @@ def train_one_split(
     node_feat_dims = {
         node_type: features.size(1) for node_type, features in graph.x_dict.items()
     }
+    adjuvant_structured = getattr(train_graph["adjuvant"], "structured", None)
+    adjuvant_mechanism_dim = (
+        int(adjuvant_structured.size(1))
+        if isinstance(adjuvant_structured, Tensor)
+        else 0
+    )
+    use_mechanism = args.enable_disease_mechanism_cues and adjuvant_mechanism_dim > 0
+    if args.enable_disease_mechanism_cues and not use_mechanism:
+        print(
+            "Warning: disease mechanism cues enabled but no adjuvant structured features "
+            "were found; falling back to bilinear scorer."
+        )
+
     model = PyGHeteroEncoder(
         node_feat_dims,
         graph.metadata(),
@@ -1586,9 +1776,9 @@ def train_one_split(
         args.appnp_alpha,
         args.appnp_dropout,
     )
-    
+
     # NEW: Use DualRanker instead of ListNetRankingHead for disease head support
-    mech_in_dim = None  # TODO: set to actual mechanism vector dim if using mechanism-aware scoring
+    mech_in_dim = adjuvant_mechanism_dim if use_mechanism else None
     ranking_head = DualRanker(args.hidden_dim, mech_in_dim, args.gamma_mech).to(device)
     link_head = LinkPredictionHead(args.self_adversarial_temperature).to(device)
 
@@ -1602,10 +1792,18 @@ def train_one_split(
     optimizer = torch.optim.AdamW(param_groups, weight_decay=args.weight_decay)
 
     train_graph_device = train_graph.to(device)
+    adjuvant_mechanism_device: Optional[Tensor]
+    if use_mechanism:
+        adjuvant_mechanism_device = getattr(
+            train_graph_device["adjuvant"], "structured", None
+        )
+    else:
+        adjuvant_mechanism_device = None
     model = model.to(device)
     results: Dict[str, Dict[str, float]] = {}
     best_val = -float("inf")
     best_state: Optional[Dict[str, Tensor]] = None
+    best_ranking_state: Optional[Dict[str, Tensor]] = None
     patience_counter = 0
 
     for epoch in range(1, args.epochs + 1):
@@ -1647,35 +1845,43 @@ def train_one_split(
         # NEW: Disease batch sampling and training (inline after vaccine batches)
         if args.lambda_disease > 0 and train_diseases:
             # Sample one disease batch per epoch
-            from src.disease_head_utils import sample_disease_batch, listnet_loss_disease
             disease_batch = sample_disease_batch(
-                train_diseases, 
+                train_diseases,
                 disease_positives_lookup=disease_positives_lookup,
                 all_adjuvant_indices=list(candidate_ids),
                 batch_size=min(args.disease_batch_size, len(train_diseases)),
                 max_positives=args.list_size,
                 num_negatives=args.list_size
             )
-            
+
             # Compute disease head loss
             optimizer.zero_grad()
             embeddings = model(train_graph_device)
-            
-            # Disease→adjuvant ranking loss using ListNet
-            rank_loss_dis = listnet_loss_disease(
+
+            ndcg_topk = (
+                args.disease_ndcg_topk if args.disease_ndcg_topk > 0 else None
+            )
+            ndcg_loss_dis, listnet_loss_dis = disease_ranking_losses(
                 embeddings,
                 disease_batch,
-                ranking_head,  # DualRanker instance with score_dis() method
-                device
+                ranking_head,
+                device,
+                ndcg_tau=args.disease_ndcg_tau,
+                ndcg_topk=ndcg_topk,
+                adjuvant_mechanism=adjuvant_mechanism_device,
             )
-            
+
+            rank_loss_dis = (
+                args.disease_ndcg_weight * ndcg_loss_dis
+                + args.disease_listnet_weight * listnet_loss_dis
+            )
             loss_dis = args.lambda_disease * rank_loss_dis
-            if loss_dis.item() > 0:
+            if loss_dis.requires_grad:
                 loss_dis.backward()
                 if args.clip_grad > 0:
                     torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip_grad)
                 optimizer.step()
-                
+
                 total_loss += loss_dis.item()
                 total_rank_dis += rank_loss_dis.item()
 
@@ -1692,51 +1898,78 @@ def train_one_split(
         val_metrics = (
             evaluate_ranking(embeddings, val_vaccines, positives_lookup, candidate_ids, (5, 10))
             if val_vaccines
-            else {"ndcg@5": 0.0, "ndcg@10": 0.0}
+            else {"macro": {"ndcg@5": 0.0, "ndcg@10": 0.0}, "per_query": {}}
         )
-        score = val_metrics.get("ndcg@10", 0.0)
-        
+        score = val_metrics["macro"].get("ndcg@10", 0.0)
+
         # Disease head validation (NEW)
-        val_dis_metrics = {}
+        val_dis_metrics = {"macro": {}, "per_query": {}}
         if val_diseases and args.lambda_disease > 0:
             val_dis_metrics = evaluate_disease_ranking(
-                embeddings, val_diseases, disease_positives_lookup, 
-                candidate_ids, ranking_head, (5, 10)
+                embeddings, val_diseases, disease_positives_lookup,
+                candidate_ids, ranking_head, (5, 10),
+                adjuvant_mechanism=adjuvant_mechanism_device,
             )
         
         print(
             f"Epoch {epoch:03d} | loss={avg_loss:.4f} "
             f"vax_rank={avg_rank_vax:.4f} dis_rank={avg_rank_dis:.4f} lp={avg_lp:.4f} | "
-            f"val_vax_ndcg10={score:.4f} val_dis_ndcg10={val_dis_metrics.get('ndcg@10', 0.0):.4f}"
+            f"val_vax_ndcg10={score:.4f} "
+            f"val_dis_ndcg10={val_dis_metrics['macro'].get('ndcg@10', 0.0):.4f}"
         )
 
         if score > best_val:
             best_val = score
             patience_counter = 0
-            best_state = copy.deepcopy(model.state_dict())
+            best_state = {
+                key: value.detach().cpu()
+                for key, value in model.state_dict().items()
+            }
+            best_ranking_state = {
+                key: value.detach().cpu()
+                for key, value in ranking_head.state_dict().items()
+            }
         else:
             patience_counter += 1
             if patience_counter >= args.patience:
                 print("Early stopping triggered")
                 break
 
-    if best_state is not None:
+    if best_state is None:
+        best_state = {
+            key: value.detach().cpu()
+            for key, value in model.state_dict().items()
+        }
+    else:
         model.load_state_dict(best_state)
-        checkpoint_dir = args.output_dir / "checkpoints"
-        checkpoint_dir.mkdir(parents=True, exist_ok=True)
-        checkpoint_path = checkpoint_dir / f"{scheme}_best.pt"
-        cpu_state = {key: tensor.cpu() for key, tensor in best_state.items()}
-        torch.save(
-            {
-                "state_dict": cpu_state,
-                "metadata": graph.metadata(),
-                "mappings": mappings,
-                "args": vars(args),
-                "split": scheme,
-            },
-            checkpoint_path,
-        )
-        print(f"Saved best checkpoint to {checkpoint_path}")
+
+    if best_ranking_state is None:
+        best_ranking_state = {
+            key: value.detach().cpu()
+            for key, value in ranking_head.state_dict().items()
+        }
+    else:
+        ranking_head.load_state_dict(best_ranking_state)
+
+    checkpoint_dir = args.output_dir / "checkpoints"
+    checkpoint_dir.mkdir(parents=True, exist_ok=True)
+    checkpoint_path = checkpoint_dir / f"{scheme}_best.pt"
+    cpu_state = {key: tensor.cpu() for key, tensor in best_state.items()}
+    ranking_state = {
+        key: value.cpu() for key, value in best_ranking_state.items()
+    }
+    torch.save(
+        {
+            "state_dict": cpu_state,
+            "ranking_head_state_dict": ranking_state,
+            "metadata": graph.metadata(),
+            "mappings": mappings,
+            "args": vars(args),
+            "split": scheme,
+        },
+        checkpoint_path,
+    )
+    print(f"Saved best checkpoint to {checkpoint_path}")
 
     model.eval()
     with torch.no_grad():
@@ -1746,39 +1979,89 @@ def train_one_split(
     val_metrics = (
         evaluate_ranking(embeddings, val_vaccines, positives_lookup, candidate_ids, (5, 10))
         if val_vaccines
-        else {}
+        else {"macro": {}, "per_query": {}}
     )
     test_metrics = (
         evaluate_ranking(embeddings, test_vaccines, positives_lookup, candidate_ids, (5, 10))
         if test_vaccines
-        else {}
+        else {"macro": {}, "per_query": {}}
     )
 
     # Disease head evaluation (NEW)
-    disease_train_metrics = {}
-    disease_val_metrics = {}
-    disease_test_metrics = {}
-    
+    disease_train_metrics = {"macro": {}, "per_query": {}}
+    disease_val_metrics = {"macro": {}, "per_query": {}}
+    disease_test_metrics = {"macro": {}, "per_query": {}}
+    vaccine_agg_train = {"macro": {}, "per_query": {}}
+    vaccine_agg_val = {"macro": {}, "per_query": {}}
+    vaccine_agg_test = {"macro": {}, "per_query": {}}
+
     if disease_positives_lookup and args.lambda_disease > 0:
         # Compute disease train metrics
         if train_diseases:
             disease_train_metrics = evaluate_disease_ranking(
-                embeddings, train_diseases, disease_positives_lookup,
-                candidate_ids, ranking_head, (5, 10)
+                embeddings,
+                train_diseases,
+                disease_positives_lookup,
+                candidate_ids,
+                ranking_head,
+                (5, 10),
+                adjuvant_mechanism=adjuvant_mechanism_device,
             )
-        
+
         # Compute disease val metrics
         if val_diseases:
             disease_val_metrics = evaluate_disease_ranking(
-                embeddings, val_diseases, disease_positives_lookup,
-                candidate_ids, ranking_head, (5, 10)
+                embeddings,
+                val_diseases,
+                disease_positives_lookup,
+                candidate_ids,
+                ranking_head,
+                (5, 10),
+                adjuvant_mechanism=adjuvant_mechanism_device,
             )
-        
+
         # Compute disease test metrics (for inductive split)
         if test_diseases:
             disease_test_metrics = evaluate_disease_ranking(
-                embeddings, test_diseases, disease_positives_lookup,
-                candidate_ids, ranking_head, (5, 10)
+                embeddings,
+                test_diseases,
+                disease_positives_lookup,
+                candidate_ids,
+                ranking_head,
+                (5, 10),
+                adjuvant_mechanism=adjuvant_mechanism_device,
+            )
+
+    if disease_positives_lookup:
+        if train_diseases:
+            vaccine_agg_train = evaluate_disease_via_vaccines(
+                embeddings,
+                train_diseases,
+                train_disease_to_vaccines,
+                disease_positives_lookup,
+                candidate_ids,
+                args.disease_baseline_aggregation,
+                (5, 10),
+            )
+        if val_diseases:
+            vaccine_agg_val = evaluate_disease_via_vaccines(
+                embeddings,
+                val_diseases,
+                val_disease_to_vaccines,
+                disease_positives_lookup,
+                candidate_ids,
+                args.disease_baseline_aggregation,
+                (5, 10),
+            )
+        if test_diseases:
+            vaccine_agg_test = evaluate_disease_via_vaccines(
+                embeddings,
+                test_diseases,
+                test_disease_to_vaccines,
+                disease_positives_lookup,
+                candidate_ids,
+                args.disease_baseline_aggregation,
+                (5, 10),
             )
 
     link_metrics: Dict[str, Dict[str, float]] = {}
@@ -1805,22 +2088,49 @@ def train_one_split(
             embeddings, test_edges, positives_lookup, candidate_ids, (1, 3, 10)
         )
 
-    results["ranking_train"] = train_metrics
-    if val_metrics:
-        results["ranking_val"] = val_metrics
-    if test_metrics:
-        results["ranking_test"] = test_metrics
+    results["ranking_train"] = train_metrics["macro"]
+    if train_metrics["per_query"]:
+        results["ranking_train_per_query"] = train_metrics["per_query"]
+    if val_metrics["macro"]:
+        results["ranking_val"] = val_metrics["macro"]
+    if val_metrics["per_query"]:
+        results["ranking_val_per_query"] = val_metrics["per_query"]
+    if test_metrics["macro"]:
+        results["ranking_test"] = test_metrics["macro"]
+    if test_metrics["per_query"]:
+        results["ranking_test_per_query"] = test_metrics["per_query"]
     if link_metrics:
         results["link_prediction"] = link_metrics
     
     # Disease head results (NEW)
-    if disease_train_metrics:
-        results["disease_ranking_train"] = disease_train_metrics
-    if disease_val_metrics:
-        results["disease_ranking_val"] = disease_val_metrics
-    if disease_test_metrics:
-        results["disease_ranking_test"] = disease_test_metrics
-    
+    if disease_train_metrics["macro"]:
+        results["disease_ranking_train"] = disease_train_metrics["macro"]
+    if disease_train_metrics["per_query"]:
+        results["disease_ranking_train_per_query"] = disease_train_metrics["per_query"]
+    if disease_val_metrics["macro"]:
+        results["disease_ranking_val"] = disease_val_metrics["macro"]
+    if disease_val_metrics["per_query"]:
+        results["disease_ranking_val_per_query"] = disease_val_metrics["per_query"]
+    if disease_test_metrics["macro"]:
+        results["disease_ranking_test"] = disease_test_metrics["macro"]
+    if disease_test_metrics["per_query"]:
+        results["disease_ranking_test_per_query"] = disease_test_metrics["per_query"]
+
+    if vaccine_agg_train["macro"]:
+        results["disease_from_vaccine_train"] = vaccine_agg_train["macro"]
+    if vaccine_agg_train["per_query"]:
+        results["disease_from_vaccine_train_per_query"] = vaccine_agg_train["per_query"]
+    if vaccine_agg_val["macro"]:
+        results["disease_from_vaccine_val"] = vaccine_agg_val["macro"]
+    if vaccine_agg_val["per_query"]:
+        results["disease_from_vaccine_val_per_query"] = vaccine_agg_val["per_query"]
+    if vaccine_agg_test["macro"]:
+        results["disease_from_vaccine_test"] = vaccine_agg_test["macro"]
+    if vaccine_agg_test["per_query"]:
+        results["disease_from_vaccine_test_per_query"] = vaccine_agg_test["per_query"]
+
+    results["disease_from_vaccine_aggregation"] = args.disease_baseline_aggregation
+
     return results
 
 
@@ -1935,10 +2245,51 @@ def parse_args() -> argparse.Namespace:
         help="Weight for the disease→adjuvant ranking loss (NEW for disease head)",
     )
     parser.add_argument(
+        "--disease-ndcg-weight",
+        type=float,
+        default=1.0,
+        help="Weight applied to the ApproxNDCG surrogate in the disease head loss",
+    )
+    parser.add_argument(
+        "--disease-listnet-weight",
+        type=float,
+        default=0.2,
+        help="Stability weight for the legacy ListNet disease loss component",
+    )
+    parser.add_argument(
+        "--disease-ndcg-topk",
+        type=int,
+        default=50,
+        help="Number of top-scoring adjuvants per disease used in the ApproxNDCG loss",
+    )
+    parser.add_argument(
+        "--disease-ndcg-tau",
+        type=float,
+        default=1.0,
+        help="Temperature for the sigmoid approximation of ranks in ApproxNDCG",
+    )
+    parser.add_argument(
+        "--disease-baseline-aggregation",
+        choices=["max", "mean"],
+        default="max",
+        help=(
+            "Aggregation rule for deriving disease-level scores from the vaccine "
+            "head when computing the non-inferiority baseline"
+        ),
+    )
+    parser.add_argument(
         "--gamma-mech",
         type=float,
         default=0.3,
         help="Weight for mechanism-aware compatibility scoring in disease head (NEW)",
+    )
+    parser.add_argument(
+        "--enable-disease-mechanism-cues",
+        action="store_true",
+        help=(
+            "Augment disease nodes with curated receptor/immune multi-hot features and "
+            "activate the mechanism-aware disease→adjuvant scorer"
+        ),
     )
     parser.add_argument(
         "--disease-batch-size",
@@ -2056,6 +2407,7 @@ def main() -> None:
         args.feature_dim,
         text_encoder=text_encoder,
         text_encoder_config=text_encoder_config,
+        enable_disease_structured=args.enable_disease_mechanism_cues,
     )
 
     if hf_model is not None:
